@@ -16,10 +16,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import shadows.placebo.client.RenamedStateMapper;
+import shadows.placebo.Placebo;
 import shadows.placebo.interfaces.IPropertyEnum;
 import shadows.placebo.itemblock.ItemBlockEnum;
 import shadows.placebo.registry.RegistryInformation;
@@ -58,13 +55,11 @@ public abstract class BlockEnum<E extends Enum<E> & IPropertyEnum> extends Block
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
 	public void initModels(ModelRegistryEvent e) {
-		String modid = this.getRegistryName().getResourceDomain();
 		for (int i = 0; i < types.size(); i++) {
 			PlaceboUtil.sMRL("blocks", this, i, "type=" + types.get(i).getName());
 		}
-		ModelLoader.setCustomStateMapper(this, new RenamedStateMapper(modid, "blocks"));
+		Placebo.PROXY.useRenamedMapper(this, "blocks");
 	}
 
 	@Override
