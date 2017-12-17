@@ -10,7 +10,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 
-version = "1.0.0"
+version = "1.1.0"
 group= "shadows.placebo"
 archivesBaseName = "Placebo"
 
@@ -51,4 +51,14 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+task devJar(type: Jar) {
+    from sourceSets.main.output
+	from sourceSets.main.allJava
+    classifier = 'dev'
+}
+
+artifacts {
+    archives devJar
 }
