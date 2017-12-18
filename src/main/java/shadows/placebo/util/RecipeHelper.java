@@ -99,23 +99,18 @@ public class RecipeHelper {
 	/**
 	 * Generates a shaped recipe with a specific width and height. The Object[] is the ingredients, in order from left to right, top to bottom.
 	 */
-	public ShapedRecipes genShaped(ItemStack output, int width, int height, Object[] input) {
+	public ShapedRecipes genShaped(ItemStack output, int width, int height, Object... input) {
 		if (input[0] instanceof List) input = ((List<?>) input[0]).toArray();
 		if (width * height != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + modname);
 		NonNullList<Ingredient> inputL = NonNullList.create();
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
-			if (k instanceof String) {
-				inputL.add(i, new OreIngredient((String) k));
-			} else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) {
-				inputL.add(i, Ingredient.fromStacks((ItemStack) k));
-			} else if (k instanceof Item) {
-				inputL.add(i, Ingredient.fromStacks(new ItemStack((Item) k)));
-			} else if (k instanceof Block) {
-				inputL.add(i, Ingredient.fromStacks(new ItemStack((Block) k)));
-			} else {
-				inputL.add(i, Ingredient.EMPTY);
-			}
+			if (k instanceof String) inputL.add(i, new OreIngredient((String) k));
+			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
+			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
+			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
+			else inputL.add(i, Ingredient.EMPTY);
+
 		}
 
 		return new ShapedRecipes(modid + ":" + j, width, height, inputL, output);
@@ -124,7 +119,7 @@ public class RecipeHelper {
 	/**
 	 * Same thing as genShaped above, but uses a specific group.
 	 */
-	public ShapedRecipes genShaped(String group, ItemStack output, int l, int w, Object[] input) {
+	public ShapedRecipes genShaped(String group, ItemStack output, int l, int w, Object... input) {
 		if (input[0] instanceof List) input = ((List<?>) input[0]).toArray();
 		if (l * w != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + modname);
 		NonNullList<Ingredient> inputL = NonNullList.create();
@@ -133,6 +128,7 @@ public class RecipeHelper {
 			if (k instanceof String) inputL.add(i, new OreIngredient((String) k));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
+			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
 			else inputL.add(i, Ingredient.EMPTY);
 		}
 
@@ -143,7 +139,7 @@ public class RecipeHelper {
 	 * Creates a list of ingredients based on an Object[].  Valid types are {@link String}, {@link ItemStack}, {@link Item}, and {@link Block}.
 	 * Used for shapeless recipes.
 	 */
-	public NonNullList<Ingredient> createInput(Object[] input) {
+	public NonNullList<Ingredient> createInput(Object... input) {
 		if (input[0] instanceof List) input = ((List<?>) input[0]).toArray();
 		else if (input[0] instanceof Object[]) input = (Object[]) input[0];
 		NonNullList<Ingredient> inputL = NonNullList.create();
@@ -152,6 +148,7 @@ public class RecipeHelper {
 			if (k instanceof String) inputL.add(i, new OreIngredient((String) k));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
+			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
 			else throw new UnsupportedOperationException("Attempted to add invalid shapeless recipe.  Complain to the author of " + modname);
 		}
 		return inputL;
