@@ -15,7 +15,9 @@ import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IShapedRecipe;
+import net.minecraftforge.common.crafting.CraftingHelper.ShapedPrimer;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
@@ -95,29 +97,68 @@ public class RecipeHelper {
 	public <T extends IForgeRegistryEntry<?>> void addShaped(String group, T output, int width, int height, Object... input) {
 		addShaped(group, makeStack(output), width, height, input);
 	}
-
-	/**
-	 * Generates a shaped recipe with a specific width and height. The Object[] is the ingredients, in order from left to right, top to bottom.
+	
+	/*
+	 * Adds a shaped recipe to the list of crafting recipes, using the forge format.
 	 */
-	public ShapedRecipes genShaped(ItemStack output, int width, int height, Object... input) {
-		if (input[0] instanceof List) input = ((List<?>) input[0]).toArray();
-		if (width * height != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + modname);
-		NonNullList<Ingredient> inputL = NonNullList.create();
-		for (int i = 0; i < input.length; i++) {
-			Object k = input[i];
-			if (k instanceof String) inputL.add(i, new OreIngredient((String) k));
-			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
-			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
-			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
-			else inputL.add(i, Ingredient.EMPTY);
+	public void addForgeShaped(ItemStack output, Object... input) {
+		ShapedPrimer primer = CraftingHelper.parseShaped(input);
+		addRecipe(j++, new ShapedRecipes(new ResourceLocation(modid, "recipe" + j).toString(), primer.width, primer.height, primer.input, output));
+	}
+	
+	/*
+	 * Adds a shaped recipe to the list of crafting recipes, using the forge format.
+	 */
+	public <T extends IForgeRegistryEntry<?>> void addForgeShaped(T output, Object... input) {
+		addForgeShaped(makeStack(output), input);
+	}
 
-		}
+	/*
+	 * Adds a shaped recipe to the list of crafting recipes, using the forge format, with a custom group.
+	 */
+	public void addForgeShaped(String group, ItemStack output, Object... input) {
+		ShapedPrimer primer = CraftingHelper.parseShaped(input);
+		addRecipe(j++, new ShapedRecipes(new ResourceLocation(modid, group).toString(), primer.width, primer.height, primer.input, output));
+	}
 
-		return new ShapedRecipes(modid + ":" + j, width, height, inputL, output);
+	/*
+	* Adds a shaped recipe to the list of crafting recipes, using the forge format, with a custom group and a custom name.
+	*/
+	public void addForgeShaped(String name, String group, ItemStack output, Object... input) {
+		ShapedPrimer primer = CraftingHelper.parseShaped(input);
+		addRecipe(j++, new ShapedRecipes(new ResourceLocation(modid, group).toString(), primer.width, primer.height, primer.input, output).setRegistryName(modid, name));
+	}
+
+	/*
+	 * Adds a shapeless recipe to the list of crafting recipes, using the forge format.
+	 */
+	public void addForgeShapeless(ItemStack output, Object... input) {
+		addRecipe(j++, new ShapelessRecipes(new ResourceLocation(modid, "recipe" + j).toString(), output, createInput(input)));
+	}
+	
+	/*
+	 * Adds a shaped recipe to the list of crafting recipes, using the forge format.
+	 */
+	public <T extends IForgeRegistryEntry<?>> void addForgeShapeless(T output, Object... input) {
+		addForgeShapeless(makeStack(output), input);
+	}
+
+	/*
+	 * Adds a shapeless recipe to the list of crafting recipes, using the forge format, with a custom group.
+	 */
+	public void addForgeShapeless(String group, ItemStack output, Object... input) {
+		addRecipe(j++, new ShapelessRecipes(new ResourceLocation(modid, group).toString(), output, createInput(input)));
+	}
+
+	/*
+	 * Adds a shapeless recipe to the list of crafting recipes, using the forge format, with a custom group and a custom name.
+	 */
+	public void addForgeShapeless(String name, String group, ItemStack output, Object... input) {
+		addRecipe(j++, new ShapelessRecipes(new ResourceLocation(modid, group).toString(), output, createInput(input)).setRegistryName(modid, name));
 	}
 
 	/**
-	 * Same thing as genShaped above, but uses a specific group.
+	 * Generates a {@link ShapedRecipes} with a specific width and height. The Object... is the ingredients, in order from left to right, top to bottom.  Uses a custom group.
 	 */
 	public ShapedRecipes genShaped(String group, ItemStack output, int l, int w, Object... input) {
 		if (input[0] instanceof List) input = ((List<?>) input[0]).toArray();
@@ -131,13 +172,19 @@ public class RecipeHelper {
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
 			else inputL.add(i, Ingredient.EMPTY);
 		}
-
 		return new ShapedRecipes(group, l, w, inputL, output);
+	}
+	
+	/**
+	 * Generates a {@link ShapedRecipes} with a specific width and height. The Object... is the ingredients, in order from left to right, top to bottom.
+	 */
+	public ShapedRecipes genShaped(ItemStack output, int width, int height, Object... input) {
+		return genShaped(modid + ":" + j, output, width, height, input);
 	}
 
 	/**
 	 * Creates a list of ingredients based on an Object[].  Valid types are {@link String}, {@link ItemStack}, {@link Item}, and {@link Block}.
-	 * Used for shapeless recipes.
+	 * Used for shapeless recipes.  This does not support the use of empty ingredients.
 	 */
 	public NonNullList<Ingredient> createInput(Object... input) {
 		if (input[0] instanceof List) input = ((List<?>) input[0]).toArray();
@@ -161,14 +208,23 @@ public class RecipeHelper {
 		addShapeless(output, NonNullList.withSize(numInputs, input));
 	}
 
+	/**
+	 * Adds a shapeless recipe with one output and x inputs, all inputs are the same.
+	 */
 	public <T extends IForgeRegistryEntry<?>> void addSimpleShapeless(T output, T input, int numInputs) {
 		addSimpleShapeless(makeStack(output), makeStack(input), numInputs);
 	}
 
+	/**
+	 * Adds a shapeless recipe with one output and x inputs, all inputs are the same.
+	 */
 	public <T extends IForgeRegistryEntry<?>> void addSimpleShapeless(T output, ItemStack input, int numInputs) {
 		addSimpleShapeless(makeStack(output), input, numInputs);
 	}
 
+	/**
+	 * Adds a shapeless recipe with one output and x inputs, all inputs are the same.
+	 */
 	public <T extends IForgeRegistryEntry<?>> void addSimpleShapeless(ItemStack output, T input, int numInputs) {
 		addSimpleShapeless(output, makeStack(input), numInputs);
 	}
@@ -181,16 +237,23 @@ public class RecipeHelper {
 		return new ItemStack((Block) thing, size, meta);
 	}
 
+	/**
+	 * Helper method to make an {@link ItemStack} from a block or item.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> ItemStack makeStack(T thing, int size) {
 		return makeStack(thing, size, 0);
 	}
 
+	/**
+	 * Helper method to make an {@link ItemStack} from a block or item.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> ItemStack makeStack(T thing) {
 		return makeStack(thing, 1, 0);
 	}
 
 	/**
 	 * Goes through all recipes and replaces anything that matches with just the provided itemstack and replaces it with another {@link Ingredient}.
+	 * Nobody sane should really ever use this, but I won't delete it.
 	 * @param old The itemstack to replace.
 	 * @param newThing The ingredient to replace the stack with.
 	 */
@@ -232,34 +295,94 @@ public class RecipeHelper {
 		BrewingRecipeRegistry.addRecipe(PotionUtils.addPotionToItemStack(input, inputPot), reagent, PotionUtils.addPotionToItemStack(output, ontputPot));
 	}
 
+	/**
+	 * Adds a potion recipe
+	 * @param input The ItemStack input, this goes in the potion slot.  Must have a max stack size of 1.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The ItemStack reagent, this goes in the top slot.
+	 * @param output The output, must be a {@link Block} or {@link Item}, this is what the input transforms into after brewing.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(ItemStack input, PotionType inputPot, ItemStack reagent, T output, PotionType outputPot) {
 		addPotionRecipe(input, inputPot, reagent, makeStack(output), outputPot);
 	}
 
+	/**
+	 * Adds a potion recipe
+	 * @param input The ItemStack input, this goes in the potion slot.  Must have a max stack size of 1.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The reagent, must be a {@link Block} or {@link Item}, this goes in the top slot.
+	 * @param output The output, must be a {@link Block} or {@link Item}, this is what the input transforms into after brewing.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(ItemStack input, PotionType inputPot, T reagent, T output, PotionType outputPot) {
 		addPotionRecipe(input, inputPot, makeStack(reagent), makeStack(output), outputPot);
 	}
 
+	/**
+	 * Adds a potion recipe
+	 * @param input The input, must be a {@link Block} or {@link Item}, this goes in the potion slot.  Must have a max stack size of 1.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The ItemStack reagent, this goes in the top slot.
+	 * @param output The ItemStack output, this is what the input transforms into after brewing.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(T input, PotionType inputPot, ItemStack reagent, ItemStack output, PotionType outputPot) {
 		addPotionRecipe(makeStack(input), inputPot, reagent, output, outputPot);
 	}
 
+	/**
+	 * Adds a potion recipe
+	 * @param input The input, must be a {@link Block} or {@link Item}, this goes in the potion slot.  Must have a max stack size of 1.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The reagent, must be a {@link Block} or {@link Item}, this goes in the top slot.
+	 * @param output The ItemStack output, this is what the input transforms into after brewing.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(T input, PotionType inputPot, T reagent, ItemStack output, PotionType outputPot) {
 		addPotionRecipe(makeStack(input), inputPot, makeStack(reagent), output, outputPot);
 	}
 
+	/**
+	 * Adds a potion recipe
+	 * @param input The ItemStack input, this goes in the potion slot.  Must have a max stack size of 1.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The reagent, must be a {@link Block} or {@link Item}, this goes in the top slot.
+	 * @param output The ItemStack output, this is what the input transforms into after brewing.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(ItemStack input, PotionType inputPot, T reagent, ItemStack output, PotionType outputPot) {
 		addPotionRecipe(input, inputPot, makeStack(reagent), output, outputPot);
 	}
 
+	/**
+	 * Adds a potion recipe
+	 * @param input The ItemStack input, this goes in the potion slot.  Must have a max stack size of 1.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The ItemStack reagent, this goes in the top slot.
+	 * @param output The output, must be a {@link Block} or {@link Item}, this is what the input transforms into after brewing.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(T input, PotionType inputPot, ItemStack reagent, T output, PotionType outputPot) {
 		addPotionRecipe(makeStack(input), inputPot, reagent, makeStack(output), outputPot);
 	}
 
+	/**
+	 * Adds a potion recipe with Items.POTIONITEM as the input and output.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The ItemStack reagent, this goes in the top slot.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(PotionType inputPot, ItemStack reagent, PotionType outputPot) {
 		addPotionRecipe(Items.POTIONITEM, inputPot, reagent, Items.POTIONITEM, outputPot);
 	}
 
+	/**
+	 * Adds a potion recipe with Items.POTIONITEM as the input and output.
+	 * @param inputPot The PotionType that will go on the input ItemStack.
+	 * @param reagent The reagent, must be a {@link Block} or {@link Item}, this goes in the top slot.
+	 * @param ontputPot The PotionType that will go on the output ItemStack.
+	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(PotionType inputPot, T reagent, PotionType outputPot) {
 		addPotionRecipe(Items.POTIONITEM, inputPot, makeStack(reagent), Items.POTIONITEM, outputPot);
 	}
