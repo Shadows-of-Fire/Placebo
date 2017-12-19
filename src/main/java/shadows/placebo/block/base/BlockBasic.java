@@ -26,7 +26,7 @@ public abstract class BlockBasic extends Block implements IHasModel, IItemBlock 
 		setCreativeTab(info.getDefaultTab());
 		info.getBlockList().add(this);
 		ItemBlock ib = createItemBlock();
-		if(ib != null) info.getItemList().add(ib);
+		if (ib != null) info.getItemList().add(ib);
 	}
 
 	@Override
