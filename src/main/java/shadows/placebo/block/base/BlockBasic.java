@@ -41,8 +41,8 @@ public abstract class BlockBasic extends Block implements IHasModel, IItemBlock 
 
 	@Override
 	public void initModels(ModelRegistryEvent e) {
-		PlaceboUtil.sMRL("blocks", this, 0, "type=" + getRegistryName().getResourceDomain());
-		Placebo.PROXY.useRenamedMapper(this, "blocks");
+		PlaceboUtil.sMRL("blocks", this, 0, "type=" + getRegistryName().getResourcePath());
+		Placebo.PROXY.useRenamedMapper(this, "blocks", "", "type=" + getRegistryName().getResourcePath());
 	}
 
 }
