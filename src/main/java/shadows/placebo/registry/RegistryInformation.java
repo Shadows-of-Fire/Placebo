@@ -6,29 +6,29 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionType;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerProfession;
 
 public class RegistryInformation {
 
-	private final List<Block> BLOCKS = new ArrayList<>();
-	private final List<Item> ITEMS = new ArrayList<>();
-	private final List<Potion> POTIONS = new ArrayList<>();
-	private final List<Biome> BIOMES = new ArrayList<>();
-	private final List<SoundEvent> SOUND_EVENTS = new ArrayList<>();
-	private final List<PotionType> POTION_TYPES = new ArrayList<>();
-	private final List<Enchantment> ENCHANTMENTS = new ArrayList<>();
-	private final List<VillagerProfession> VILLAGER_PROFESSIONS = new ArrayList<>();
-	private final List<Entity> ENTITIES = new ArrayList<>();
-	private final List<IRecipe> RECIPES = new ArrayList<>();
-	private final String MODID;
-	private final CreativeTabs DEFAULT_TAB;
+	protected final List<Block> BLOCKS = new ArrayList<>();
+	protected final List<Item> ITEMS = new ArrayList<>();
+	protected final List<Potion> POTIONS = new ArrayList<>();
+	protected final List<Biome> BIOMES = new ArrayList<>();
+	protected final List<SoundEvent> SOUND_EVENTS = new ArrayList<>();
+	protected final List<PotionType> POTION_TYPES = new ArrayList<>();
+	protected final List<Enchantment> ENCHANTMENTS = new ArrayList<>();
+	protected final List<VillagerProfession> VILLAGER_PROFESSIONS = new ArrayList<>();
+	protected final List<EntityEntry> ENTITIES = new ArrayList<>();
+	protected final List<IRecipe> RECIPES = new ArrayList<>();
+	protected final String MODID;
+	protected final CreativeTabs DEFAULT_TAB;
 
 	public RegistryInformation(String modid, CreativeTabs tab) {
 		MODID = modid;
@@ -67,7 +67,7 @@ public class RegistryInformation {
 		return VILLAGER_PROFESSIONS;
 	}
 
-	public List<Entity> getEntityList() {
+	public List<EntityEntry> getEntityEntryList() {
 		return ENTITIES;
 	}
 
