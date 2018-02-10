@@ -1,4 +1,4 @@
-package shadows.placebo.block.base;
+package shadows.placebo.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

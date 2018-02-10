@@ -1,17 +1,16 @@
-package shadows.placebo.item.base;
+package shadows.placebo.item;
 
-import net.minecraft.item.ItemHoe;
+import net.minecraft.item.ItemAxe;
 import shadows.placebo.client.IHasModel;
 import shadows.placebo.registry.RegistryInformation;
 
-public class ItemHoeBase extends ItemHoe implements IHasModel {
+public class ItemAxeBase extends ItemAxe implements IHasModel {
 
-	public ItemHoeBase(String name, RegistryInformation info, ToolMaterial material) {
-		super(material);
+	public ItemAxeBase(String name, RegistryInformation info, ToolMaterial mat) {
+		super(mat, 8, -3);
 		setRegistryName(name);
 		setUnlocalizedName(info.getID() + "." + name);
 		setCreativeTab(info.getDefaultTab());
 		info.getItemList().add(this);
 	}
-
 }

@@ -1,16 +1,17 @@
-package shadows.placebo.item.base;
+package shadows.placebo.item;
 
-import net.minecraft.item.ItemAxe;
+import net.minecraft.item.ItemPickaxe;
 import shadows.placebo.client.IHasModel;
 import shadows.placebo.registry.RegistryInformation;
 
-public class ItemAxeBase extends ItemAxe implements IHasModel {
+public class ItemPickaxeBase extends ItemPickaxe implements IHasModel {
 
-	public ItemAxeBase(String name, RegistryInformation info, ToolMaterial mat) {
-		super(mat, 8, -3);
+	public ItemPickaxeBase(String name, RegistryInformation info, ToolMaterial mat) {
+		super(mat);
 		setRegistryName(name);
 		setUnlocalizedName(info.getID() + "." + name);
 		setCreativeTab(info.getDefaultTab());
 		info.getItemList().add(this);
 	}
+
 }
