@@ -87,7 +87,7 @@ public class PlaceboUtil {
 			Placebo.LOG.error("Failed to dump event handlers!");
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <T> T[] toArray(List<T> list) {
 		return (T[]) list.toArray();

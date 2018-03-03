@@ -97,7 +97,7 @@ public class RecipeHelper {
 	public <T extends IForgeRegistryEntry<?>> void addShaped(String group, T output, int width, int height, Object... input) {
 		addShaped(group, makeStack(output), width, height, input);
 	}
-	
+
 	/*
 	 * Adds a shaped recipe to the list of crafting recipes, using the forge format.
 	 */
@@ -105,7 +105,7 @@ public class RecipeHelper {
 		ShapedPrimer primer = CraftingHelper.parseShaped(input);
 		addRecipe(j++, new ShapedRecipes(new ResourceLocation(modid, "recipe" + j).toString(), primer.width, primer.height, primer.input, output));
 	}
-	
+
 	/*
 	 * Adds a shaped recipe to the list of crafting recipes, using the forge format.
 	 */
@@ -135,7 +135,7 @@ public class RecipeHelper {
 	public void addForgeShapeless(ItemStack output, Object... input) {
 		addRecipe(j++, new ShapelessRecipes(new ResourceLocation(modid, "recipe" + j).toString(), output, createInput(input)));
 	}
-	
+
 	/*
 	 * Adds a shaped recipe to the list of crafting recipes, using the forge format.
 	 */
@@ -174,7 +174,7 @@ public class RecipeHelper {
 		}
 		return new ShapedRecipes(group, l, w, inputL, output);
 	}
-	
+
 	/**
 	 * Generates a {@link ShapedRecipes} with a specific width and height. The Object... is the ingredients, in order from left to right, top to bottom.
 	 */

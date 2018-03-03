@@ -13,5 +13,5 @@ public class ItemSwordBase extends ItemSword implements IHasModel {
 		setCreativeTab(info.getDefaultTab());
 		info.getItemList().add(this);
 	}
-	
+
 }

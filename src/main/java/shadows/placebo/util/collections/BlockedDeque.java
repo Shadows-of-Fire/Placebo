@@ -7,7 +7,7 @@ public abstract class BlockedDeque<T> extends ArrayDeque<T> {
 	private static final long serialVersionUID = -8194197029368437188L;
 
 	public abstract boolean isBlocked(T t);
-	
+
 	@Override
 	public void addFirst(T t) {
 		if (isBlocked(t)) return;
