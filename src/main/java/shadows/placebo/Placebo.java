@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import shadows.placebo.interfaces.IPostInitUpdate;
 import shadows.placebo.util.PlaceboUtil;
+import shadows.placebo.util.RecipeHelper;
 
 @Mod(modid = Placebo.MODID, name = Placebo.MODNAME, version = Placebo.VERSION)
 public class Placebo {
@@ -46,5 +47,6 @@ public class Placebo {
 		for (IPostInitUpdate i : UPDATES)
 			i.postInit(e);
 		if (config.getBoolean("Dump event handlers", "general", false, "If placebo will dump all event handlers to the log in post init.")) PlaceboUtil.dumpEventHandlers();
+		RecipeHelper.CachedOreIngredient.ing = null;
 	}
 }

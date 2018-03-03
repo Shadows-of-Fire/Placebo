@@ -1,5 +1,6 @@
 package shadows.placebo.util;
 
+import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -16,8 +17,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.common.crafting.CraftingHelper.ShapedPrimer;
+import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
@@ -166,7 +167,7 @@ public class RecipeHelper {
 		NonNullList<Ingredient> inputL = NonNullList.create();
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
-			if (k instanceof String) inputL.add(i, new OreIngredient((String) k));
+			if (k instanceof String) inputL.add(i, CachedOreIngredient.create((String) k));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
@@ -192,7 +193,7 @@ public class RecipeHelper {
 		NonNullList<Ingredient> inputL = NonNullList.create();
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
-			if (k instanceof String) inputL.add(i, new OreIngredient((String) k));
+			if (k instanceof String) inputL.add(i, CachedOreIngredient.create((String) k));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
@@ -385,6 +386,22 @@ public class RecipeHelper {
 	 */
 	public static <T extends IForgeRegistryEntry<?>> void addPotionRecipe(PotionType inputPot, T reagent, PotionType outputPot) {
 		addPotionRecipe(Items.POTIONITEM, inputPot, makeStack(reagent), Items.POTIONITEM, outputPot);
+	}
+
+	public static class CachedOreIngredient extends OreIngredient {
+
+		public static HashMap<String, CachedOreIngredient> ing = new HashMap<>();
+		
+		protected CachedOreIngredient(String ore) {
+			super(ore);
+			ing.put(ore, this);
+		}
+		
+		public static CachedOreIngredient create(String ore) {
+			CachedOreIngredient coi = ing.get(ore);
+			return coi != null ? coi : new CachedOreIngredient(ore);
+		}
+		
 	}
 
 }

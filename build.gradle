@@ -20,9 +20,9 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.1.2566"
+    version = "1.12.2-14.23.1.2599"
     runDir = "run"
-    mappings = "snapshot_20171215"
+    mappings = "snapshot_20180119"
 }
 
 repositories {
