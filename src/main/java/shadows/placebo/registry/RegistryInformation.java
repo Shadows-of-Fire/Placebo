@@ -1,5 +1,7 @@
 package shadows.placebo.registry;
 
+import java.util.List;
+
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
@@ -13,6 +15,9 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerProfession;
 import shadows.placebo.util.collections.RegistryList;
 
+/**
+ * See {@link RegistryInformationV2}
+ */
 public class RegistryInformation {
 
 	protected RegistryList<Block> blocks = new RegistryList<>();
@@ -33,43 +38,43 @@ public class RegistryInformation {
 		DEFAULT_TAB = tab;
 	}
 
-	public RegistryList<Block> getBlockList() {
+	public List<Block> getBlockList() {
 		return blocks;
 	}
 
-	public RegistryList<Item> getItemList() {
+	public List<Item> getItemList() {
 		return items;
 	}
 
-	public RegistryList<Potion> getPotionList() {
+	public List<Potion> getPotionList() {
 		return potions;
 	}
 
-	public RegistryList<Biome> getBiomeList() {
+	public List<Biome> getBiomeList() {
 		return biomes;
 	}
 
-	public RegistryList<SoundEvent> getSoundList() {
+	public List<SoundEvent> getSoundList() {
 		return sounds;
 	}
 
-	public RegistryList<PotionType> getPotionTypeList() {
+	public List<PotionType> getPotionTypeList() {
 		return potionTypes;
 	}
 
-	public RegistryList<Enchantment> getEnchantmentList() {
+	public List<Enchantment> getEnchantmentList() {
 		return enchants;
 	}
 
-	public RegistryList<VillagerProfession> getProfessionList() {
+	public List<VillagerProfession> getProfessionList() {
 		return professions;
 	}
 
-	public RegistryList<EntityEntry> getEntityEntryList() {
+	public List<EntityEntry> getEntityEntryList() {
 		return entities;
 	}
 
-	public RegistryList<IRecipe> getRecipeList() {
+	public List<IRecipe> getRecipeList() {
 		return recipes;
 	}
 

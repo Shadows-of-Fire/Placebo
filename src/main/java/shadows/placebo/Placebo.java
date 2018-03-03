@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import shadows.placebo.interfaces.IPostInitUpdate;
+import shadows.placebo.util.PlaceboDebug;
 import shadows.placebo.util.PlaceboUtil;
 import shadows.placebo.util.RecipeHelper;
 
@@ -34,6 +35,8 @@ public class Placebo {
 
 	static boolean dumpHandlers = false;
 
+	boolean debug = false;
+
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
 		config = new Configuration(e.getSuggestedConfigurationFile());
@@ -47,6 +50,7 @@ public class Placebo {
 		for (IPostInitUpdate i : UPDATES)
 			i.postInit(e);
 		if (config.getBoolean("Dump event handlers", "general", false, "If placebo will dump all event handlers to the log in post init.")) PlaceboUtil.dumpEventHandlers();
+		if (debug) PlaceboDebug.debug();
 		RecipeHelper.CachedOreIngredient.ing = null;
 	}
 }

@@ -35,8 +35,8 @@ repositories {
 }
 
 dependencies {
-	//deobfCompile "mezz.jei:jei_1.12.2:+"
-	//deobfCompile "mcp.mobius.waila:Hwyla:+"
+	deobfCompile "mezz.jei:jei_1.12.2:+"
+	deobfCompile "mcp.mobius.waila:Hwyla:+"
 }
 
 processResources
@@ -56,6 +56,15 @@ task devJar(type: Jar) {
     from sourceSets.main.output
 	from sourceSets.main.allJava
     classifier = 'dev'
+    manifest {
+        attributes 'FMLAT': 'placebo_at.cfg'
+    }
+}
+
+jar {
+    manifest {
+        attributes 'FMLAT': 'placebo_at.cfg'
+    }
 }
 
 artifacts {

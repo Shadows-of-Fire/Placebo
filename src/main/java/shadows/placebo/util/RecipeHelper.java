@@ -10,7 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.NonNullList;
@@ -57,7 +56,7 @@ public class RecipeHelper {
 	 * Adds a shapeless recipe with X output using an array of inputs. Use Strings for OreDictionary support. This array is not ordered.  Can take a List in place of inputs.
 	 */
 	public void addShapeless(ItemStack output, Object... inputs) {
-		addRecipe(j++, new ShapelessRecipes(modid + ":" + j, output, createInput(inputs)));
+		addRecipe(j++, new FastShapelessRecipe(modid + ":" + j, output, createInput(inputs)));
 	}
 
 	public <T extends IForgeRegistryEntry<?>> void addShapeless(T output, Object... inputs) {
@@ -68,7 +67,7 @@ public class RecipeHelper {
 	 * Adds a shapeless recipe with X output using an array of inputs. Use Strings for OreDictionary support. This array is not ordered.  This has a custom group.
 	 */
 	public void addShapeless(String group, ItemStack output, Object... inputs) {
-		addRecipe(j++, new ShapelessRecipes(modid + ":" + group, output, createInput(inputs)));
+		addRecipe(j++, new FastShapelessRecipe(modid + ":" + group, output, createInput(inputs)));
 	}
 
 	public <T extends IForgeRegistryEntry<?>> void addShapeless(String group, T output, Object... inputs) {
@@ -134,7 +133,7 @@ public class RecipeHelper {
 	 * Adds a shapeless recipe to the list of crafting recipes, using the forge format.
 	 */
 	public void addForgeShapeless(ItemStack output, Object... input) {
-		addRecipe(j++, new ShapelessRecipes(new ResourceLocation(modid, "recipe" + j).toString(), output, createInput(input)));
+		addRecipe(j++, new FastShapelessRecipe(new ResourceLocation(modid, "recipe" + j).toString(), output, createInput(input)));
 	}
 
 	/*
@@ -148,14 +147,14 @@ public class RecipeHelper {
 	 * Adds a shapeless recipe to the list of crafting recipes, using the forge format, with a custom group.
 	 */
 	public void addForgeShapeless(String group, ItemStack output, Object... input) {
-		addRecipe(j++, new ShapelessRecipes(new ResourceLocation(modid, group).toString(), output, createInput(input)));
+		addRecipe(j++, new FastShapelessRecipe(new ResourceLocation(modid, group).toString(), output, createInput(input)));
 	}
 
 	/*
 	 * Adds a shapeless recipe to the list of crafting recipes, using the forge format, with a custom group and a custom name.
 	 */
 	public void addForgeShapeless(String name, String group, ItemStack output, Object... input) {
-		addRecipe(j++, new ShapelessRecipes(new ResourceLocation(modid, group).toString(), output, createInput(input)).setRegistryName(modid, name));
+		addRecipe(j++, new FastShapelessRecipe(new ResourceLocation(modid, group).toString(), output, createInput(input)).setRegistryName(modid, name));
 	}
 
 	/**
@@ -279,7 +278,7 @@ public class RecipeHelper {
 					} else list.add(ing);
 				}
 				ResourceLocation regname = rec.getRegistryName();
-				ForgeRegistries.RECIPES.register(new ShapelessRecipes(rec.getGroup(), rec.getRecipeOutput(), list).setRegistryName(regname));
+				ForgeRegistries.RECIPES.register(new FastShapelessRecipe(rec.getGroup(), rec.getRecipeOutput(), list).setRegistryName(regname));
 			}
 		}
 	}
@@ -391,17 +390,17 @@ public class RecipeHelper {
 	public static class CachedOreIngredient extends OreIngredient {
 
 		public static HashMap<String, CachedOreIngredient> ing = new HashMap<>();
-		
+
 		protected CachedOreIngredient(String ore) {
 			super(ore);
 			ing.put(ore, this);
 		}
-		
+
 		public static CachedOreIngredient create(String ore) {
 			CachedOreIngredient coi = ing.get(ore);
 			return coi != null ? coi : new CachedOreIngredient(ore);
 		}
-		
+
 	}
 
 }
