@@ -27,7 +27,7 @@ public class FastShapelessRecipe extends ShapelessRecipes {
 		IntList list = new IntArrayList();
 		for (ItemStack i : inv.stackList)
 			if (!i.isEmpty()) list.add(RecipeItemHelper.pack(i));
-		if (list.isEmpty()) return false;
+		if (list.size() != recipeItems.size()) return false;
 		for (Ingredient i : recipeItems) {
 			for (int ix = 0; ix < list.size(); ix++) {
 				if (i.getValidItemStacksPacked().contains(list.getInt(ix))) {
