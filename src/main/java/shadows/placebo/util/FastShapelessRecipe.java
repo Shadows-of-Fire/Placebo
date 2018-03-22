@@ -25,8 +25,13 @@ public class FastShapelessRecipe extends ShapelessRecipes {
 	public boolean matches(InventoryCrafting inv, World world) {
 		if (!isSimple) return super.matches(inv, world);
 		IntList list = new IntArrayList();
-		for (ItemStack i : inv.stackList)
-			if (!i.isEmpty()) list.add(RecipeItemHelper.pack(i));
+
+		ItemStack is;
+		int k = inv.getSizeInventory();
+
+		for (int ix = 0; ix < k; ix++)
+			if (!(is = inv.getStackInSlot(ix)).isEmpty()) list.add(RecipeItemHelper.pack(is));
+
 		if (list.size() != recipeItems.size()) return false;
 		for (Ingredient i : recipeItems) {
 			for (int ix = 0; ix < list.size(); ix++) {
