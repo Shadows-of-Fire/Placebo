@@ -26,11 +26,11 @@ public class FastShapelessRecipe extends ShapelessRecipes {
 		if (!isSimple) return super.matches(inv, world);
 		IntList list = new IntArrayList();
 
-		ItemStack is;
+		int is;
 		int k = inv.getSizeInventory();
 
 		for (int ix = 0; ix < k; ix++)
-			if (!(is = inv.getStackInSlot(ix)).isEmpty()) list.add(RecipeItemHelper.pack(is));
+			if ((is = RecipeItemHelper.pack(inv.getStackInSlot(ix))) != packEmpty) list.add(is);
 
 		if (list.size() != recipeItems.size()) return false;
 		for (Ingredient i : recipeItems) {
