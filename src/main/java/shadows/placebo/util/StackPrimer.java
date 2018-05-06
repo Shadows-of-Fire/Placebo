@@ -1,5 +1,7 @@
 package shadows.placebo.util;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -46,5 +48,24 @@ public class StackPrimer {
 	public boolean isEmpty() {
 		return item == null || size <= 0;
 	}
+	
+	@Nullable
+	public Block getBlock() {
+		return block;
+	}
+	
+	@Nullable
+	public Item getItem() {
+		return item;
+	}
+	
+	public int getCount() {
+		return size;
+	}
+	
+	public int getMeta() {
+		return meta;
+	}
+	
 
 }

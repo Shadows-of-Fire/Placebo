@@ -21,7 +21,7 @@ public class Placebo {
 
 	public static final String MODID = "placebo";
 	public static final String MODNAME = "Placebo";
-	public static final String VERSION = "1.3.3";
+	public static final String VERSION = "1.3.4";
 
 	public static final List<IPostInitUpdate> UPDATES = new ArrayList<>();
 
