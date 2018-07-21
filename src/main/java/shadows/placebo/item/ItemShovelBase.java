@@ -9,7 +9,7 @@ public class ItemShovelBase extends ItemSpade implements IHasModel {
 	public ItemShovelBase(String name, RegistryInformation info, ToolMaterial mat) {
 		super(mat);
 		setRegistryName(name);
-		setUnlocalizedName(info.getID() + "." + name);
+		setTranslationKey(info.getID() + "." + name);
 		setCreativeTab(info.getDefaultTab());
 		info.getItemList().add(this);
 	}

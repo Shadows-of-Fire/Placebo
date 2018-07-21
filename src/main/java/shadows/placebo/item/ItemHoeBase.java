@@ -9,7 +9,7 @@ public class ItemHoeBase extends ItemHoe implements IHasModel {
 	public ItemHoeBase(String name, RegistryInformation info, ToolMaterial material) {
 		super(material);
 		setRegistryName(name);
-		setUnlocalizedName(info.getID() + "." + name);
+		setTranslationKey(info.getID() + "." + name);
 		setCreativeTab(info.getDefaultTab());
 		info.getItemList().add(this);
 	}

@@ -14,17 +14,17 @@ public class ClientProxy extends Proxy {
 
 	@Override
 	public void useRenamedMapper(Block b, String path) {
-		ModelLoader.setCustomStateMapper(b, new RenamedStateMapper(b.getRegistryName().getResourceDomain(), path));
+		ModelLoader.setCustomStateMapper(b, new RenamedStateMapper(b.getRegistryName().getNamespace(), path));
 	}
 
 	@Override
 	public void useRenamedMapper(Block b, String path, String append) {
-		ModelLoader.setCustomStateMapper(b, new RenamedStateMapper(b.getRegistryName().getResourceDomain(), path, append));
+		ModelLoader.setCustomStateMapper(b, new RenamedStateMapper(b.getRegistryName().getNamespace(), path, append));
 	}
 
 	@Override
 	public void useRenamedMapper(Block b, String path, String append, String variant) {
-		ModelLoader.setCustomStateMapper(b, new RenamedStateMapper(b.getRegistryName().getResourceDomain(), path, append, variant));
+		ModelLoader.setCustomStateMapper(b, new RenamedStateMapper(b.getRegistryName().getNamespace(), path, append, variant));
 	}
 
 }

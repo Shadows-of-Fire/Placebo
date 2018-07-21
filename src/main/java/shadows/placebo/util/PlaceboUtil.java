@@ -23,11 +23,11 @@ public class PlaceboUtil {
 	}
 
 	public static void sMRL(String statePath, Block k, int meta, String variant) {
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(k), meta, new ModelResourceLocation(k.getRegistryName().getResourceDomain() + ":" + statePath, variant));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(k), meta, new ModelResourceLocation(k.getRegistryName().getNamespace() + ":" + statePath, variant));
 	}
 
 	public static void sMRL(String statePath, Item k, int meta, String variant) {
-		ModelLoader.setCustomModelResourceLocation(k, meta, new ModelResourceLocation(k.getRegistryName().getResourceDomain() + ":" + statePath, variant));
+		ModelLoader.setCustomModelResourceLocation(k, meta, new ModelResourceLocation(k.getRegistryName().getNamespace() + ":" + statePath, variant));
 	}
 
 	public static void sMRL(String domain, String statePath, Block k, int meta, String variant) {
@@ -39,7 +39,7 @@ public class PlaceboUtil {
 	}
 
 	public static boolean isOwnedBy(IForgeRegistryEntry<?> thing, String owner) {
-		return thing.getRegistryName().getResourceDomain().equals(owner);
+		return thing.getRegistryName().getNamespace().equals(owner);
 	}
 
 	public static Item getItemByName(String regname) {

@@ -8,7 +8,7 @@ public abstract class ItemBase extends Item implements IHasModel {
 
 	public ItemBase(String name, RegistryInformation info) {
 		setRegistryName(name);
-		setUnlocalizedName(info.getID() + "." + name);
+		setTranslationKey(info.getID() + "." + name);
 		setCreativeTab(info.getDefaultTab());
 		info.getItemList().add(this);
 	}

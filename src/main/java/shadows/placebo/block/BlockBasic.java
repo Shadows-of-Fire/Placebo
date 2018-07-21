@@ -20,7 +20,7 @@ public abstract class BlockBasic extends Block implements IHasModel, IItemBlock 
 	public BlockBasic(String name, Material material, float hardness, float resist, RegistryInformation info) {
 		super(material);
 		setRegistryName(info.getID(), name);
-		setUnlocalizedName(info.getID() + "." + name);
+		setTranslationKey(info.getID() + "." + name);
 		setHardness(hardness);
 		setResistance(resist);
 		setCreativeTab(info.getDefaultTab());
@@ -41,8 +41,8 @@ public abstract class BlockBasic extends Block implements IHasModel, IItemBlock 
 
 	@Override
 	public void initModels(ModelRegistryEvent e) {
-		PlaceboUtil.sMRL("blocks", this, 0, "type=" + getRegistryName().getResourcePath());
-		Placebo.PROXY.useRenamedMapper(this, "blocks", "", "type=" + getRegistryName().getResourcePath());
+		PlaceboUtil.sMRL("blocks", this, 0, "type=" + getRegistryName().getPath());
+		Placebo.PROXY.useRenamedMapper(this, "blocks", "", "type=" + getRegistryName().getPath());
 	}
 
 }

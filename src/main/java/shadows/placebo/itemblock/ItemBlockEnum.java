@@ -59,9 +59,9 @@ public class ItemBlockEnum<E extends Enum<E> & IPropertyEnum> extends ItemBlockB
 	}
 
 	@Override
-	public String getUnlocalizedName(ItemStack stack) {
+	public String getTranslationKey(ItemStack stack) {
 		if (stack.getMetadata() >= enumBlock.getTypes().size()) return "invalid";
-		return getUnlocalizedName() + "." + enumBlock.getTypes().get(stack.getMetadata()).getName();
+		return getTranslationKey() + "." + enumBlock.getTypes().get(stack.getMetadata()).getName();
 	}
 
 	public boolean mayPlaceInWorld(IBlockState state, World world, BlockPos pos, boolean skipCollisionCheck, EnumFacing sidePlaced, @Nullable Entity placer) {
