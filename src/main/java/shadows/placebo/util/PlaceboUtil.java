@@ -1,7 +1,5 @@
 package shadows.placebo.util;
 
-import java.util.List;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -60,11 +58,6 @@ public class PlaceboUtil {
 		l.setActiveModContainer(l.getMinecraftModContainer());
 		entry.setRegistryName(new ResourceLocation("minecraft", name));
 		l.setActiveModContainer(k);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T[] toArray(List<T> list) {
-		return (T[]) list.toArray();
 	}
 
 }

@@ -3,7 +3,10 @@ package shadows.placebo.util;
 import java.util.HashMap;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
+import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -21,6 +24,7 @@ import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
+import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public class RecipeHelper {
@@ -167,8 +171,8 @@ public class RecipeHelper {
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
 			if (k instanceof String) inputL.add(i, CachedOreIngredient.create((String) k));
-			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
-			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
+			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, CachedIngredient.create((ItemStack) k));
+			else if (k instanceof IForgeRegistryEntry) inputL.add(i, CachedIngredient.create(makeStack((IForgeRegistryEntry<?>) k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
 			else inputL.add(i, Ingredient.EMPTY);
 		}
@@ -193,8 +197,8 @@ public class RecipeHelper {
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
 			if (k instanceof String) inputL.add(i, CachedOreIngredient.create((String) k));
-			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, Ingredient.fromStacks((ItemStack) k));
-			else if (k instanceof IForgeRegistryEntry) inputL.add(i, Ingredient.fromStacks(makeStack((IForgeRegistryEntry<?>) k)));
+			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, CachedIngredient.create((ItemStack) k));
+			else if (k instanceof IForgeRegistryEntry) inputL.add(i, CachedIngredient.create(makeStack((IForgeRegistryEntry<?>) k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
 			else throw new UnsupportedOperationException("Attempted to add invalid shapeless recipe.  Complain to the author of " + modname);
 		}
@@ -227,6 +231,14 @@ public class RecipeHelper {
 	 */
 	public <T extends IForgeRegistryEntry<?>> void addSimpleShapeless(ItemStack output, T input, int numInputs) {
 		addSimpleShapeless(output, makeStack(input), numInputs);
+	}
+
+	/**
+	 * Registers the recipes contained in the helper.
+	 * @param reg The recipe registry.
+	 */
+	public void register(IForgeRegistry<IRecipe> reg) {
+		reg.registerAll(recipes.toArray(new IRecipe[0]));
 	}
 
 	/**
@@ -399,6 +411,24 @@ public class RecipeHelper {
 		public static CachedOreIngredient create(String ore) {
 			CachedOreIngredient coi = ing.get(ore);
 			return coi != null ? coi : new CachedOreIngredient(ore);
+		}
+
+	}
+
+	public static class CachedIngredient extends Ingredient {
+
+		public static Int2ObjectMap<CachedIngredient> ing = new Int2ObjectOpenHashMap<>();
+
+		protected CachedIngredient(ItemStack... matches) {
+			super(matches);
+			if (matches.length == 1) ing.put(RecipeItemHelper.pack(matches[0]), this);
+		}
+
+		public static CachedIngredient create(ItemStack... matches) {
+			if (matches.length == 1) {
+				CachedIngredient coi = ing.get(RecipeItemHelper.pack(matches[0]));
+				return coi != null ? coi : new CachedIngredient(matches);
+			} else return new CachedIngredient(matches);
 		}
 
 	}

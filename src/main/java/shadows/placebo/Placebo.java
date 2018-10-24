@@ -23,7 +23,7 @@ public class Placebo {
 
 	public static final String MODID = "placebo";
 	public static final String MODNAME = "Placebo";
-	public static final String VERSION = "1.4.1";
+	public static final String VERSION = "1.5.0";
 
 	public static final List<IPostInitUpdate> UPDATES = new ArrayList<>();
 
@@ -35,14 +35,16 @@ public class Placebo {
 	public static Configuration config;
 
 	static boolean dumpHandlers = false;
+	static boolean fastRecipes = false;
 
-	boolean debug = false;
+	private final boolean debug = false;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
 		config = new Configuration(e.getSuggestedConfigurationFile());
 		config.load();
 		dumpHandlers = config.getBoolean("Dump event handlers", "general", false, "If placebo will dump all event handlers to the log in post init.");
+		fastRecipes = config.getBoolean("Fast Shapeless Recipes", "general", false, "If placebo will replace all ShapelessRecipes and ShapelessOreRecipes with FastShapelessRecipes.");
 		if (config.hasChanged()) config.save();
 		MinecraftForge.EVENT_BUS.register(new PlaceboLootSystem());
 	}
@@ -51,8 +53,9 @@ public class Placebo {
 	public void postInit(FMLPostInitializationEvent e) {
 		for (IPostInitUpdate i : UPDATES)
 			i.postInit(e);
-		if (config.getBoolean("Dump event handlers", "general", false, "If placebo will dump all event handlers to the log in post init.")) PlaceboDebug.dumpEventHandlers();
 		if (debug) PlaceboDebug.debug();
+		if (dumpHandlers) PlaceboDebug.dumpEventHandlers();
+		if (fastRecipes) PlaceboDebug.enableFastShapeless();
 		RecipeHelper.CachedOreIngredient.ing = null;
 	}
 }
