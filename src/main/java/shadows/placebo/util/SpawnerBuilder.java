@@ -2,6 +2,7 @@ package shadows.placebo.util;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntityMobSpawner;
@@ -174,7 +175,7 @@ public class SpawnerBuilder {
 	}
 
 	public TileEntityMobSpawner build(World world, BlockPos pos) {
-		TileEntityMobSpawner s = new TileEntityMobSpawner();
+		TileEntityMobSpawner s = (TileEntityMobSpawner) Blocks.MOB_SPAWNER.createTileEntity(world, null);
 		if (!hasPotentials) {
 			NBTTagList list = new NBTTagList();
 			list.appendTag(baseEntity.toCompoundTag());
