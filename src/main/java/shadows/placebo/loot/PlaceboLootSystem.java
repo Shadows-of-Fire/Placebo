@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.cache.LoadingCache;
+
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraft.world.storage.loot.LootTableList;
@@ -19,8 +21,12 @@ public class PlaceboLootSystem {
 	public void loadTables(LootTableLoadEvent e) {
 		if (!e.getName().equals(LootTableList.CHESTS_SIMPLE_DUNGEON)) return;
 		Map<ResourceLocation, LootTable> tables = e.getLootTableManager().registeredLootTables.asMap();
+		LoadingCache<ResourceLocation, LootTable> cache = e.getLootTableManager().registeredLootTables;
 		for (Entry<ResourceLocation, LootTable> et : PLACEBO_TABLES.entrySet()) {
-			if (tables.containsValue(et.getValue())) tables.put(et.getKey(), et.getValue());
+			if (!tables.containsValue(et.getValue())) cache.put(et.getKey(), et.getValue());
+			if (e.getLootTableManager().getLootTableFromLocation(et.getKey()) == LootTable.EMPTY_LOOT_TABLE) {
+				Placebo.LOG.error("Failed to register Loot Table {}", et.getKey());
+			}
 		}
 	}
 

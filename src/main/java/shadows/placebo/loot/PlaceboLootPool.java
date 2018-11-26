@@ -1,5 +1,6 @@
 package shadows.placebo.loot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.world.storage.loot.LootEntry;
@@ -18,8 +19,8 @@ public class PlaceboLootPool extends LootPool {
 	public static class PoolBuilder {
 		RandomValueRange rolls;
 		RandomValueRange bonusRolls;
-		List<LootEntry> entries;
-		List<LootCondition> conditions;
+		List<LootEntry> entries = new ArrayList<>();
+		List<LootCondition> conditions = new ArrayList<>();
 
 		public PoolBuilder(float rollsMin, float rollsMax, float bonusRollsMin, float bonusRollsMax) {
 			rolls = new RandomValueRange(rollsMin, rollsMax);

@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.loot.LootPool;
+import net.minecraft.world.storage.loot.LootTable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.ASMEventHandler;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -16,17 +20,16 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import shadows.placebo.Placebo;
+import shadows.placebo.loot.PlaceboLootEntry;
+import shadows.placebo.loot.PlaceboLootSystem;
+import shadows.placebo.loot.PlaceboLootPool.PoolBuilder;
 
 public class PlaceboDebug {
 
 	public static void debug() {
-		RecipeHelper h = new RecipeHelper("dad", "dad", new ArrayList<>());
-		h.addSimpleShapeless(Items.STICK, Items.ENDER_PEARL, 9);
-		h.addSimpleShapeless(Items.STICK, Items.ENDER_EYE, 8);
-		h.addSimpleShapeless(Items.STICK, Items.BOAT, 7);
-		h.addSimpleShapeless(Items.STICK, Items.BONE, 6);
-		h.addSimpleShapeless(Items.STICK, Items.BAKED_POTATO, 5);
-		h.register(ForgeRegistries.RECIPES);
+		PoolBuilder build = new PoolBuilder(2, 5, 1, 4);
+		build.addEntries(new PlaceboLootEntry(new ItemStack(Items.COAL), 2, 5, 1, 2));
+		PlaceboLootSystem.registerLootTable(new ResourceLocation("placebo", "debug"), new LootTable(new LootPool[] { build.build() }));
 	}
 
 	public static void dumpEventHandlers() {
