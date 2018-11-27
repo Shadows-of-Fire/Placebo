@@ -1,5 +1,6 @@
 package shadows.placebo.util;
 
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.init.Blocks;
@@ -31,7 +32,7 @@ public class SpawnerBuilder {
 	public static final String ENTITY = "Entity"; //WeightedSpawnerEntity's internal entity tag
 	public static final NBTTagCompound BASE_TAG;
 	static {
-		TileEntityMobSpawner te = new TileEntityMobSpawner();
+		TileEntityMobSpawner te = (TileEntityMobSpawner) ((ITileEntityProvider) Blocks.MOB_SPAWNER).createNewTileEntity(null, 0);
 		te.getSpawnerBaseLogic().setEntityId(new ResourceLocation("minecraft:pig"));
 		BASE_TAG = te.writeToNBT(new NBTTagCompound());
 	}
@@ -175,7 +176,7 @@ public class SpawnerBuilder {
 	}
 
 	public TileEntityMobSpawner build(World world, BlockPos pos) {
-		TileEntityMobSpawner s = (TileEntityMobSpawner) Blocks.MOB_SPAWNER.createTileEntity(world, null);
+		TileEntityMobSpawner s = (TileEntityMobSpawner) ((ITileEntityProvider) Blocks.MOB_SPAWNER).createNewTileEntity(null, 0);
 		if (!hasPotentials) {
 			NBTTagList list = new NBTTagList();
 			list.appendTag(baseEntity.toCompoundTag());
