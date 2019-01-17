@@ -21,8 +21,8 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldExc
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import shadows.placebo.Placebo;
 import shadows.placebo.loot.PlaceboLootEntry;
-import shadows.placebo.loot.PlaceboLootSystem;
 import shadows.placebo.loot.PlaceboLootPool.PoolBuilder;
+import shadows.placebo.loot.PlaceboLootSystem;
 
 public class PlaceboDebug {
 
@@ -50,6 +50,8 @@ public class PlaceboDebug {
 	}
 
 	public static void enableFastShapeless() {
+		Placebo.LOG.info("Beginning replacement of all shapeless recipes...");
+		Placebo.LOG.info("Expect log spam from FML!");
 		List<IRecipe> fastRecipes = new ArrayList<>();
 		for (IRecipe r : ForgeRegistries.RECIPES) {
 			if (r.getClass() == ShapelessRecipes.class || r.getClass() == ShapelessOreRecipe.class) {
@@ -60,6 +62,7 @@ public class PlaceboDebug {
 		}
 		for (IRecipe r : fastRecipes)
 			ForgeRegistries.RECIPES.register(r);
+		Placebo.LOG.info("Successfully replaced {} recipes with fast recipes.", fastRecipes.size());
 	}
 
 }

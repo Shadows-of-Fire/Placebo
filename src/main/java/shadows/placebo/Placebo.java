@@ -44,7 +44,7 @@ public class Placebo {
 		config = new Configuration(e.getSuggestedConfigurationFile());
 		config.load();
 		dumpHandlers = config.getBoolean("Dump event handlers", "general", false, "If placebo will dump all event handlers to the log in post init.");
-		fastRecipes = config.getBoolean("Fast Shapeless Recipes", "general", false, "If placebo will replace all ShapelessRecipes and ShapelessOreRecipes with FastShapelessRecipes.");
+		fastRecipes = config.getBoolean("Fast Shapeless Recipes", "general", true, "If placebo will replace all ShapelessRecipes and ShapelessOreRecipes with FastShapelessRecipes.");
 		if (config.hasChanged()) config.save();
 		MinecraftForge.EVENT_BUS.register(new PlaceboLootSystem());
 	}
