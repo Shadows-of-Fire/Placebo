@@ -132,7 +132,7 @@ public class SpawnerBuilder {
 	public SpawnerBuilder setSpawnData(NBTTagCompound data) {
 		if (data == null) {
 			data = new NBTTagCompound();
-			data.setString("id", "minecraft:pig");
+			data.setString(ID, "minecraft:pig");
 		}
 		baseEntity.nbt = data.copy();
 		return this;
