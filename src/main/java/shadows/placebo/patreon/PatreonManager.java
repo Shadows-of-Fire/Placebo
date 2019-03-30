@@ -12,6 +12,7 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
@@ -24,11 +25,11 @@ public class PatreonManager {
 	public static final Map<UUID, EnumParticleTypes> PATREONS = new HashMap<>();
 
 	@SubscribeEvent
-	public static void init() {
+	public static void init(ModelRegistryEvent e) {
 		new Thread(() -> {
 			Placebo.LOG.info("Loading patreon data...");
 			try {
-				URL url = new URL("https://github.com/Shadows-of-Fire/Placebo/blob/master/PatreonInfo.txt");
+				URL url = new URL("https://raw.githubusercontent.com/Shadows-of-Fire/Placebo/master/PatreonInfo.txt");
 				BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 				while (reader.ready()) {
 					String s = reader.readLine();
@@ -42,9 +43,9 @@ public class PatreonManager {
 					PATREONS.put(id, type);
 				}
 				reader.close();
-			} catch (IOException e) {
+			} catch (IOException ex) {
 				Placebo.LOG.error("Exception loading patreon data!");
-				e.printStackTrace();
+				ex.printStackTrace();
 			}
 		}).start();
 	}
