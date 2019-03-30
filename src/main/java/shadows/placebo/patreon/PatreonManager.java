@@ -47,7 +47,7 @@ public class PatreonManager {
 				Placebo.LOG.error("Exception loading patreon data!");
 				ex.printStackTrace();
 			}
-		}).start();
+		}, "Placebo Patreon Loader").start();
 	}
 
 	@SubscribeEvent
