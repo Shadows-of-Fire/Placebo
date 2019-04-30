@@ -36,6 +36,7 @@ public class Placebo {
 
 	static boolean dumpHandlers = false;
 	static boolean fastRecipes = false;
+	public static boolean patreonEnabled = true;
 
 	private final boolean debug = false;
 
@@ -45,6 +46,7 @@ public class Placebo {
 		config.load();
 		dumpHandlers = config.getBoolean("Dump event handlers", "general", false, "If placebo will dump all event handlers to the log in post init.");
 		fastRecipes = config.getBoolean("Fast Shapeless Recipes", "general", true, "If placebo will replace all ShapelessRecipes and ShapelessOreRecipes with FastShapelessRecipes.");
+		patreonEnabled = config.getBoolean("Patreon Effects", "general", true, "If patreon donor particles are enabled for this client.");
 		if (config.hasChanged()) config.save();
 		MinecraftForge.EVENT_BUS.register(new PlaceboLootSystem());
 	}

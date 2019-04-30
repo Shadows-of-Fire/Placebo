@@ -81,7 +81,7 @@ public class PatreonManager {
 
 	@SubscribeEvent
 	public static void onPlayerTick(PlayerTickEvent e) {
-		if (e.player.world.isRemote) {
+		if (Placebo.patreonEnabled && e.player.world.isRemote) {
 			Random rand = Minecraft.getMinecraft().world.rand;
 			if (rand.nextInt(35) == 0) {
 				EnumParticleTypes type = PATREONS.get(e.player.getGameProfile().getId());
@@ -89,7 +89,10 @@ public class PatreonManager {
 				double x = e.player.prevPosX;
 				double y = e.player.prevPosY;
 				double z = e.player.prevPosZ;
-				Minecraft.getMinecraft().world.spawnParticle(type, true, x, y + 0.7, z, MathHelper.nextDouble(rand, -0.05D, 0.05D), MathHelper.nextDouble(rand, 0.03D, 0.15D), MathHelper.nextDouble(rand, -0.05D, 0.05D));
+				double velX = e.player.getHorizontalFacing().getOpposite().getDirectionVec().getX() * MathHelper.nextDouble(rand, 0.01, 0.2);
+				double velY = MathHelper.nextDouble(rand, 0.03D, 0.15D);
+				double velZ = e.player.getHorizontalFacing().getOpposite().getDirectionVec().getZ() * MathHelper.nextDouble(rand, 0.01, 0.2);
+				Minecraft.getMinecraft().world.spawnParticle(type, true, x, y + 0.7, z, velX, velY, velZ);
 			}
 		}
 	}
