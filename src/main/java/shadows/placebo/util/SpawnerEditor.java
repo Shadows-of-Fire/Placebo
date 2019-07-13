@@ -2,12 +2,12 @@ package shadows.placebo.util;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.WeightedSpawnerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -28,24 +28,24 @@ public class SpawnerEditor {
 	public static final int PLAYER_RANGE = 16;
 	public static final int SPAWN_RANGE = 4;
 
-	protected TileEntityMobSpawner spawner;
+	protected MobSpawnerTileEntity spawner;
 
 	public SpawnerEditor(World world, BlockPos pos) {
 		TileEntity te = world.getTileEntity(pos);
-		if (te instanceof TileEntityMobSpawner) {
-			spawner = (TileEntityMobSpawner) te;
+		if (te instanceof MobSpawnerTileEntity) {
+			spawner = (MobSpawnerTileEntity) te;
 		} else {
-			world.setBlockState(pos, Blocks.MOB_SPAWNER.getDefaultState());
+			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState());
 			te = world.getTileEntity(pos);
-			spawner = (TileEntityMobSpawner) te;
+			spawner = (MobSpawnerTileEntity) te;
 		}
 	}
 
 	/**
 	 * Sets the mob type of the first spawn (or all spawns if potentials are not set).
 	 */
-	public SpawnerEditor setType(Class<? extends Entity> entity) {
-		this.spawner.getSpawnerBaseLogic().setEntityId(EntityList.getKey(entity));
+	public SpawnerEditor setType(EntityType<? extends Entity> entity) {
+		this.spawner.getSpawnerBaseLogic().setEntityType(entity);
 		return this;
 	}
 
@@ -118,7 +118,7 @@ public class SpawnerEditor {
 	 * Sets the additional NBT data for the first mob spawned (or all, if potentials are not set).
 	 * @param data An entity, written to NBT, in the format read by AnvilChunkLoader.readWorldEntity()
 	 */
-	public SpawnerEditor setSpawnData(int weight, @Nullable NBTTagCompound data) {
+	public SpawnerEditor setSpawnData(int weight, @Nullable CompoundNBT data) {
 		if (data == null) this.spawner.getSpawnerBaseLogic().spawnData = new WeightedSpawnerEntity();
 		else this.spawner.getSpawnerBaseLogic().spawnData = new WeightedSpawnerEntity(weight, data);
 		return this;

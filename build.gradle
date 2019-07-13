@@ -1,55 +1,54 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
 
+version = '2.0.1'
+group = 'shadows.placebo'
+archivesBaseName = 'Placebo-1.14.3'
 
-version = "1.12.2-1.6.0"
-group= "shadows.placebo"
-archivesBaseName = "Placebo"
-
-sourceCompatibility = targetCompatibility = "1.8"
-compileJava {
-    sourceCompatibility = targetCompatibility = "1.8"
-}
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    version = "1.12.2-14.23.4.2739"
-    runDir = "run"
-    mappings = "snapshot_20180720"
-	makeObfSourceJar = false
-}
-
-repositories {
-    maven {
-        url "http://dvs1.progwml6.com/files/maven"
+    mappings channel: 'snapshot', version: '20190626-1.14.3'
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    runs {
+        client = {
+            properties 'forge.logging.markers': ''
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
+        server = {
+            properties 'forge.logging.markers': ''
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+            source sourceSets.main
+        }
     }
-	maven {
-		url "http://tehnut.info/maven"
-	}
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.12.2:+"
-	deobfCompile "mcp.mobius.waila:Hwyla:1.8.+"
+    minecraft 'net.minecraftforge:forge:1.14.3-27.0.12'
 }
 
-processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+jar {
+    manifest {
+        attributes(["Specification-Title": "placebo",
+                    "Specification-Vendor": "shadows_of_fire",
+                    "Specification-Version": "24.0", // We are version 1 of the modlauncher specification
+                    "Implementation-Title": project.name,
+                    "Implementation-Version": "${version}",
+                    "Implementation-Vendor" :"shadows_of_fire",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
     }
 }
 
@@ -58,13 +57,13 @@ task devJar(type: Jar) {
 	from sourceSets.main.allJava
     classifier = 'dev'
     manifest {
-        attributes 'FMLAT': 'placebo_at.cfg'
-    }
-}
-
-jar {
-    manifest {
-        attributes 'FMLAT': 'placebo_at.cfg'
+        attributes(["Specification-Title": "placebo",
+                    "Specification-Vendor": "shadows_of_fire",
+                    "Specification-Version": "24.0", // We are version 1 of the modlauncher specification
+                    "Implementation-Title": project.name,
+                    "Implementation-Version": "${version}",
+                    "Implementation-Vendor" :"shadows_of_fire",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
     }
 }
 

@@ -1,7 +1,8 @@
 package shadows.placebo.util;
 
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import shadows.placebo.Placebo;
@@ -31,47 +32,47 @@ public class AttributeHelper {
 	 * @param modifier The value to modify
 	 * @param operation See above.
 	 */
-	public static void modify(EntityLivingBase entity, IAttribute attribute, String name, double modifier, int operation) {
-		entity.getEntityAttribute(attribute).applyModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation).setSaved(true));
+	public static void modify(LivingEntity entity, IAttribute attribute, String name, double modifier, Operation operation) {
+		entity.getAttribute(attribute).applyModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation).setSaved(true));
 	}
 
 	/**
 	 * Adds the given modifier to the base value of the attribute.
 	 */
-	public static void addToBase(EntityLivingBase entity, IAttribute attribute, String name, double modifier) {
-		modify(entity, attribute, name, modifier, 0);
+	public static void addToBase(LivingEntity entity, IAttribute attribute, String name, double modifier) {
+		modify(entity, attribute, name, modifier, Operation.ADDITION);
 	}
 
 	/**
 	 * Adds (modifier * new base value) to the final value of the attribute.
 	 * New base value is the base value plus all additions (operation 0 AttributeModifiers).
 	 */
-	public static void addXTimesNewBase(EntityLivingBase entity, IAttribute attribute, String name, double modifier) {
-		modify(entity, attribute, name, modifier, 1);
+	public static void addXTimesNewBase(LivingEntity entity, IAttribute attribute, String name, double modifier) {
+		modify(entity, attribute, name, modifier, Operation.MULTIPLY_BASE);
 	}
 
 	/**
 	 * Multiplies the final value of this attribute by 1.0 + modifier.
 	 * Final value is the value after computing all operation 0 and 1 AttributeModifiers.
 	 */
-	public static void multiplyFinal(EntityLivingBase entity, IAttribute attribute, String name, double modifier) {
-		modify(entity, attribute, name, modifier, 2);
+	public static void multiplyFinal(LivingEntity entity, IAttribute attribute, String name, double modifier) {
+		modify(entity, attribute, name, modifier, Operation.MULTIPLY_TOTAL);
 	}
 
 	/**
 	 * Forces the base value to equal the given value, overriding previous modifiers.
 	 */
-	public static void setBaseValue(EntityLivingBase entity, IAttribute attribute, String name, double value) {
-		IAttributeInstance inst = entity.getEntityAttribute(attribute);
-		inst.getModifiersByOperation(0).clear();
-		modify(entity, attribute, name, value - inst.getBaseValue(), 0);
+	public static void setBaseValue(LivingEntity entity, IAttribute attribute, String name, double value) {
+		IAttributeInstance inst = entity.getAttribute(attribute);
+		inst.func_220368_a(Operation.ADDITION).clear();
+		modify(entity, attribute, name, value - inst.getBaseValue(), Operation.ADDITION);
 	}
 
 	/**
 	 * Forces the base value to be (at minimum) the given value, overriding previous modifiers.
 	 */
-	public static void min(EntityLivingBase entity, IAttribute attribute, String name, double value) {
-		if (value < entity.getEntityAttribute(attribute).getBaseValue()) {
+	public static void min(LivingEntity entity, IAttribute attribute, String name, double value) {
+		if (value < entity.getAttribute(attribute).getBaseValue()) {
 			setBaseValue(entity, attribute, name, value);
 		}
 	}
@@ -79,8 +80,8 @@ public class AttributeHelper {
 	/**
 	 * Forces the base value to be (at maximum) the given value, overriding previous modifiers.
 	 */
-	public static void max(EntityLivingBase entity, IAttribute attribute, String name, double value) {
-		if (value > entity.getEntityAttribute(attribute).getBaseValue()) {
+	public static void max(LivingEntity entity, IAttribute attribute, String name, double value) {
+		if (value > entity.getAttribute(attribute).getBaseValue()) {
 			setBaseValue(entity, attribute, name, value);
 		}
 	}
