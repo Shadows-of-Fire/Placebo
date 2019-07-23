@@ -1,6 +1,6 @@
 modLoader="javafml" #mandatory
 
-loaderVersion="[27,)" #mandatory
+loaderVersion="[28,)" #mandatory
 
 authors="Shadows_of_Fire" #optional
 
@@ -16,16 +16,16 @@ description='''
 1 (one) library boi
 '''
 
-[[dependencies.apotheosis]] #optional
+[[dependencies.placebo]] #optional
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[27,)" #mandatory
+    versionRange="[28,)" #mandatory
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.apotheosis]]
+[[dependencies.placebo]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.14.3]"
+    versionRange="[1.14.4]"
     ordering="NONE"
     side="BOTH"
