@@ -1,10 +1,22 @@
 package shadows.placebo.util;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public class NetworkUtils {
 
@@ -13,4 +25,34 @@ public class NetworkUtils {
 			channel.sendTo(packet, p.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
 		});
 	}
+
+	public static <MSG> void registerMessage(SimpleChannel channel, int id, Class<MSG> messageType, BiConsumer<MSG, PacketBuffer> encoder, Function<PacketBuffer, MSG> decoder, BiConsumer<MSG, Supplier<NetworkEvent.Context>> messageConsumer) {
+		channel.registerMessage(id, messageType, encoder, decoder, messageConsumer);
+	}
+
+	public static <T> void registerMessage(SimpleChannel channel, int id, MessageProvider<T> prov) {
+		channel.registerMessage(id, prov.getMsgClass(), prov::write, prov::read, prov::handle);
+	}
+
+	public static abstract class MessageProvider<T> {
+
+		public abstract Class<T> getMsgClass();
+
+		public abstract T read(PacketBuffer buf);
+
+		public abstract void write(T msg, PacketBuffer buf);
+
+		public abstract void handle(T msg, Supplier<NetworkEvent.Context> ctx);
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	public static void enqueueClient(Runnable r) {
+		Minecraft.getInstance().func_213141_a(a -> r);
+	}
+
+	public static void enqueueServer(Runnable r) {
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		server.func_213141_a(a -> new TickDelayedTask(server.getTickCounter(), r));
+	}
+
 }
