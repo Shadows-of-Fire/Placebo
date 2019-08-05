@@ -59,6 +59,7 @@ public class LootSystem {
 			tables.forEach((key, val) -> {
 				mgr.registeredLootTables.put(key, val);
 			});
+			Placebo.LOGGER.info("Registered {} additional loot tables.", tables.keySet().size());
 		}
 	}
 

@@ -110,6 +110,7 @@ public class RecipeHelper {
 
 	static void addRecipes(RecipeManager mgr) {
 		recipes.forEach(r -> mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>()).put(r.getId(), r));
+		Placebo.LOGGER.info("Registered {} additional recipes.", recipes.size());
 	}
 
 	public static void mutableManager(RecipeManager mgr) {
