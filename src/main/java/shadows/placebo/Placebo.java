@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import shadows.placebo.loot.LootSystem;
 import shadows.placebo.recipe.RecipeHelper;
 import shadows.placebo.recipe.TagIngredient;
 import shadows.placebo.trading.VillagerTradingManager;
@@ -32,5 +33,6 @@ public class Placebo {
 		VillagerTradingManager.postWandererEvents();
 		VillagerTradingManager.postVillagerEvents();
 		MinecraftForge.EVENT_BUS.addListener(RecipeHelper::serverStart);
+		MinecraftForge.EVENT_BUS.addListener(LootSystem::serverStart);
 	}
 }

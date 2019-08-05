@@ -1,0 +1,38 @@
+package shadows.placebo.loot;
+
+import java.util.function.Consumer;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.storage.loot.LootContext;
+import net.minecraft.world.storage.loot.StandaloneLootEntry;
+import net.minecraft.world.storage.loot.conditions.ILootCondition;
+import net.minecraft.world.storage.loot.functions.ILootFunction;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+import shadows.placebo.recipe.RecipeHelper;
+
+public class StackLootEntry extends StandaloneLootEntry {
+
+	private final ItemStack stack;
+	private final int min;
+	private final int max;
+
+	public StackLootEntry(ItemStack stack, int min, int max, int weight, int quality) {
+		super(weight, quality, new ILootCondition[0], new ILootFunction[0]);
+		this.stack = stack;
+		this.min = min;
+		this.max = max;
+	}
+
+	public StackLootEntry(IForgeRegistryEntry<?> thing, int min, int max, int weight, int quality) {
+		this(RecipeHelper.makeStack(thing), min, max, weight, quality);
+	}
+
+	@Override
+	protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
+		ItemStack s = stack.copy();
+		s.setCount(MathHelper.nextInt(ctx.getRandom(), min, max));
+		list.accept(s);
+	}
+
+}
