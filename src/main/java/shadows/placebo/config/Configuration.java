@@ -92,61 +92,8 @@ public class Configuration {
 		NEW_LINE = System.getProperty("line.separator");
 	}
 
-	public Configuration() {
-	}
-
-	/**
-	 * Create a configuration file for the file given in parameter.
-	 */
 	public Configuration(File file) {
-		this(file, null);
-	}
-
-	/**
-	 * Create a configuration file for the file given in parameter with the provided config version number.
-	 * /
-	private void runConfiguration(File file, String configVersion)
-	{
-	    this.file = file;
-	    this.definedConfigVersion = configVersion;
-	    String basePath = ((File)(FMLInjectionData.data()[6])).getAbsolutePath().replace(File.separatorChar, '/').replace("/.", "");
-	    String path = file.getAbsolutePath().replace(File.separatorChar, '/').replace("/./", "/").replace(basePath, "");
-	    if (PARENT != null)
-	    {
-	        PARENT.setChild(path, this);
-	        isChild = true;
-	    }
-	    else
-	    {
-	        fileName = path;
-	        try
-	        {
-	            load();
-	        }
-	        catch (Throwable e)
-	        {
-	            File fileBak = new File(file.getAbsolutePath() + "_" +
-	                    new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".errored");
-	            LOGGER.fatal("An exception occurred while loading config file {}. This file will be renamed to {} " +
-	                    "and a new config file will be generated.", file.getName(), fileBak.getName(), e);
-	
-	            file.renameTo(fileBak);
-	            load();
-	        }
-	    }
-	}
-	*/
-	public Configuration(File file, String configVersion) {
-		//        runConfiguration(file, configVersion);
-	}
-
-	public Configuration(File file, String configVersion, boolean caseSensitiveCustomCategories) {
-		this.caseSensitiveCustomCategories = caseSensitiveCustomCategories;
-		//        runConfiguration(file, configVersion);
-	}
-
-	public Configuration(File file, boolean caseSensitiveCustomCategories) {
-		this(file, null, caseSensitiveCustomCategories);
+		this.file = file;
 	}
 
 	@Override
@@ -784,7 +731,7 @@ public class Configuration {
 						continue;
 					} else if (end.matches()) {
 						fileName = end.group(1);
-						Configuration child = new Configuration();
+						Configuration child = new Configuration(null);
 						child.categories = categories;
 						this.children.put(fileName, child);
 						continue;
@@ -1124,6 +1071,7 @@ public class Configuration {
 
 	public static class UnicodeInputStreamReader extends Reader {
 		private final InputStreamReader input;
+
 		public UnicodeInputStreamReader(InputStream source, String encoding) throws IOException {
 			String enc = encoding;
 			byte[] data = new byte[4];

@@ -9,7 +9,7 @@ import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedSpawnerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.IWorld;
 
 /**
  * A Util class to create TileEntityMobSpawner nbt tags.
@@ -170,19 +170,18 @@ public class SpawnerBuilder {
 	/**
 	 * @return The spawn data, represented as an entity nbt tag.
 	 */
-	public ListNBT getPoten1tials() {
+	public ListNBT getPotentials() {
 		return tag.getList(SPAWN_POTENTIALS, 10);
 	}
 
-	public MobSpawnerTileEntity build(World world, BlockPos pos) {
+	public MobSpawnerTileEntity build(IWorld world, BlockPos pos) {
 		MobSpawnerTileEntity s = (MobSpawnerTileEntity) Blocks.SPAWNER.createTileEntity(null, world);
 		if (!hasPotentials) {
 			ListNBT list = new ListNBT();
 			list.add(baseEntity.toCompoundTag());
 			tag.put(SPAWN_POTENTIALS, list);
 		}
-		s.setWorld(world);
-		s.setPos(pos);
+		world.getChunk(pos).addTileEntity(pos, s);
 		s.read(tag);
 		return s;
 	}
