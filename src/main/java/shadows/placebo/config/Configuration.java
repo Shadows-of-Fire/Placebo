@@ -35,7 +35,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PushbackInputStream;
 import java.io.Reader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -54,6 +56,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Floats;
 
 import net.minecraftforge.fml.loading.FMLPaths;
+import shadows.placebo.Placebo;
 
 /**
  * This class offers advanced configurations capabilities, allowing to provide
@@ -94,6 +97,15 @@ public class Configuration {
 
 	public Configuration(File file) {
 		this.file = file;
+		try {
+			load();
+		} catch (Throwable e) {
+			File fileBak = new File(file.getAbsolutePath() + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".errored");
+			Placebo.LOGGER.fatal("An exception occurred while loading config file {}. This file will be renamed to {} " + "and a new config file will be generated.", file.getName(), fileBak.getName(), e);
+
+			file.renameTo(fileBak);
+			load();
+		}
 	}
 
 	@Override
