@@ -6,10 +6,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.MobSpawnerTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedSpawnerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
+import net.minecraftforge.common.util.Constants.NBT;
 
 /**
  * A Util class to create TileEntityMobSpawner nbt tags.
@@ -34,6 +36,7 @@ public class SpawnerBuilder {
 		MobSpawnerTileEntity te = (MobSpawnerTileEntity) Blocks.SPAWNER.createTileEntity(null, null);
 		te.getSpawnerBaseLogic().setEntityType(EntityType.PIG);
 		BASE_TAG = te.write(new CompoundNBT());
+		BASE_TAG.getList(SPAWN_POTENTIALS, NBT.TAG_COMPOUND).clear();
 	}
 
 	CompoundNBT tag = BASE_TAG.copy();
@@ -174,15 +177,10 @@ public class SpawnerBuilder {
 		return tag.getList(SPAWN_POTENTIALS, 10);
 	}
 
-	public MobSpawnerTileEntity build(IWorld world, BlockPos pos) {
-		MobSpawnerTileEntity s = (MobSpawnerTileEntity) Blocks.SPAWNER.createTileEntity(null, world);
-		if (!hasPotentials) {
-			ListNBT list = new ListNBT();
-			list.add(baseEntity.toCompoundTag());
-			tag.put(SPAWN_POTENTIALS, list);
-		}
-		world.getChunk(pos).addTileEntity(pos, s);
+	public void build(IWorld world, BlockPos pos) {
+		if (world.getBlockState(pos).getBlock() != Blocks.SPAWNER) world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
+		TileEntity s = world.getTileEntity(pos);
 		s.read(tag);
-		return s;
+		s.setPos(pos);
 	}
 }
