@@ -45,6 +45,10 @@ public class RecipeHelper {
 	}
 
 	public static void addRecipe(IRecipe<?> rec) {
+		if (rec == null) {
+			Placebo.LOGGER.error("Attempted to add null recipe, this is invalid behavior.");
+			Thread.dumpStack();
+		}
 		recipes.add(rec);
 	}
 
@@ -77,10 +81,6 @@ public class RecipeHelper {
 
 	public void addSimpleShapeless(Object output, Object input, int numInputs) {
 		addShapeless(output, NonNullList.withSize(numInputs, makeStack(input)));
-	}
-
-	public static List<IRecipe<?>> getRecipes() {
-		return recipes;
 	}
 
 	public static ItemStack makeStack(Object thing, int size) {
@@ -161,7 +161,7 @@ public class RecipeHelper {
 
 		@Override
 		protected List<IRecipe<?>> prepare(IResourceManager p_212854_1_, IProfiler p_212854_2_) {
-			return recipes;
+			return null;
 		}
 
 		@Override
