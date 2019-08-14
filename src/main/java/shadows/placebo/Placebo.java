@@ -10,6 +10,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import shadows.placebo.loot.LootSystem;
 import shadows.placebo.recipe.RecipeHelper;
@@ -30,9 +31,12 @@ public class Placebo {
 	@SubscribeEvent
 	public void setup(FMLCommonSetupEvent e) {
 		CraftingHelper.register(new ResourceLocation(Placebo.MODID, "tag"), TagIngredient.SERIALIZER);
-		VillagerTradingManager.postWandererEvents();
-		VillagerTradingManager.postVillagerEvents();
 		MinecraftForge.EVENT_BUS.addListener(RecipeHelper::serverStart);
 		MinecraftForge.EVENT_BUS.addListener(LootSystem::serverStart);
+		MinecraftForge.EVENT_BUS.addListener(this::serverStart);
+	}
+
+	public void serverStart(FMLServerAboutToStartEvent e) {
+		VillagerTradingManager.postEvents();
 	}
 }

@@ -22,7 +22,16 @@ import net.minecraftforge.registries.ForgeRegistries;
  */
 public class VillagerTradingManager {
 
-	public static void postWandererEvents() {
+	private static boolean run = false;
+
+	public static void postEvents() {
+		if (run) return;
+		postWandererEvents();
+		postVillagerEvents();
+		run = true;
+	}
+
+	private static void postWandererEvents() {
 		List<ITrade> randTrades = new ArrayList<>();
 		List<ITrade> goodTrades = new ArrayList<>();
 		randTrades.addAll(Arrays.asList(VillagerTrades.field_221240_b.get(1)));
@@ -35,7 +44,7 @@ public class VillagerTradingManager {
 		VillagerTrades.field_221240_b.put(2, goodTrades.toArray(new ITrade[0]));
 	}
 
-	public static void postVillagerEvents() {
+	private static void postVillagerEvents() {
 		for (VillagerProfession prof : ForgeRegistries.PROFESSIONS) {
 			Int2ObjectMap<ITrade[]> trades = VillagerTrades.field_221239_a.computeIfAbsent(prof, a -> new Int2ObjectOpenHashMap<>());
 			Int2ObjectMap<List<ITrade>> mutableTrades = new Int2ObjectOpenHashMap<>();
