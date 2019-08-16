@@ -3,7 +3,6 @@ package shadows.placebo.recipe;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -35,7 +34,7 @@ import shadows.placebo.Placebo;
 
 public class RecipeHelper {
 
-	private static final List<IRecipe<?>> recipes = new LinkedList<>();
+	private static final List<IRecipe<?>> recipes = new ArrayList<>();
 
 	protected String modid;
 	protected int id;
@@ -45,11 +44,13 @@ public class RecipeHelper {
 	}
 
 	public static void addRecipe(IRecipe<?> rec) {
-		if (rec == null) {
-			Placebo.LOGGER.error("Attempted to add null recipe, this is invalid behavior.");
-			Thread.dumpStack();
+		synchronized (recipes) {
+			if (rec == null) {
+				Placebo.LOGGER.error("Attempted to add null recipe, this is invalid behavior.");
+				Thread.dumpStack();
+			}
+			recipes.add(rec);
 		}
-		recipes.add(rec);
 	}
 
 	public void addShapeless(Object output, Object... inputs) {
@@ -136,18 +137,20 @@ public class RecipeHelper {
 
 	public static class CachedIngredient extends Ingredient {
 
-		private static Int2ObjectMap<CachedIngredient> ing = new Int2ObjectOpenHashMap<>();
+		private static Int2ObjectMap<CachedIngredient> ingredients = new Int2ObjectOpenHashMap<>();
 
 		private CachedIngredient(ItemStack... matches) {
 			super(Arrays.stream(matches).map(s -> new SingleItemList(s)));
-			if (matches.length == 1) ing.put(RecipeItemHelper.pack(matches[0]), this);
+			if (matches.length == 1) ingredients.put(RecipeItemHelper.pack(matches[0]), this);
 		}
 
 		public static CachedIngredient create(ItemStack... matches) {
-			if (matches.length == 1) {
-				CachedIngredient coi = ing.get(RecipeItemHelper.pack(matches[0]));
-				return coi != null ? coi : new CachedIngredient(matches);
-			} else return new CachedIngredient(matches);
+			synchronized (ingredients) {
+				if (matches.length == 1) {
+					CachedIngredient coi = ingredients.get(RecipeItemHelper.pack(matches[0]));
+					return coi != null ? coi : new CachedIngredient(matches);
+				} else return new CachedIngredient(matches);
+			}
 		}
 
 		@Override
