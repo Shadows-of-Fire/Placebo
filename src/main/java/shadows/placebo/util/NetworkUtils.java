@@ -4,19 +4,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.concurrent.TickDelayedTask;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public class NetworkUtils {
 
@@ -45,14 +39,9 @@ public class NetworkUtils {
 		public abstract void handle(T msg, Supplier<NetworkEvent.Context> ctx);
 	}
 
-	@OnlyIn(Dist.CLIENT)
-	public static void enqueueClient(Runnable r) {
-		Minecraft.getInstance().func_213141_a(a -> r);
-	}
-
-	public static void enqueueServer(Runnable r) {
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		server.func_213141_a(a -> new TickDelayedTask(server.getTickCounter(), r));
+	public static void handlePacket(Supplier<Runnable> r, NetworkEvent.Context ctx) {
+		ctx.enqueueWork(r.get());
+		ctx.setPacketHandled(true);
 	}
 
 }

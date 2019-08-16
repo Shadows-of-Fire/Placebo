@@ -136,9 +136,9 @@ public class RecipeHelper {
 
 	public static class CachedIngredient extends Ingredient {
 
-		public static Int2ObjectMap<CachedIngredient> ing = new Int2ObjectOpenHashMap<>();
+		private static Int2ObjectMap<CachedIngredient> ing = new Int2ObjectOpenHashMap<>();
 
-		protected CachedIngredient(ItemStack... matches) {
+		private CachedIngredient(ItemStack... matches) {
 			super(Arrays.stream(matches).map(s -> new SingleItemList(s)));
 			if (matches.length == 1) ing.put(RecipeItemHelper.pack(matches[0]), this);
 		}
