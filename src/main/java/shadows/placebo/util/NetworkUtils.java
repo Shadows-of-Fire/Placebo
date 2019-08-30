@@ -30,11 +30,14 @@ public class NetworkUtils {
 
 	public static abstract class MessageProvider<T> {
 
-		public abstract Class<T> getMsgClass();
-
-		public abstract T read(PacketBuffer buf);
+		@SuppressWarnings("unchecked")
+		public Class<T> getMsgClass() {
+			return (Class<T>) this.getClass();
+		}
 
 		public abstract void write(T msg, PacketBuffer buf);
+
+		public abstract T read(PacketBuffer buf);
 
 		public abstract void handle(T msg, Supplier<NetworkEvent.Context> ctx);
 	}

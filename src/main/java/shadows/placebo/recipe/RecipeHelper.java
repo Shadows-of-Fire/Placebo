@@ -24,8 +24,8 @@ import net.minecraft.resources.SimpleReloadableResourceManager;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
+import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -155,7 +155,7 @@ public class RecipeHelper {
 
 		@Override
 		public IIngredientSerializer<? extends Ingredient> getSerializer() {
-			return CraftingHelper.INGREDIENT_VANILLA;
+			return VanillaIngredientSerializer.INSTANCE;
 		}
 
 	}
