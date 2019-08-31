@@ -28,6 +28,10 @@ public class StackLootEntry extends StandaloneLootEntry {
 		this(RecipeHelper.makeStack(thing), min, max, weight, quality);
 	}
 
+	public StackLootEntry(ItemStack stack) {
+		this(stack, 1, 1, 1, 0);
+	}
+
 	@Override
 	protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
 		ItemStack s = stack.copy();

@@ -3,13 +3,16 @@ package shadows.placebo.loot;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.resources.ReloadListener;
+import net.minecraft.item.ItemStack;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraft.world.storage.loot.LootTableManager;
+import net.minecraft.world.storage.loot.conditions.SurvivesExplosion;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -30,6 +33,12 @@ public class LootSystem {
 
 	public static PoolBuilder poolBuilder(int minRolls, int maxRolls) {
 		return new PoolBuilder(minRolls, maxRolls);
+	}
+
+	public static void defaultBlockTable(Block b) {
+		LootTable.Builder builder = tableBuilder();
+		builder.addLootPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).acceptCondition(SurvivesExplosion.builder()));
+		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "loot_tables/blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
 	@SubscribeEvent
@@ -57,7 +66,7 @@ public class LootSystem {
 			LootTableManager mgr = ServerLifecycleHooks.getCurrentServer().getLootTableManager();
 			mgr.registeredLootTables = new HashMap<>(mgr.registeredLootTables);
 			tables.forEach((key, val) -> {
-				mgr.registeredLootTables.put(key, val);
+				if (!mgr.registeredLootTables.containsKey(key)) mgr.registeredLootTables.put(key, val);
 			});
 			Placebo.LOGGER.info("Registered {} additional loot tables.", tables.keySet().size());
 		}

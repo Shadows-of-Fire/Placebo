@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -54,7 +55,7 @@ public class RecipeHelper {
 	}
 
 	public void addShapeless(Object output, Object... inputs) {
-		addRecipe(new ShapelessRecipe(new ResourceLocation(modid + ":" + id++), modid, makeStack(output), createInput(false, inputs)));
+		addRecipe(new FastShapelessRecipe(new ResourceLocation(modid + ":" + id++), modid, makeStack(output), createInput(false, inputs)));
 	}
 
 	public void addShaped(Object output, int width, int height, Object... input) {
@@ -110,7 +111,11 @@ public class RecipeHelper {
 	}
 
 	static void addRecipes(RecipeManager mgr) {
-		recipes.forEach(r -> mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>()).put(r.getId(), r));
+		recipes.forEach(r -> {
+			Map<ResourceLocation, IRecipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
+			IRecipe<?> old = map.get(r.getId());
+			if (old == null || (old.getClass() == ShapelessRecipe.class && r instanceof FastShapelessRecipe)) map.put(r.getId(), r);
+		});
 		Placebo.LOGGER.info("Registered {} additional recipes.", recipes.size());
 	}
 
@@ -123,14 +128,13 @@ public class RecipeHelper {
 
 	public static void enableFastShapeless() {
 		Placebo.LOGGER.info("Beginning replacement of all shapeless recipes...");
-		List<ShapelessRecipe> fastRecipes = new ArrayList<>();
+		List<FastShapelessRecipe> fastRecipes = new ArrayList<>();
 		for (IRecipe<?> r : ServerLifecycleHooks.getCurrentServer().getRecipeManager().getRecipes()) {
 			if (r.getClass() == ShapelessRecipe.class) {
-				FastShapelessRecipe res = new FastShapelessRecipe(r.getId(), r.getGroup(), r.getRecipeOutput(), r.getIngredients());
-				fastRecipes.add(res);
+				fastRecipes.add(new FastShapelessRecipe(r.getId(), r.getGroup(), r.getRecipeOutput(), r.getIngredients()));
 			}
 		}
-		for (ShapelessRecipe r : fastRecipes)
+		for (FastShapelessRecipe r : fastRecipes)
 			RecipeHelper.addRecipe(r);
 		Placebo.LOGGER.info("Successfully replaced {} recipes with fast recipes.", fastRecipes.size());
 	}
