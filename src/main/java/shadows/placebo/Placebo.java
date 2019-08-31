@@ -10,7 +10,6 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -18,7 +17,6 @@ import shadows.placebo.loot.LootSystem;
 import shadows.placebo.net.MessageButtonClick;
 import shadows.placebo.recipe.RecipeHelper;
 import shadows.placebo.recipe.TagIngredient;
-import shadows.placebo.trading.VillagerTradingManager;
 import shadows.placebo.util.NetworkUtils;
 
 @Mod(Placebo.MODID)
@@ -45,11 +43,7 @@ public class Placebo {
 		CraftingHelper.register(new ResourceLocation(Placebo.MODID, "tag"), TagIngredient.SERIALIZER);
 		MinecraftForge.EVENT_BUS.addListener(RecipeHelper::serverStart);
 		MinecraftForge.EVENT_BUS.addListener(LootSystem::serverStart);
-		MinecraftForge.EVENT_BUS.addListener(this::serverStart);
 		NetworkUtils.registerMessage(CHANNEL, 0, new MessageButtonClick());
 	}
 
-	public void serverStart(FMLServerAboutToStartEvent e) {
-		VillagerTradingManager.postEvents();
-	}
 }
