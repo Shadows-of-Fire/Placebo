@@ -38,7 +38,7 @@ public class LootSystem {
 	public static void defaultBlockTable(Block b) {
 		LootTable.Builder builder = tableBuilder();
 		builder.addLootPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).acceptCondition(SurvivesExplosion.builder()));
-		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "loot_tables/blocks/" + b.getRegistryName().getPath()), builder.build());
+		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
 	@SubscribeEvent
