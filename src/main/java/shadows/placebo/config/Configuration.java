@@ -108,6 +108,10 @@ public class Configuration {
 		}
 	}
 
+	public Configuration(String modid) {
+		this(new File(FMLPaths.CONFIGDIR.get().toFile(), modid + ".cfg"));
+	}
+
 	@Override
 	public String toString() {
 		return file.getAbsolutePath();
