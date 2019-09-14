@@ -747,9 +747,9 @@ public class Configuration {
 						continue;
 					} else if (end.matches()) {
 						fileName = end.group(1);
-						Configuration child = new Configuration(null);
-						child.categories = categories;
-						this.children.put(fileName, child);
+						//	Configuration child = new Configuration(null);
+						//	child.categories = categories;
+						//	this.children.put(fileName, child);
 						continue;
 					}
 
