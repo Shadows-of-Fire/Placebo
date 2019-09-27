@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.model.ModelBakery;
@@ -45,13 +46,14 @@ public class ModelMapRegistry {
 	}
 
 	/**
-	 * Registers an item mapper.
+	 * Registers an item mapper.  Automatically registers it with the item model mesher.
 	 * @param item The item to map for.
 	 * @param map Mapping function.
 	 */
 	public static void registerItemMap(Item item, IMapper<Item> map) {
 		enabled = true;
 		MAPPED_ITEMS.put(item.getRegistryName(), map);
+		Minecraft.getInstance().getItemRenderer().getItemModelMesher().register(item, map.map(item));
 	}
 
 	/**
