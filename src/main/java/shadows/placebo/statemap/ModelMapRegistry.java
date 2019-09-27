@@ -61,7 +61,7 @@ public class ModelMapRegistry {
 	 * @return The MRL For this blockstate.
 	 */
 	public static ModelResourceLocation getMRL(BlockState state, ModelResourceLocation fallback) {
-		if (!enabled) {
+		if (enabled) {
 			IMapper<BlockState> map = MAPPED_BLOCKS.get(state.getBlock().getRegistryName());
 			if (map != null) return map.map(state);
 		}
@@ -76,7 +76,7 @@ public class ModelMapRegistry {
 	 * @return The MRL For this item.
 	 */
 	public static ModelResourceLocation getMRL(ModelResourceLocation fallback, ResourceLocation item) {
-		if (!enabled) {
+		if (enabled) {
 			IMapper<Item> map = MAPPED_ITEMS.get(item);
 			if (map != null) return map.map(ForgeRegistries.ITEMS.getValue(item));
 		}

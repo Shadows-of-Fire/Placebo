@@ -1,6 +1,6 @@
 function initializeCoreMod() {
     return {
-        'blockstatemap': {
+        'itemstatemap': {
             'target': {
                 'type': 'METHOD',
                 'class': 'net.minecraft.client.renderer.model.ModelBakery',
