@@ -33,7 +33,8 @@ public class AttributeHelper {
 	 * @param operation See above.
 	 */
 	public static void modify(LivingEntity entity, IAttribute attribute, String name, double modifier, Operation operation) {
-		entity.getAttribute(attribute).applyModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation).setSaved(true));
+		IAttributeInstance inst = entity.getAttribute(attribute);
+		if (inst != null) inst.applyModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation).setSaved(true));
 	}
 
 	/**

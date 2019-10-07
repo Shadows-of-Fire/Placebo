@@ -10,8 +10,7 @@ import net.minecraft.world.server.ServerWorld;
 public class VanillaPacketDispatcher {
 
 	/**
-	 * Sends the {@link SUpdateTileEntityPacket} to all players watching this tile entity.
-	 * @param tile
+	 * Sends a {@link SUpdateTileEntityPacket} to all players watching this tile entity.
 	 */
 	public static void dispatchTEToNearbyPlayers(TileEntity tile) {
 		ServerWorld world = (ServerWorld) tile.getWorld();
@@ -21,6 +20,9 @@ public class VanillaPacketDispatcher {
 
 	}
 
+	/**
+	 * Sends a {@link SUpdateTileEntityPacket} to all players watching this tile entity.
+	 */
 	public static void dispatchTEToNearbyPlayers(World world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
 		if (tile != null) dispatchTEToNearbyPlayers(tile);
