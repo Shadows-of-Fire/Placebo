@@ -89,7 +89,7 @@ public class RecipeHelper {
 	}
 
 	private ResourceLocation name(ItemStack out) {
-		String name = out.getItem().getRegistryName().toString();
+		String name = out.getItem().getRegistryName().getPath();
 		while (names.contains(name)) {
 			name += "_";
 		}
