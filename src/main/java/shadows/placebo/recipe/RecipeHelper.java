@@ -3,8 +3,10 @@ package shadows.placebo.recipe;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -38,7 +40,7 @@ public class RecipeHelper {
 	private static final List<IRecipe<?>> recipes = new ArrayList<>();
 
 	protected String modid;
-	protected int id;
+	protected Set<String> names = new HashSet<>();
 
 	public RecipeHelper(String modid) {
 		this.modid = modid;
@@ -55,7 +57,8 @@ public class RecipeHelper {
 	}
 
 	public void addShapeless(Object output, Object... inputs) {
-		addRecipe(new FastShapelessRecipe(new ResourceLocation(modid + ":" + id++), modid, makeStack(output), createInput(false, inputs)));
+		ItemStack out = makeStack(output);
+		addRecipe(new FastShapelessRecipe(name(out), modid, out, createInput(false, inputs)));
 	}
 
 	public void addShaped(Object output, int width, int height, Object... input) {
@@ -64,7 +67,7 @@ public class RecipeHelper {
 
 	public ShapedRecipe genShaped(ItemStack output, int l, int w, Object... input) {
 		if (l * w != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + modid);
-		return new ShapedRecipe(new ResourceLocation(modid + ":" + id++), modid, l, w, createInput(true, input), output);
+		return new ShapedRecipe(name(output), modid, l, w, createInput(true, input), output);
 	}
 
 	public NonNullList<Ingredient> createInput(boolean allowEmpty, Object... input) {
@@ -83,6 +86,15 @@ public class RecipeHelper {
 
 	public void addSimpleShapeless(Object output, Object input, int numInputs) {
 		addShapeless(output, NonNullList.withSize(numInputs, makeStack(input)));
+	}
+
+	private ResourceLocation name(ItemStack out) {
+		String name = out.getItem().getRegistryName().toString();
+		while (names.contains(name)) {
+			name += "_";
+		}
+		names.add(name);
+		return new ResourceLocation(modid, name);
 	}
 
 	public static ItemStack makeStack(Object thing, int size) {
@@ -106,7 +118,6 @@ public class RecipeHelper {
 				break;
 			}
 		}
-		enableFastShapeless();
 		rel.apply(null, null, null);
 	}
 
@@ -126,16 +137,16 @@ public class RecipeHelper {
 		}
 	}
 
-	public static void enableFastShapeless() {
+	public static void replaceShapeless(RecipeManager mgr) {
 		Placebo.LOGGER.info("Beginning replacement of all shapeless recipes...");
 		List<FastShapelessRecipe> fastRecipes = new ArrayList<>();
-		for (IRecipe<?> r : ServerLifecycleHooks.getCurrentServer().getRecipeManager().getRecipes()) {
+		for (IRecipe<?> r : mgr.getRecipes()) {
 			if (r.getClass() == ShapelessRecipe.class) {
 				fastRecipes.add(new FastShapelessRecipe(r.getId(), r.getGroup(), r.getRecipeOutput(), r.getIngredients()));
 			}
 		}
 		for (FastShapelessRecipe r : fastRecipes)
-			RecipeHelper.addRecipe(r);
+			mgr.recipes.get(r.getType()).put(r.getId(), r);
 		Placebo.LOGGER.info("Successfully replaced {} recipes with fast recipes.", fastRecipes.size());
 	}
 
@@ -176,6 +187,7 @@ public class RecipeHelper {
 			RecipeManager mgr = ServerLifecycleHooks.getCurrentServer().getRecipeManager();
 			mutableManager(mgr);
 			addRecipes(mgr);
+			replaceShapeless(mgr);
 		}
 	}
 
