@@ -4,12 +4,15 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 public class NetworkUtils {
@@ -21,6 +24,13 @@ public class NetworkUtils {
 		world.getChunkProvider().chunkManager.getTrackingPlayers(new ChunkPos(pos), false).forEach(p -> {
 			channel.sendTo(packet, p.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
 		});
+	}
+
+	/**
+	 * Helper message to send a packet to all players watching a chunk.
+	 */
+	public static void sendTo(SimpleChannel channel, Object packet, PlayerEntity player) {
+		channel.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player), packet);
 	}
 
 	/**

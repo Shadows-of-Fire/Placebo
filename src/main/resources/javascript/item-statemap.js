@@ -4,8 +4,8 @@ function initializeCoreMod() {
             'target': {
                 'type': 'METHOD',
                 'class': 'net.minecraft.client.renderer.model.ModelBakery',
-                'methodName': '<init>',
-                'methodDesc': '(Lnet/minecraft/resources/IResourceManager;Lnet/minecraft/client/renderer/texture/AtlasTexture;Lnet/minecraft/client/renderer/color/BlockColors;Lnet/minecraft/profiler/IProfiler;)V'
+                'methodName': 'processLoading',
+                'methodDesc': '(Lnet/minecraft/profiler/IProfiler;)V'
             },
             'transformer': function(method) {
                 print('[PlaceboASM]: Patching ModelBakery#<init>');
@@ -26,7 +26,7 @@ function initializeCoreMod() {
 					if (n.getOpcode() == Opcodes.INVOKESPECIAL) {
 						var is = n.name.equals(ASMAPI.mapMethod("func_217843_a"));
 						if (is && ++j == 2) { 
-							instr.insertBefore(n, new VarInsnNode(Opcodes.ALOAD, 6));
+							instr.insertBefore(n, new VarInsnNode(Opcodes.ALOAD, 3));
 							instr.insertBefore(n, ASMAPI.buildMethodCall(
 								owner,
 								name,
