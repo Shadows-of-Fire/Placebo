@@ -30,7 +30,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
@@ -109,7 +109,7 @@ public class RecipeHelper {
 	}
 
 	@SubscribeEvent
-	public static void serverStart(FMLServerStartedEvent e) {
+	public static void serverStart(FMLServerAboutToStartEvent e) {
 		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) e.getServer().getResourceManager();
 		Reloader rel = new Reloader();
 		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
@@ -118,7 +118,6 @@ public class RecipeHelper {
 				break;
 			}
 		}
-		rel.apply(null, null, null);
 	}
 
 	static void addRecipes(RecipeManager mgr) {

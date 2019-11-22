@@ -14,9 +14,10 @@ import net.minecraft.world.storage.loot.LootPool;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraft.world.storage.loot.conditions.SurvivesExplosion;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import shadows.placebo.Placebo;
 
@@ -65,8 +66,8 @@ public class LootSystem {
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
-	@SubscribeEvent
-	public static void serverStart(FMLServerStartedEvent e) {
+	@SubscribeEvent(priority = EventPriority.HIGH)
+	public static void serverStart(FMLServerAboutToStartEvent e) {
 		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) e.getServer().getResourceManager();
 		Reloader rel = new Reloader();
 		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
@@ -75,7 +76,6 @@ public class LootSystem {
 				break;
 			}
 		}
-		rel.apply(PLACEBO_TABLES, null, null);
 	}
 
 	private static class Reloader extends ReloadListener<Map<ResourceLocation, LootTable>> {
