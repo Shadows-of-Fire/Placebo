@@ -65,7 +65,7 @@ public class AttributeHelper {
 	 */
 	public static void setBaseValue(LivingEntity entity, IAttribute attribute, String name, double value) {
 		IAttributeInstance inst = entity.getAttribute(attribute);
-		inst.func_220368_a(Operation.ADDITION).clear();
+		inst.func_225504_a_(Operation.ADDITION).clear();
 		modify(entity, attribute, name, value - inst.getBaseValue(), Operation.ADDITION);
 	}
 
