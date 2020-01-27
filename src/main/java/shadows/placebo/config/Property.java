@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import net.minecraftforge.fml.client.config.IArrayEntry;
-import net.minecraftforge.fml.client.config.IConfigEntry;
-
 public class Property {
 	public String getComment() {
 		return comment;
@@ -66,9 +63,6 @@ public class Property {
 	private String langKey;
 	private String minValue;
 	private String maxValue;
-
-	private Class<? extends IConfigEntry> configEntryClass = null;
-	private Class<? extends IArrayEntry> arrayEntryClass = null;
 
 	private boolean requiresWorldRestart = false;
 	private boolean showInGui = true;
@@ -329,36 +323,6 @@ public class Property {
 	 */
 	public boolean isListLengthFixed() {
 		return this.isListLengthFixed;
-	}
-
-	public Property setConfigEntryClass(Class<? extends IConfigEntry> clazz) {
-		this.configEntryClass = clazz;
-		return this;
-	}
-
-	/**
-	 * Gets the custom IConfigEntry class that should be used in place of the standard entry class for this Property type, or null if
-	 * none has been set.
-	 *
-	 * @return a class that implements IConfigEntry
-	 */
-	public Class<? extends IConfigEntry> getConfigEntryClass() {
-		return this.configEntryClass;
-	}
-
-	public Property setArrayEntryClass(Class<? extends IArrayEntry> clazz) {
-		this.arrayEntryClass = clazz;
-		return this;
-	}
-
-	/**
-	 * Gets the custom IArrayEntry class that should be used in place of the standard entry class for this Property type, or null if
-	 * none has been set.
-	 *
-	 * @return a class that implements IArrayEntry
-	 */
-	public Class<? extends IArrayEntry> getArrayEntryClass() {
-		return this.arrayEntryClass;
 	}
 
 	/**
