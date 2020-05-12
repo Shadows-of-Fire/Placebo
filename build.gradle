@@ -18,7 +18,7 @@ archivesBaseName = 'Placebo-1.15.2'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'snapshot', version: '20200108-mixed-1.15.1'
+    mappings channel: 'snapshot', version: '20200426-mixed-1.15.2'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client = {
@@ -38,20 +38,24 @@ minecraft {
 
 repositories {
     maven {
-        url "http://dvs1.progwml6.com/files/maven"
+        url "https://dvs1.progwml6.com/files/maven"
     }
 	maven {
 		url "http://tehnut.info/maven"
 	}
-	maven {
+	maven { 
 		url 'https://maven.tterrag.com/' 
+	}
+	maven {
+		url 'https://github.com/TehNut/temporary-maven-thing/tree/master/maven/'
 	}
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.15.2-31.0.1'
+    minecraft 'net.minecraftforge:forge:1.15.2-31.1.79'
 	compile fg.deobf('mezz.jei:jei-1.15.2:+')
-	//compile fg.deobf('mcp.mobius.waila:Hwyla:1.10+')
+	compile fg.deobf('mcp.mobius.waila:Hwyla:1.10.8-B72_1.15.2')
+	compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 jar {
