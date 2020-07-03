@@ -4,7 +4,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import shadows.placebo.Placebo;
 
 /**
@@ -33,8 +33,9 @@ public class AttributeHelper {
 	 * @param operation See above.
 	 */
 	public static void modify(LivingEntity entity, Attribute attribute, String name, double modifier, Operation operation) {
-		IAttributeInstance inst = entity.getAttribute(attribute);
-		if (inst != null) inst.applyModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation).setSaved(true));
+		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
+		// TODO MCP-name: func_233767_b_ -> applyModifier
+		if (inst != null) inst.func_233767_b_(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation));
 	}
 
 	/**
@@ -64,7 +65,7 @@ public class AttributeHelper {
 	 * Forces the base value to equal the given value, overriding previous modifiers.
 	 */
 	public static void setBaseValue(LivingEntity entity, Attribute attribute, String name, double value) {
-		IAttributeInstance inst = entity.getAttribute(attribute);
+		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
 		// TODO MCP-name: func_225504_a_ -> getModifiers
 		inst.func_225504_a_(Operation.ADDITION).clear();
 		modify(entity, attribute, name, value - inst.getBaseValue(), Operation.ADDITION);
