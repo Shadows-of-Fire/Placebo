@@ -13,12 +13,12 @@ apply plugin: 'eclipse'
 
 version = '3.0.2'
 group = 'shadows.placebo'
-archivesBaseName = 'Placebo-1.15.2'
+archivesBaseName = 'Placebo-1.16.1'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'snapshot', version: '20200514-1.15.1'
+    mappings channel: 'snapshot', version: '20200514-1.16'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client = {
@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.15.2-31.2.0'
+    minecraft 'net.minecraftforge:forge:1.16.1-32.0.38'
 	compile fg.deobf('mezz.jei:jei-1.15.2:+')
 	compile fg.deobf('mcp.mobius.waila:Hwyla:1.10.8-B72_1.15.2')
 	compile fileTree(dir: 'libs', include: '*.jar')
