@@ -22,8 +22,10 @@ import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.item.crafting.ShapelessRecipe;
 import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.DataPackRegistries;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.SimpleReloadableResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -112,7 +114,13 @@ public class RecipeHelper {
 
 	@SubscribeEvent
 	public static void serverStart(FMLServerAboutToStartEvent e) {
-		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) e.getServer().getResourceManager();
+		MinecraftServer server = e.getServer();
+		DataPackRegistries dpr = server.getDataPackRegistries();
+		IResourceManager irm = dpr.func_240970_h_();
+		if(!(irm instanceof SimpleReloadableResourceManager)) {
+			return;
+		}
+		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) irm;
 		Reloader rel = new Reloader();
 		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
 			if (resMan.reloadListeners.get(i) instanceof RecipeManager) {

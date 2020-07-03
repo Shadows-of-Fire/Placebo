@@ -7,8 +7,10 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.DataPackRegistries;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.SimpleReloadableResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
@@ -68,7 +70,13 @@ public class LootSystem {
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void serverStart(FMLServerAboutToStartEvent e) {
-		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) e.getServer().getResourceManager();
+		MinecraftServer server = e.getServer();
+		DataPackRegistries dpr = server.getDataPackRegistries();
+		IResourceManager irm = dpr.func_240970_h_();
+		if(!(irm instanceof SimpleReloadableResourceManager)) {
+			return;
+		}
+		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) irm;
 		Reloader rel = new Reloader();
 		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
 			if (resMan.reloadListeners.get(i) instanceof LootTableManager) {
