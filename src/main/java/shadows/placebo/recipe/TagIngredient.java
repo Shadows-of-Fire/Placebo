@@ -31,7 +31,11 @@ public class TagIngredient extends Ingredient {
 
 		@Override
 		public void write(PacketBuffer buffer, TagIngredient ingredient) {
-			buffer.writeString(ingredient.tag.getId().toString());
+			if(ingredient.tag instanceof ITag.INamedTag) {
+				ITag.INamedTag<Item> tag = (ITag.INamedTag<Item>) ingredient.tag;
+				// TODO MCP-name: func_230234_a_ -> getId
+				buffer.writeString(tag.func_230234_a_().toString());
+			}
 		}
 
 	};
@@ -47,25 +51,29 @@ public class TagIngredient extends Ingredient {
 	}
 
 	public TagIngredient(ResourceLocation tag) {
-		this(new ItemTags.Wrapper(tag));
+		this(ItemTags.makeWrapperTag(tag.toString()));
 	}
 
 	@Override
 	public boolean test(ItemStack stack) {
-		return tag.contains(stack.getItem());
+		// TODO MCP-name: func_230235_a_ -> contains
+		return tag.func_230235_a_(stack.getItem());
 	}
 
 	@Override
 	public ItemStack[] getMatchingStacks() {
-		if (tag.getAllElements().size() != stacks.length) {
-			stacks = tag.getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
+		// TODO MCP-name: func_230236_b_ -> getAllElements
+		if (tag.func_230236_b_().size() != stacks.length) {
+			// TODO MCP-name: func_230236_b_ -> getAllElements
+			stacks = tag.func_230236_b_().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
 		return stacks;
 	}
 
 	@Override
+	// TODO MCP-name: func_230236_b_ -> getAllElements
 	public boolean hasNoMatchingItems() {
-		return tag.getAllElements().isEmpty();
+		return tag.func_230236_b_().isEmpty();
 	}
 
 	@Override
