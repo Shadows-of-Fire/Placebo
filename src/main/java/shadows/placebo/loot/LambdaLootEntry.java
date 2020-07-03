@@ -4,10 +4,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.StandaloneLootEntry;
-import net.minecraft.world.storage.loot.conditions.ILootCondition;
-import net.minecraft.world.storage.loot.functions.ILootFunction;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.StandaloneLootEntry;
+import net.minecraft.loot.conditions.ILootCondition;
+import net.minecraft.loot.functions.ILootFunction;
 
 public class LambdaLootEntry extends StandaloneLootEntry {
 

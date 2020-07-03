@@ -9,8 +9,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 
@@ -37,10 +37,10 @@ public class TagIngredient extends Ingredient {
 	};
 
 	protected ResourceLocation tagId;
-	protected Tag<Item> tag;
+	protected ITag<Item> tag;
 	protected ItemStack[] stacks;
 
-	public TagIngredient(Tag<Item> tag) {
+	public TagIngredient(ITag<Item> tag) {
 		super(Stream.of(new Ingredient.TagList(tag)));
 		this.tag = tag;
 		this.stacks = new ItemStack[0];

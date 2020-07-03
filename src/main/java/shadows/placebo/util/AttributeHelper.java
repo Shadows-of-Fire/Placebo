@@ -1,9 +1,9 @@
 package shadows.placebo.util;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
-import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import shadows.placebo.Placebo;
 
@@ -32,7 +32,7 @@ public class AttributeHelper {
 	 * @param modifier The value to modify
 	 * @param operation See above.
 	 */
-	public static void modify(LivingEntity entity, IAttribute attribute, String name, double modifier, Operation operation) {
+	public static void modify(LivingEntity entity, Attribute attribute, String name, double modifier, Operation operation) {
 		IAttributeInstance inst = entity.getAttribute(attribute);
 		if (inst != null) inst.applyModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation).setSaved(true));
 	}
@@ -40,7 +40,7 @@ public class AttributeHelper {
 	/**
 	 * Adds the given modifier to the base value of the attribute.
 	 */
-	public static void addToBase(LivingEntity entity, IAttribute attribute, String name, double modifier) {
+	public static void addToBase(LivingEntity entity, Attribute attribute, String name, double modifier) {
 		modify(entity, attribute, name, modifier, Operation.ADDITION);
 	}
 
@@ -48,7 +48,7 @@ public class AttributeHelper {
 	 * Adds (modifier * new base value) to the final value of the attribute.
 	 * New base value is the base value plus all additions (operation 0 AttributeModifiers).
 	 */
-	public static void addXTimesNewBase(LivingEntity entity, IAttribute attribute, String name, double modifier) {
+	public static void addXTimesNewBase(LivingEntity entity, Attribute attribute, String name, double modifier) {
 		modify(entity, attribute, name, modifier, Operation.MULTIPLY_BASE);
 	}
 
@@ -56,14 +56,14 @@ public class AttributeHelper {
 	 * Multiplies the final value of this attribute by 1.0 + modifier.
 	 * Final value is the value after computing all operation 0 and 1 AttributeModifiers.
 	 */
-	public static void multiplyFinal(LivingEntity entity, IAttribute attribute, String name, double modifier) {
+	public static void multiplyFinal(LivingEntity entity, Attribute attribute, String name, double modifier) {
 		modify(entity, attribute, name, modifier, Operation.MULTIPLY_TOTAL);
 	}
 
 	/**
 	 * Forces the base value to equal the given value, overriding previous modifiers.
 	 */
-	public static void setBaseValue(LivingEntity entity, IAttribute attribute, String name, double value) {
+	public static void setBaseValue(LivingEntity entity, Attribute attribute, String name, double value) {
 		IAttributeInstance inst = entity.getAttribute(attribute);
 		// TODO MCP-name: func_225504_a_ -> getModifiers
 		inst.func_225504_a_(Operation.ADDITION).clear();
@@ -73,7 +73,7 @@ public class AttributeHelper {
 	/**
 	 * Forces the base value to be (at minimum) the given value, overriding previous modifiers.
 	 */
-	public static void min(LivingEntity entity, IAttribute attribute, String name, double value) {
+	public static void min(LivingEntity entity, Attribute attribute, String name, double value) {
 		if (value < entity.getAttribute(attribute).getBaseValue()) {
 			setBaseValue(entity, attribute, name, value);
 		}
@@ -82,7 +82,7 @@ public class AttributeHelper {
 	/**
 	 * Forces the base value to be (at maximum) the given value, overriding previous modifiers.
 	 */
-	public static void max(LivingEntity entity, IAttribute attribute, String name, double value) {
+	public static void max(LivingEntity entity, Attribute attribute, String name, double value) {
 		if (value > entity.getAttribute(attribute).getBaseValue()) {
 			setBaseValue(entity, attribute, name, value);
 		}
