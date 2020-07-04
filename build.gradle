@@ -53,8 +53,8 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.1-32.0.38'
-	compile fg.deobf('mezz.jei:jei-1.15.2:+')
-	compile fg.deobf('mcp.mobius.waila:Hwyla:1.10.8-B72_1.15.2')
+	//compile fg.deobf('mezz.jei:jei-1.15.2:+')
+	//compile fg.deobf('mcp.mobius.waila:Hwyla:1.10.8-B72_1.15.2')
 	compile fileTree(dir: 'libs', include: '*.jar')
 }
 
