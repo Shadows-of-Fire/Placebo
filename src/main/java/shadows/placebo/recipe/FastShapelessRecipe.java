@@ -21,6 +21,8 @@ public class FastShapelessRecipe extends ShapelessRecipe {
 	public FastShapelessRecipe(ResourceLocation id, String group, ItemStack output, NonNullList<Ingredient> ingredients) {
 		super(id, group, output, ingredients);
 		isSimple = ReflectionHelper.getPrivateValue(ShapelessRecipe.class, this, "isSimple");
+		if (isSimple) for (Ingredient i : ingredients)
+			i.getValidItemStacksPacked();
 	}
 
 	@Override
