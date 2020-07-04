@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-version = '3.0.2'
+version = '3.1.0'
 group = 'shadows.placebo'
 archivesBaseName = 'Placebo-1.15.2'
 
@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.15.2-31.2.0'
+    minecraft 'net.minecraftforge:forge:1.15.2-31.2.30'
 	compile fg.deobf('mezz.jei:jei-1.15.2:+')
 	compile fg.deobf('mcp.mobius.waila:Hwyla:1.10.8-B72_1.15.2')
 	compile fileTree(dir: 'libs', include: '*.jar')
