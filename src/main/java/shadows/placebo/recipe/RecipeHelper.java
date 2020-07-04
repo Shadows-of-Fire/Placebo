@@ -22,9 +22,11 @@ import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.item.crafting.ShapelessRecipe;
 import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.DataPackRegistries;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.SimpleReloadableResourceManager;
-import net.minecraft.tags.Tag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
@@ -76,7 +78,7 @@ public class RecipeHelper {
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
 			if (k instanceof String) inputL.add(i, new TagIngredient(new ResourceLocation((String) k)));
-			else if (k instanceof Tag) inputL.add(i, new TagIngredient((Tag<Item>) k));
+			else if (k instanceof ITag) inputL.add(i, new TagIngredient((ITag<Item>) k));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, CachedIngredient.create((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, CachedIngredient.create(makeStack(k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
@@ -112,7 +114,13 @@ public class RecipeHelper {
 
 	@SubscribeEvent
 	public static void serverStart(FMLServerAboutToStartEvent e) {
-		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) e.getServer().getResourceManager();
+		MinecraftServer server = e.getServer();
+		DataPackRegistries dpr = server.getDataPackRegistries();
+		IResourceManager irm = dpr.func_240970_h_();
+		if(!(irm instanceof SimpleReloadableResourceManager)) {
+			return;
+		}
+		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) irm;
 		Reloader rel = new Reloader();
 		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
 			if (resMan.reloadListeners.get(i) instanceof RecipeManager) {

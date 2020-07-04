@@ -7,13 +7,15 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.DataPackRegistries;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.resources.SimpleReloadableResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.loot.LootPool;
-import net.minecraft.world.storage.loot.LootTable;
-import net.minecraft.world.storage.loot.LootTableManager;
-import net.minecraft.world.storage.loot.conditions.SurvivesExplosion;
+import net.minecraft.loot.LootPool;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.LootTableManager;
+import net.minecraft.loot.conditions.SurvivesExplosion;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -68,7 +70,13 @@ public class LootSystem {
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void serverStart(FMLServerAboutToStartEvent e) {
-		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) e.getServer().getResourceManager();
+		MinecraftServer server = e.getServer();
+		DataPackRegistries dpr = server.getDataPackRegistries();
+		IResourceManager irm = dpr.func_240970_h_();
+		if(!(irm instanceof SimpleReloadableResourceManager)) {
+			return;
+		}
+		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) irm;
 		Reloader rel = new Reloader();
 		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
 			if (resMan.reloadListeners.get(i) instanceof LootTableManager) {

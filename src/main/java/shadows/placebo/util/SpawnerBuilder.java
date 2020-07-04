@@ -1,5 +1,6 @@
 package shadows.placebo.util;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -178,9 +179,13 @@ public class SpawnerBuilder {
 	}
 
 	public void build(IWorld world, BlockPos pos) {
-		if (world.getBlockState(pos).getBlock() != Blocks.SPAWNER) world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
+		BlockState blockState = world.getBlockState(pos);
+		if (blockState.getBlock() != Blocks.SPAWNER) {
+			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
+		}
 		TileEntity s = world.getTileEntity(pos);
-		s.read(tag);
+		// TODO func_230337_a_ -> read
+		s.func_230337_a_(blockState, tag);
 		s.setPos(pos);
 	}
 }
