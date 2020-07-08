@@ -22,17 +22,15 @@ import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.item.crafting.ShapelessRecipe;
 import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.DataPackRegistries;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.resources.SimpleReloadableResourceManager;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
@@ -112,23 +110,9 @@ public class RecipeHelper {
 		return makeStack(thing, 1);
 	}
 
-	@SuppressWarnings("resource")
-	@SubscribeEvent
-	public static void serverStart(FMLServerAboutToStartEvent e) {
-		MinecraftServer server = e.getServer();
-		DataPackRegistries dpr = server.getDataPackRegistries();
-		IResourceManager irm = dpr.func_240970_h_();
-		if(!(irm instanceof SimpleReloadableResourceManager)) {
-			return;
-		}
-		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) irm;
-		Reloader rel = new Reloader();
-		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
-			if (resMan.reloadListeners.get(i) instanceof RecipeManager) {
-				resMan.reloadListeners.add(i + 1, rel);
-				break;
-			}
-		}
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void serverStart(AddReloadListenerEvent e) {
+		e.addListener(new Reloader());
 	}
 
 	static void addRecipes(RecipeManager mgr) {

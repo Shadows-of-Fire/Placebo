@@ -6,20 +6,17 @@ import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.item.ItemStack;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.DataPackRegistries;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.resources.SimpleReloadableResourceManager;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTableManager;
 import net.minecraft.loot.conditions.SurvivesExplosion;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import shadows.placebo.Placebo;
 
@@ -68,23 +65,9 @@ public class LootSystem {
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
-	@SuppressWarnings("resource")
 	@SubscribeEvent(priority = EventPriority.HIGH)
-	public static void serverStart(FMLServerAboutToStartEvent e) {
-		MinecraftServer server = e.getServer();
-		DataPackRegistries dpr = server.getDataPackRegistries();
-		IResourceManager irm = dpr.func_240970_h_();
-		if(!(irm instanceof SimpleReloadableResourceManager)) {
-			return;
-		}
-		SimpleReloadableResourceManager resMan = (SimpleReloadableResourceManager) irm;
-		Reloader rel = new Reloader();
-		for (int i = 0; i < resMan.reloadListeners.size(); i++) {
-			if (resMan.reloadListeners.get(i) instanceof LootTableManager) {
-				resMan.reloadListeners.add(i + 1, rel);
-				break;
-			}
-		}
+	public static void serverStart(AddReloadListenerEvent e) {
+		e.addListener(new Reloader());
 	}
 
 	private static class Reloader extends ReloadListener<Map<ResourceLocation, LootTable>> {
