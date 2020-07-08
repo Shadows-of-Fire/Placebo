@@ -11,7 +11,6 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -21,17 +20,11 @@ import net.minecraft.item.crafting.RecipeItemHelper;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.item.crafting.ShapelessRecipe;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
 
@@ -110,11 +103,6 @@ public class RecipeHelper {
 		return makeStack(thing, 1);
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void serverStart(AddReloadListenerEvent e) {
-		e.addListener(new Reloader());
-	}
-
 	static void addRecipes(RecipeManager mgr) {
 		recipes.forEach(r -> {
 			Map<ResourceLocation, IRecipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
@@ -169,20 +157,10 @@ public class RecipeHelper {
 
 	}
 
-	private static class Reloader extends ReloadListener<List<IRecipe<?>>> {
-
-		@Override
-		protected List<IRecipe<?>> prepare(IResourceManager p_212854_1_, IProfiler p_212854_2_) {
-			return null;
-		}
-
-		@Override
-		protected void apply(List<IRecipe<?>> recipes, IResourceManager manager, IProfiler profiler) {
-			RecipeManager mgr = ServerLifecycleHooks.getCurrentServer().getRecipeManager();
-			mutableManager(mgr);
-			addRecipes(mgr);
-			replaceShapeless(mgr);
-		}
+	public static void reload(RecipeManager mgr) {
+		mutableManager(mgr);
+		addRecipes(mgr);
+		replaceShapeless(mgr);
 	}
 
 }

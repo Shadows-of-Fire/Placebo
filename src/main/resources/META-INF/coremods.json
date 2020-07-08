@@ -1,4 +1,6 @@
 {
   "block-statemap": "javascript/block-statemap.js",
-  "item-statemap": "javascript/item-statemap.js"
+  "item-statemap": "javascript/item-statemap.js",
+  "recipes": "javascript/recipe-manager.js",
+  "loot-tables": "javascript/loot-manager.js"
 }

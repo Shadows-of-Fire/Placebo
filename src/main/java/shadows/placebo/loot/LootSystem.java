@@ -4,20 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTableManager;
 import net.minecraft.loot.conditions.SurvivesExplosion;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import shadows.placebo.Placebo;
 
 /**
@@ -65,27 +58,12 @@ public class LootSystem {
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGH)
-	public static void serverStart(AddReloadListenerEvent e) {
-		e.addListener(new Reloader());
-	}
-
-	private static class Reloader extends ReloadListener<Map<ResourceLocation, LootTable>> {
-
-		@Override
-		protected Map<ResourceLocation, LootTable> prepare(IResourceManager p_212854_1_, IProfiler p_212854_2_) {
-			return PLACEBO_TABLES;
-		}
-
-		@Override
-		protected void apply(Map<ResourceLocation, LootTable> tables, IResourceManager manager, IProfiler profiler) {
-			LootTableManager mgr = ServerLifecycleHooks.getCurrentServer().getLootTableManager();
-			mgr.registeredLootTables = new HashMap<>(mgr.registeredLootTables);
-			tables.forEach((key, val) -> {
-				if (!mgr.registeredLootTables.containsKey(key)) mgr.registeredLootTables.put(key, val);
-			});
-			Placebo.LOGGER.info("Registered {} additional loot tables.", tables.keySet().size());
-		}
+	public static void reload(LootTableManager mgr) {
+		mgr.registeredLootTables = new HashMap<>(mgr.registeredLootTables);
+		PLACEBO_TABLES.forEach((key, val) -> {
+			if (!mgr.registeredLootTables.containsKey(key)) mgr.registeredLootTables.put(key, val);
+		});
+		Placebo.LOGGER.info("Registered {} additional loot tables.", PLACEBO_TABLES.keySet().size());
 	}
 
 }
