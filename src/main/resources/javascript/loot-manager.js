@@ -12,7 +12,7 @@ function initializeCoreMod() {
 
                 var owner = "shadows/placebo/loot/LootSystem";
                 var name = "reload";
-                var desc = "(Lnet/minecraft/loot/LootTableManager;)V
+                var desc = "(Lnet/minecraft/loot/LootTableManager;)V";
                 var instr = method.instructions;
 
                 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
@@ -20,7 +20,7 @@ function initializeCoreMod() {
                 var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
                 var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
 
-				InsnList list = new InsnList();
+				var list = new InsnList();
 				list.add(new VarInsnNode(Opcodes.ALOAD, 0));
                 var methodInsn = ASMAPI.buildMethodCall(
                     owner,
