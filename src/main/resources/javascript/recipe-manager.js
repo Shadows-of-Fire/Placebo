@@ -28,7 +28,7 @@ function initializeCoreMod() {
                     desc,
                     ASMAPI.MethodType.STATIC);
 				list.add(methodInsn);
-                var node = instr.getLast();
+                var node = instr.getLast().getPrevious();
                 instr.insertBefore(node, list);
 
                 return method;
