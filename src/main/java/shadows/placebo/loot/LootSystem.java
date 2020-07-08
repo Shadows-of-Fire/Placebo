@@ -68,6 +68,7 @@ public class LootSystem {
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
+	@SuppressWarnings("resource")
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void serverStart(FMLServerAboutToStartEvent e) {
 		MinecraftServer server = e.getServer();

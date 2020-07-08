@@ -112,6 +112,7 @@ public class RecipeHelper {
 		return makeStack(thing, 1);
 	}
 
+	@SuppressWarnings("resource")
 	@SubscribeEvent
 	public static void serverStart(FMLServerAboutToStartEvent e) {
 		MinecraftServer server = e.getServer();

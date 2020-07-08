@@ -31,10 +31,9 @@ public class TagIngredient extends Ingredient {
 
 		@Override
 		public void write(PacketBuffer buffer, TagIngredient ingredient) {
-			if(ingredient.tag instanceof ITag.INamedTag) {
+			if (ingredient.tag instanceof ITag.INamedTag) {
 				ITag.INamedTag<Item> tag = (ITag.INamedTag<Item>) ingredient.tag;
-				// TODO MCP-name: func_230234_a_ -> getId
-				buffer.writeString(tag.func_230234_a_().toString());
+				buffer.writeString(tag.getName().toString());
 			}
 		}
 
@@ -56,24 +55,20 @@ public class TagIngredient extends Ingredient {
 
 	@Override
 	public boolean test(ItemStack stack) {
-		// TODO MCP-name: func_230235_a_ -> contains
-		return tag.func_230235_a_(stack.getItem());
+		return tag.contains(stack.getItem());
 	}
 
 	@Override
 	public ItemStack[] getMatchingStacks() {
-		// TODO MCP-name: func_230236_b_ -> getAllElements
-		if (tag.func_230236_b_().size() != stacks.length) {
-			// TODO MCP-name: func_230236_b_ -> getAllElements
-			stacks = tag.func_230236_b_().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
+		if (tag.getAllElements().size() != stacks.length) {
+			stacks = tag.getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
 		return stacks;
 	}
 
 	@Override
-	// TODO MCP-name: func_230236_b_ -> getAllElements
 	public boolean hasNoMatchingItems() {
-		return tag.func_230236_b_().isEmpty();
+		return tag.getAllElements().isEmpty();
 	}
 
 	@Override

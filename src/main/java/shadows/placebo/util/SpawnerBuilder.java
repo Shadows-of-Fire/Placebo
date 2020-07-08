@@ -184,8 +184,7 @@ public class SpawnerBuilder {
 			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
 		}
 		TileEntity s = world.getTileEntity(pos);
-		// TODO func_230337_a_ -> read
-		s.func_230337_a_(blockState, tag);
+		s.read(blockState, tag);
 		s.setPos(pos);
 	}
 }
