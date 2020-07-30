@@ -161,6 +161,7 @@ public class RecipeHelper {
 		mutableManager(mgr);
 		addRecipes(mgr);
 		replaceShapeless(mgr);
+		FastShapelessRecipe.registerCacheHandler();
 	}
 
 }

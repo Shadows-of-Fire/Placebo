@@ -1,15 +1,20 @@
 package shadows.placebo.recipe;
 
+import java.util.function.Consumer;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeItemHelper;
 import net.minecraft.item.crafting.ShapelessRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.WorldTickEvent;
 import shadows.placebo.util.ReflectionHelper;
 
 public class FastShapelessRecipe extends ShapelessRecipe {
@@ -21,8 +26,6 @@ public class FastShapelessRecipe extends ShapelessRecipe {
 	public FastShapelessRecipe(ResourceLocation id, String group, ItemStack output, NonNullList<Ingredient> ingredients) {
 		super(id, group, output, ingredients);
 		isSimple = ReflectionHelper.getPrivateValue(ShapelessRecipe.class, this, "isSimple");
-		if (isSimple) for (Ingredient i : ingredients)
-			i.getValidItemStacksPacked();
 	}
 
 	@Override
@@ -46,6 +49,24 @@ public class FastShapelessRecipe extends ShapelessRecipe {
 			}
 		}
 		return list.isEmpty();
+	}
+
+	public static void registerCacheHandler() {
+		MinecraftForge.EVENT_BUS.addListener(new Consumer<WorldTickEvent>() {
+			@Override
+			public void accept(WorldTickEvent e) {
+				if (!e.world.isRemote) {
+					for (IRecipe<?> r : e.world.getRecipeManager().getRecipes()) {
+						if (r instanceof FastShapelessRecipe) {
+							for (Ingredient i : r.getIngredients()) {
+								i.getValidItemStacksPacked();
+							}
+						}
+					}
+					MinecraftForge.EVENT_BUS.unregister(this);
+				}
+			}
+		});
 	}
 
 }
