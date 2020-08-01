@@ -51,7 +51,7 @@ public class RecipeHelper {
 
 	public void addShapeless(Object output, Object... inputs) {
 		ItemStack out = makeStack(output);
-		addRecipe(new FastShapelessRecipe(name(out), modid, out, createInput(false, inputs)));
+		addRecipe(new ShapelessRecipe(name(out), modid, out, createInput(false, inputs)));
 	}
 
 	public void addShaped(Object output, int width, int height, Object... input) {
@@ -119,19 +119,6 @@ public class RecipeHelper {
 		}
 	}
 
-	public static void replaceShapeless(RecipeManager mgr) {
-		Placebo.LOGGER.info("Beginning replacement of all shapeless recipes...");
-		List<FastShapelessRecipe> fastRecipes = new ArrayList<>();
-		for (IRecipe<?> r : mgr.getRecipes()) {
-			if (r.getClass() == ShapelessRecipe.class) {
-				fastRecipes.add(new FastShapelessRecipe(r.getId(), r.getGroup(), r.getRecipeOutput(), r.getIngredients()));
-			}
-		}
-		for (FastShapelessRecipe r : fastRecipes)
-			mgr.recipes.get(r.getType()).put(r.getId(), r);
-		Placebo.LOGGER.info("Successfully replaced {} recipes with fast recipes.", fastRecipes.size());
-	}
-
 	public static class CachedIngredient extends Ingredient {
 
 		private static Int2ObjectMap<CachedIngredient> ingredients = new Int2ObjectOpenHashMap<>();
@@ -160,8 +147,6 @@ public class RecipeHelper {
 	public static void reload(RecipeManager mgr) {
 		mutableManager(mgr);
 		addRecipes(mgr);
-		replaceShapeless(mgr);
-		FastShapelessRecipe.registerCacheHandler();
 	}
 
 }
