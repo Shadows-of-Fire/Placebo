@@ -12,6 +12,8 @@ version="${file.jarVersion}" #mandatory
 
 displayName="Placebo" #mandatory
 
+license="MIT License" #mandatory
+
 description='''
 1 (one) library boi
 '''
