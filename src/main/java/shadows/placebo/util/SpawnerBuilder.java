@@ -184,7 +184,7 @@ public class SpawnerBuilder {
 			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
 		}
 		TileEntity s = world.getTileEntity(pos);
-		s.read(blockState, tag);
+		s.deserializeNBT(tag);
 		s.setPos(pos);
 	}
 }

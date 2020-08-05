@@ -34,8 +34,7 @@ public class AttributeHelper {
 	 */
 	public static void modify(LivingEntity entity, Attribute attribute, String name, double modifier, Operation operation) {
 		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
-		// TODO MCP-name: func_233767_b_ -> applyModifier
-		if (inst != null) inst.func_233767_b_(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation));
+		if (inst != null) inst.addTemporaryModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation));
 	}
 
 	/**
@@ -66,8 +65,7 @@ public class AttributeHelper {
 	 */
 	public static void setBaseValue(LivingEntity entity, Attribute attribute, String name, double value) {
 		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
-		// TODO MCP-name: func_225504_a_ -> getModifiers
-		inst.func_225504_a_(Operation.ADDITION).clear();
+		inst.getModifiers(Operation.ADDITION).clear();
 		modify(entity, attribute, name, value - inst.getBaseValue(), Operation.ADDITION);
 	}
 

@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
@@ -19,7 +18,7 @@ import shadows.placebo.Placebo;
 
 public class LambdaLootEntry extends StandaloneLootEntry {
 	public static final Serializer SERIALIZER = new Serializer();
-	public static final LootPoolEntryType LAMBDALOOTENTRYTYPE = Registry.register(Registry.field_239693_aY_, new ResourceLocation(Placebo.MODID, "LambdaLootEntry"), new LootPoolEntryType(SERIALIZER));
+	public static final LootPoolEntryType LAMBDALOOTENTRYTYPE = Registry.register(Registry.LOOT_POOL_ENTRY_TYPE, new ResourceLocation(Placebo.MODID, "lambda_entry"), new LootPoolEntryType(SERIALIZER));
 
 	private final BiConsumer<Consumer<ItemStack>, LootContext> loot;
 
@@ -34,20 +33,16 @@ public class LambdaLootEntry extends StandaloneLootEntry {
 	}
 
 	@Override
-	public LootPoolEntryType func_230420_a_() {
+	public LootPoolEntryType getType() {
 		return LAMBDALOOTENTRYTYPE;
 	}
 
 	public static class Serializer extends StandaloneLootEntry.Serializer<LambdaLootEntry> {
+
+		@Override
 		protected LambdaLootEntry func_212829_b_(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, ILootCondition[] lootConditions, ILootFunction[] lootFunctions) {
-			// TODO unserialize a BiConsumer from jsonObject
-			BiConsumer<Consumer<ItemStack>, LootContext> loot = null;
-			return new LambdaLootEntry(loot, weight, quality);
+			throw new UnsupportedOperationException();
 		}
 
-		public void func_230422_a_(JsonObject jsonObject, LambdaLootEntry LambdaLootEntry, JsonSerializationContext context) {
-			super.func_230422_a_(jsonObject, LambdaLootEntry, context);
-			// TODO serialize a BiConsumer into jsonObject
-		}
 	}
 }

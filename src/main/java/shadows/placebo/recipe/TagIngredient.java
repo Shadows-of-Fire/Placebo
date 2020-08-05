@@ -33,7 +33,7 @@ public class TagIngredient extends Ingredient {
 		public void write(PacketBuffer buffer, TagIngredient ingredient) {
 			if (ingredient.tag instanceof ITag.INamedTag) {
 				ITag.INamedTag<Item> tag = (ITag.INamedTag<Item>) ingredient.tag;
-				buffer.writeString(tag.getName().toString());
+				buffer.writeString(tag.getId().toString());
 			}
 		}
 
@@ -60,15 +60,15 @@ public class TagIngredient extends Ingredient {
 
 	@Override
 	public ItemStack[] getMatchingStacks() {
-		if (tag.getAllElements().size() != stacks.length) {
-			stacks = tag.getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
+		if (tag.values().size() != stacks.length) {
+			stacks = tag.values().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
 		return stacks;
 	}
 
 	@Override
 	public boolean hasNoMatchingItems() {
-		return tag.getAllElements().isEmpty();
+		return tag.values().isEmpty();
 	}
 
 	@Override
