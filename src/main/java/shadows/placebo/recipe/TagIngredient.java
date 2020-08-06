@@ -5,9 +5,13 @@ import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntComparators;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.RecipeItemHelper;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
@@ -42,9 +46,10 @@ public class TagIngredient extends Ingredient {
 	protected ResourceLocation tagId;
 	protected ITag<Item> tag;
 	protected ItemStack[] stacks;
+	protected IntList matchingStacksPacked;
 
 	public TagIngredient(ITag<Item> tag) {
-		super(Stream.of(new Ingredient.TagList(tag)));
+		super(Stream.empty());
 		this.tag = tag;
 		this.stacks = new ItemStack[0];
 	}
@@ -64,6 +69,19 @@ public class TagIngredient extends Ingredient {
 			stacks = tag.values().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
 		return stacks;
+	}
+
+	@Override
+	public IntList getValidItemStacksPacked() {
+		if (this.matchingStacksPacked == null) {
+			ItemStack[] matchingStacks = getMatchingStacks();
+			this.matchingStacksPacked = new IntArrayList(matchingStacks.length);
+			for (ItemStack itemstack : matchingStacks) {
+				this.matchingStacksPacked.add(RecipeItemHelper.pack(itemstack));
+			}
+			this.matchingStacksPacked.sort(IntComparators.NATURAL_COMPARATOR);
+		}
+		return this.matchingStacksPacked;
 	}
 
 	@Override
