@@ -3,8 +3,6 @@ package shadows.placebo.recipe;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.gson.JsonObject;
-
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparators;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -12,36 +10,15 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeItemHelper;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
+import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
 
 public class TagIngredient extends Ingredient {
 
-	public static final IIngredientSerializer<TagIngredient> SERIALIZER = new IIngredientSerializer<TagIngredient>() {
-
-		@Override
-		public TagIngredient parse(PacketBuffer buffer) {
-			ResourceLocation tag = new ResourceLocation(buffer.readString(32767));
-			return new TagIngredient(tag);
-		}
-
-		@Override
-		public TagIngredient parse(JsonObject json) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void write(PacketBuffer buffer, TagIngredient ingredient) {
-			if (ingredient.tag instanceof ITag.INamedTag) {
-				ITag.INamedTag<Item> tag = (ITag.INamedTag<Item>) ingredient.tag;
-				buffer.writeString(tag.getId().toString());
-			}
-		}
-
-	};
+	public static final IIngredientSerializer<Ingredient> SERIALIZER = new VanillaIngredientSerializer();
 
 	protected ResourceLocation tagId;
 	protected ITag<Item> tag;
