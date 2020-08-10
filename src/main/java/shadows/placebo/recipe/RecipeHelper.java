@@ -11,6 +11,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
+import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -20,6 +21,9 @@ import net.minecraft.item.crafting.RecipeItemHelper;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.item.crafting.ShapelessRecipe;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -80,7 +84,7 @@ public class RecipeHelper {
 	}
 
 	public void addSimpleShapeless(Object output, Object input, int numInputs) {
-		addShapeless(output, NonNullList.withSize(numInputs, makeStack(input)));
+		addShapeless(output, NonNullList.withSize(numInputs, makeStack(input)).toArray(new Object[0]));
 	}
 
 	private ResourceLocation name(ItemStack out) {
@@ -144,9 +148,30 @@ public class RecipeHelper {
 
 	}
 
-	public static void reload(RecipeManager mgr) {
-		mutableManager(mgr);
-		addRecipes(mgr);
+	private static class Reloader extends ReloadListener<RecipeHelper> {
+
+		RecipeManager mgr;
+
+		private Reloader(RecipeManager mgr) {
+			this.mgr = mgr;
+		}
+
+		@Override
+		protected RecipeHelper prepare(IResourceManager p_212854_1_, IProfiler p_212854_2_) {
+			return null;
+		}
+
+		@Override
+		protected void apply(RecipeHelper p_212853_1_, IResourceManager p_212853_2_, IProfiler p_212853_3_) {
+			mutableManager(mgr);
+			addRecipes(mgr);
+		}
+
+	}
+
+	public static void reload(RecipeManager mgr, IReloadableResourceManager rel) {
+		Reloader rld = new Reloader(mgr);
+		rel.addReloadListener(rld);
 	}
 
 }
