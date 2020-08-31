@@ -24,7 +24,6 @@ import net.minecraft.item.crafting.ShapelessRecipe;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.tags.ITag;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
@@ -72,13 +71,12 @@ public class RecipeHelper {
 		NonNullList<Ingredient> inputL = NonNullList.create();
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
-			if (k instanceof String) inputL.add(i, new TagIngredient(new ResourceLocation((String) k)));
-			else if (k instanceof ITag) inputL.add(i, new TagIngredient((ITag<Item>) k));
+			if (k instanceof String) inputL.add(i, new TagIngredient((String) k));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, CachedIngredient.create((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, CachedIngredient.create(makeStack(k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
 			else if (allowEmpty) inputL.add(i, Ingredient.EMPTY);
-			else throw new UnsupportedOperationException("Attempted to add invalid shapeless recipe.  Complain to the author of " + modid);
+			else throw new UnsupportedOperationException("Attempted to add invalid recipe.  Complain to the author of " + modid + ". (Input " + k + " not allowed.)");
 		}
 		return inputL;
 	}

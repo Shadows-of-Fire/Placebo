@@ -10,9 +10,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeItemHelper;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.ITag.INamedTag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
 
@@ -20,30 +19,26 @@ public class TagIngredient extends Ingredient {
 
 	public static final IIngredientSerializer<Ingredient> SERIALIZER = new VanillaIngredientSerializer();
 
-	protected ResourceLocation tagId;
-	protected ITag<Item> tag;
+	protected String tagId;
+	protected INamedTag<Item> tag;
 	protected ItemStack[] stacks;
 	protected IntList matchingStacksPacked;
 
-	public TagIngredient(ITag<Item> tag) {
+	public TagIngredient(String tag) {
 		super(Stream.empty());
-		this.tag = tag;
+		this.tagId = tag;
 		this.stacks = new ItemStack[0];
-	}
-
-	public TagIngredient(ResourceLocation tag) {
-		this(ItemTags.makeWrapperTag(tag.toString()));
 	}
 
 	@Override
 	public boolean test(ItemStack stack) {
-		return tag.contains(stack.getItem());
+		return tag().contains(stack.getItem());
 	}
 
 	@Override
 	public ItemStack[] getMatchingStacks() {
-		if (tag.getAllElements().size() != stacks.length) {
-			stacks = tag.getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
+		if (tag().getAllElements().size() != stacks.length) {
+			stacks = tag().getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
 		return stacks;
 	}
@@ -63,12 +58,16 @@ public class TagIngredient extends Ingredient {
 
 	@Override
 	public boolean hasNoMatchingItems() {
-		return tag.getAllElements().isEmpty();
+		return tag().getAllElements().isEmpty();
 	}
 
 	@Override
 	public IIngredientSerializer<? extends Ingredient> getSerializer() {
 		return SERIALIZER;
+	}
+
+	protected INamedTag<Item> tag() {
+		return tag != null ? tag : (tag = ItemTags.makeWrapperTag(tagId));
 	}
 
 }
