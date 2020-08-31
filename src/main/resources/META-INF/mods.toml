@@ -4,6 +4,8 @@ loaderVersion="[32,)" #mandatory
 
 authors="Shadows_of_Fire" #optional
 
+license="MIT License" #mandatory
+
 [[mods]] #mandatory
 
 modId="placebo" #mandatory
@@ -11,8 +13,6 @@ modId="placebo" #mandatory
 version="${file.jarVersion}" #mandatory
 
 displayName="Placebo" #mandatory
-
-license="MIT License" #mandatory
 
 description='''
 1 (one) library boi
