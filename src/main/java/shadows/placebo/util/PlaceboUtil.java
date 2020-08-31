@@ -3,6 +3,8 @@ package shadows.placebo.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -46,6 +48,17 @@ public class PlaceboUtil {
 				return modid;
 			}
 		}.setRegistryName(b.getRegistryName()));
+	}
+
+	/**
+	 * Returns a mutable version of the passed list.
+	 * If the list is already mutable, the list is returned.
+	 */
+	public static <T> List<T> toMutable(List<T> list) {
+		if (list instanceof ImmutableList) {
+			list = new ArrayList<T>(list);
+		}
+		return list;
 	}
 
 }
