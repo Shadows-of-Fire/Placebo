@@ -1,5 +1,7 @@
 package shadows.placebo.util;
 
+import java.util.ArrayList;
+
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeGenerationSettings;
 import net.minecraft.world.gen.GenerationStage;
@@ -16,6 +18,8 @@ public class BiomeUtil {
 	public static void addFeature(Biome b, GenerationStage.Decoration stage, ConfiguredFeature<?, ?> f) {
 		BiomeGenerationSettings genSettings = b.func_242440_e();
 		genSettings.field_242484_f = PlaceboUtil.toMutable(genSettings.field_242484_f);
+		while (genSettings.field_242484_f.size() <= stage.ordinal())
+			genSettings.field_242484_f.add(new ArrayList<>());
 		genSettings.field_242484_f.set(stage.ordinal(), PlaceboUtil.toMutable(genSettings.field_242484_f.get(stage.ordinal())));
 		genSettings.field_242484_f.get(stage.ordinal()).add(() -> f);
 	}
