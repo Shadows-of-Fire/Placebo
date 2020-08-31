@@ -34,7 +34,7 @@ public class AttributeHelper {
 	 */
 	public static void modify(LivingEntity entity, Attribute attribute, String name, double modifier, Operation operation) {
 		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
-		if (inst != null) inst.addTemporaryModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation));
+		if (inst != null) inst.applyPersistentModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation));
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class AttributeHelper {
 	 */
 	public static void setBaseValue(LivingEntity entity, Attribute attribute, String name, double value) {
 		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
-		inst.getModifiers(Operation.ADDITION).clear();
+		inst.getOrCreateModifiersByOperation(Operation.ADDITION).clear();
 		modify(entity, attribute, name, value - inst.getBaseValue(), Operation.ADDITION);
 	}
 

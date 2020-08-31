@@ -33,7 +33,7 @@ public class LambdaLootEntry extends StandaloneLootEntry {
 	}
 
 	@Override
-	public LootPoolEntryType getType() {
+	public LootPoolEntryType func_230420_a_() {
 		return LAMBDALOOTENTRYTYPE;
 	}
 

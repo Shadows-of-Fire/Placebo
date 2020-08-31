@@ -42,8 +42,8 @@ public class TagIngredient extends Ingredient {
 
 	@Override
 	public ItemStack[] getMatchingStacks() {
-		if (tag.values().size() != stacks.length) {
-			stacks = tag.values().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
+		if (tag.getAllElements().size() != stacks.length) {
+			stacks = tag.getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
 		return stacks;
 	}
@@ -63,7 +63,7 @@ public class TagIngredient extends Ingredient {
 
 	@Override
 	public boolean hasNoMatchingItems() {
-		return tag.values().isEmpty();
+		return tag.getAllElements().isEmpty();
 	}
 
 	@Override
