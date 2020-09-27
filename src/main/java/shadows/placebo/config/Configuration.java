@@ -759,7 +759,7 @@ public class Configuration {
 					boolean isFirstNonWhitespaceCharOnLine = true;
 
 					for (int i = 0; i < line.length() && !skip; ++i) {
-						if (Character.isLetterOrDigit(line.charAt(i)) || ALLOWED_CHARS.indexOf(line.charAt(i)) != -1 || (quoted && line.charAt(i) != '"')) {
+						if (Character.isLetterOrDigit(line.charAt(i)) || ALLOWED_CHARS.indexOf(line.charAt(i)) != -1 || quoted && line.charAt(i) != '"') {
 							if (nameStart == -1) {
 								nameStart = i;
 							}
@@ -838,7 +838,7 @@ public class Configuration {
 								break;
 
 							case '<':
-								if ((tmpList != null && i + 1 == line.length()) || (tmpList == null && i + 1 != line.length())) {
+								if (tmpList != null && i + 1 == line.length() || tmpList == null && i + 1 != line.length()) {
 									throw new RuntimeException(String.format("Malformed list property \"%s:%d\"", fileName, lineNum));
 								} else if (i + 1 == line.length()) {
 									name = line.substring(nameStart, nameEnd + 1);
@@ -1096,9 +1096,9 @@ public class Configuration {
 			int read = pbStream.read(data, 0, data.length);
 			int size = 0;
 
-			int bom16 = (data[0] & 0xFF) << 8 | (data[1] & 0xFF);
-			int bom24 = bom16 << 8 | (data[2] & 0xFF);
-			int bom32 = bom24 << 8 | (data[3] & 0xFF);
+			int bom16 = (data[0] & 0xFF) << 8 | data[1] & 0xFF;
+			int bom24 = bom16 << 8 | data[2] & 0xFF;
+			int bom32 = bom24 << 8 | data[3] & 0xFF;
 
 			if (bom24 == 0xEFBBBF) {
 				enc = "UTF-8";
@@ -1419,7 +1419,7 @@ public class Configuration {
 		prop.setComment(comment + " [range: " + minValue + " ~ " + maxValue + ", default: " + defaultValue + "]");
 		prop.setMinValue(minValue);
 		prop.setMaxValue(maxValue);
-		return prop.getInt(defaultValue) < minValue ? minValue : (prop.getInt(defaultValue) > maxValue ? maxValue : prop.getInt(defaultValue));
+		return prop.getInt(defaultValue) < minValue ? minValue : prop.getInt(defaultValue) > maxValue ? maxValue : prop.getInt(defaultValue);
 	}
 
 	/**

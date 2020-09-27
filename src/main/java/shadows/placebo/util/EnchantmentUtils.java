@@ -25,7 +25,7 @@ public class EnchantmentUtils {
 	 * @return
 	 */
 	public static int getPlayerXP(PlayerEntity player) {
-		return (int) (EnchantmentUtils.getExperienceForLevel(player.experienceLevel) + (player.experience * player.xpBarCap()));
+		return (int) (EnchantmentUtils.getExperienceForLevel(player.experienceLevel) + player.experience * player.xpBarCap());
 	}
 
 	public static void addPlayerXP(PlayerEntity player, int amount) {

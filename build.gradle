@@ -11,14 +11,14 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-version = '4.2.0'
+version = '4.3.0'
 group = 'shadows.placebo'
-archivesBaseName = 'Placebo-1.16.2'
+archivesBaseName = 'Placebo-1.16.3'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'snapshot', version: '20200820-1.16.1'
+    mappings channel: 'snapshot', version: '20200916-1.16.2'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client = {
@@ -49,8 +49,8 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.2-33.0.22'
-	compile fg.deobf('mezz.jei:jei-1.16.2:+')
+    minecraft 'net.minecraftforge:forge:1.16.3-34.1.0'
+	compile fg.deobf('mezz.jei:jei-1.16.2:7.1.1.14')
 	compile fg.deobf('mcp.mobius.waila:Hwyla:1.10.11-B78_1.16.2')
 	compile fileTree(dir: 'libs', include: '*.jar')
 }

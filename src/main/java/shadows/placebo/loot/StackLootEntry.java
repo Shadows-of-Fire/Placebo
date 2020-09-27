@@ -58,7 +58,7 @@ public class StackLootEntry extends StandaloneLootEntry {
 	public static class Serializer extends StandaloneLootEntry.Serializer<StackLootEntry> {
 
 		@Override
-		protected StackLootEntry func_212829_b_(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, ILootCondition[] lootConditions, ILootFunction[] lootFunctions) {
+		protected StackLootEntry deserialize(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, ILootCondition[] lootConditions, ILootFunction[] lootFunctions) {
 			int min = JSONUtils.getInt(jsonObject, "min", 1);
 			int max = JSONUtils.getInt(jsonObject, "max", 1);
 			int count = JSONUtils.getInt(jsonObject, "count", 1);

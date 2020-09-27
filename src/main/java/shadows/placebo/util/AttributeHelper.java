@@ -21,7 +21,7 @@ public class AttributeHelper {
 	 * Operation 1 adds (modifier * new base value) to the final value.
 	 * Operation 2 multiplies the final value by (1.0 + modifier).
 	 * The IAttribute has the ability to clamp the final modified value.
-	 * 
+	 *
 	 * For example, if we had an attribute with a base of 1.0, applying an AttributeModifier(name, 1, 0) would result in a value of 2.0 (1 + 1).
 	 * Additionally applying an AttributeModifier(name, 1.5, 1) would result in a value of 5.0 (2.0 + 1.5 * 2.0).
 	 * Further applying an AttributeModifier(name, 0.75, 2) would result in 8.75 (5.0 * 1.75).

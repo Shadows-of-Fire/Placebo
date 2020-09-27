@@ -58,8 +58,8 @@ public class NetworkUtils {
 
 	/**
 	 * MessageProvider is basically a marker for easier registration of messages.  It forces the implementer to override all methods a packet needs.
-	 *	
-	 * @param <T> The message type.  Usually the implementing class.  
+	 *
+	 * @param <T> The message type.  Usually the implementing class.
 	 * If {@link T} and {@link this#getClass()} are different, {@link MessageProvider#getMsgClass()} must be overridden.
 	 */
 	public static abstract class MessageProvider<T> {

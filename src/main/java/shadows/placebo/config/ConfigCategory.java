@@ -83,11 +83,11 @@ public class ConfigCategory implements Map<String, Property> {
 	}
 
 	public static String getQualifiedName(String name, ConfigCategory parent) {
-		return (parent == null ? name : parent.getQualifiedName() + Configuration.CATEGORY_SPLITTER + name);
+		return parent == null ? name : parent.getQualifiedName() + Configuration.CATEGORY_SPLITTER + name;
 	}
 
 	public ConfigCategory getFirstParent() {
-		return (parent == null ? this : parent.getFirstParent());
+		return parent == null ? this : parent.getFirstParent();
 	}
 
 	public boolean isChild() {

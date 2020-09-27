@@ -40,7 +40,7 @@ public class LambdaLootEntry extends StandaloneLootEntry {
 	public static class Serializer extends StandaloneLootEntry.Serializer<LambdaLootEntry> {
 
 		@Override
-		protected LambdaLootEntry func_212829_b_(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, ILootCondition[] lootConditions, ILootFunction[] lootFunctions) {
+		protected LambdaLootEntry deserialize(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, ILootCondition[] lootConditions, ILootFunction[] lootFunctions) {
 			throw new UnsupportedOperationException();
 		}
 

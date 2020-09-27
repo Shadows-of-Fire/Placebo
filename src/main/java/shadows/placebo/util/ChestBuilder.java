@@ -7,15 +7,15 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootEntry;
+import net.minecraft.loot.functions.EnchantRandomly;
+import net.minecraft.loot.functions.ILootFunction;
 import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootEntry;
-import net.minecraft.loot.functions.EnchantRandomly;
-import net.minecraft.loot.functions.ILootFunction;
 import shadows.placebo.loot.StackLootEntry;
 
 /**

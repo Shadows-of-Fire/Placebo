@@ -660,7 +660,7 @@ public class Property {
 	 * @return True if it is a boolean value
 	 */
 	public boolean isBooleanValue() {
-		return ("true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase()));
+		return "true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase());
 	}
 
 	/**
