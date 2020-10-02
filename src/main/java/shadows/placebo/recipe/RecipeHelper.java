@@ -11,7 +11,6 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.ReloadListener;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -21,15 +20,14 @@ import net.minecraft.item.crafting.RecipeItemHelper;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.item.crafting.ShapelessRecipe;
-import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
+import shadows.placebo.util.RunnableReloader;
 
 public class RecipeHelper {
 
@@ -146,30 +144,16 @@ public class RecipeHelper {
 
 	}
 
-	private static class Reloader extends ReloadListener<RecipeHelper> {
-
-		RecipeManager mgr;
-
-		private Reloader(RecipeManager mgr) {
-			this.mgr = mgr;
-		}
-
-		@Override
-		protected RecipeHelper prepare(IResourceManager p_212854_1_, IProfiler p_212854_2_) {
-			return null;
-		}
-
-		@Override
-		protected void apply(RecipeHelper p_212853_1_, IResourceManager p_212853_2_, IProfiler p_212853_3_) {
+	/**
+	 * ASM Hook: Called from {@link DataPackRegistries.DataPackRegistries()}
+	 * @param mgr The Recipe Manager, accessed from the DPR's constructor.
+	 * @param rel The resource reload manager from the same location.
+	 */
+	public static void reload(RecipeManager mgr, IReloadableResourceManager rel) {
+		rel.addReloadListener(RunnableReloader.of(() -> {
 			mutableManager(mgr);
 			addRecipes(mgr);
-		}
-
-	}
-
-	public static void reload(RecipeManager mgr, IReloadableResourceManager rel) {
-		Reloader rld = new Reloader(mgr);
-		rel.addReloadListener(rld);
+		}));
 	}
 
 }

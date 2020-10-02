@@ -58,6 +58,9 @@ public class LootSystem {
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
+	/**
+	 * ASM Hook: Called from {@link LootTableManager#apply}
+	 */
 	public static void reload(LootTableManager mgr) {
 		mgr.registeredLootTables = new HashMap<>(mgr.registeredLootTables);
 		PLACEBO_TABLES.forEach((key, val) -> {
