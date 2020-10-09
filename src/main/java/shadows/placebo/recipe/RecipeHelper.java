@@ -107,7 +107,10 @@ public class RecipeHelper {
 		recipes.forEach(r -> {
 			Map<ResourceLocation, IRecipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
 			IRecipe<?> old = map.get(r.getId());
-			if (old == null) map.put(r.getId(), r);
+			if (old == null) {
+				r.getIngredients().stream().filter(i -> i instanceof TagIngredient).map(i -> (TagIngredient) i).forEach(TagIngredient::redefine);
+				map.put(r.getId(), r);
+			}
 		});
 		Placebo.LOGGER.info("Registered {} additional recipes.", recipes.size());
 	}

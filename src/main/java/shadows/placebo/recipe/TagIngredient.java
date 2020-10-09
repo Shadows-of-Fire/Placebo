@@ -10,8 +10,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeItemHelper;
-import net.minecraft.tags.ITag.INamedTag;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagCollectionManager;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
 
@@ -20,7 +22,7 @@ public class TagIngredient extends Ingredient {
 	public static final IIngredientSerializer<Ingredient> SERIALIZER = new VanillaIngredientSerializer();
 
 	protected String tagId;
-	protected INamedTag<Item> tag;
+	protected ITag<Item> tag;
 	protected ItemStack[] stacks;
 	protected IntList matchingStacksPacked;
 
@@ -66,8 +68,12 @@ public class TagIngredient extends Ingredient {
 		return SERIALIZER;
 	}
 
-	protected INamedTag<Item> tag() {
+	protected ITag<Item> tag() {
 		return tag != null ? tag : (tag = ItemTags.makeWrapperTag(tagId));
+	}
+
+	protected void redefine() {
+		tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(tagId));
 	}
 
 }
