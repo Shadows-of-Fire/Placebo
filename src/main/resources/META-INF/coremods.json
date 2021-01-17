@@ -1,6 +1,6 @@
 {
-  "block-statemap": "javascript/block-statemap.js",
-  "item-statemap": "javascript/item-statemap.js",
-  "recipes": "javascript/recipe-manager.js",
-  "loot-tables": "javascript/loot-manager.js"
+  "block_statemap": "coremods/block_statemap.js",
+  "item_statemap": "coremods/item_statemap.js",
+  "recipe_manager": "coremods/recipe_manager.js",
+  "loot_tables": "coremods/loot_manager.js"
 }

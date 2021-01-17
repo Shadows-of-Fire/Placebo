@@ -1,35 +1,32 @@
 function initializeCoreMod() {
     return {
-        'lootmanager': {
+        'blockstatemap': {
             'target': {
                 'type': 'METHOD',
-                'class': 'net.minecraft.loot.LootTableManager',
-                'methodName': 'func_212853_a_',
-                'methodDesc': '(Ljava/util/Map;Lnet/minecraft/resources/IResourceManager;Lnet/minecraft/profiler/IProfiler;)V'
+                'class': 'net.minecraft.client.renderer.BlockModelShapes',
+                'methodName': 'func_209553_a',
+                'methodDesc': '(Lnet/minecraft/util/ResourceLocation;Lnet/minecraft/block/BlockState;)Lnet/minecraft/client/renderer/model/ModelResourceLocation;'
             },
             'transformer': function(method) {
-                ASMAPI.log('[PlaceboASM]: Patching LootTableManager#apply');
-
-                var owner = "shadows/placebo/loot/LootSystem";
-                var name = "reload";
-                var desc = "(Lnet/minecraft/loot/LootTableManager;)V";
+                var owner = "shadows/placebo/statemap/ModelMapRegistry";
+                var name = "getMRL";
+                var desc = "(Lnet/minecraft/block/BlockState;Lnet/minecraft/client/renderer/model/ModelResourceLocation;)Lnet/minecraft/client/renderer/model/ModelResourceLocation;";
                 var instr = method.instructions;
 
                 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
                 var Opcodes = Java.type('org.objectweb.asm.Opcodes');
                 var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
                 var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
+                ASMAPI.log('INFO', 'Patching BlockModelShapes#getModelLocation');
 
-				var list = new InsnList();
-				list.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				instr.insert(new VarInsnNode(Opcodes.ALOAD, 1));
                 var methodInsn = ASMAPI.buildMethodCall(
                     owner,
                     name,
                     desc,
                     ASMAPI.MethodType.STATIC);
-				list.add(methodInsn);
                 var node = instr.getLast().getPrevious();
-                instr.insertBefore(node, list);
+                instr.insertBefore(node, methodInsn);
 
                 return method;
             }

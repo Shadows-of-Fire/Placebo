@@ -8,8 +8,6 @@ function initializeCoreMod() {
                 'methodDesc': '(Lnet/minecraft/profiler/IProfiler;I)V'
             },
             'transformer': function(method) {
-                ASMAPI.log('[PlaceboASM]: Patching ModelBakery#<init>');
-
                 var owner = "shadows/placebo/statemap/ModelMapRegistry";
                 var name = "getMRL";
                 var desc = "(Lnet/minecraft/client/renderer/model/ModelResourceLocation;Lnet/minecraft/util/ResourceLocation;)Lnet/minecraft/client/renderer/model/ModelResourceLocation;";
@@ -19,6 +17,8 @@ function initializeCoreMod() {
                 var Opcodes = Java.type('org.objectweb.asm.Opcodes');
                 var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
                 var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
+				ASMAPI.log('INFO', 'Patching ModelBakery#<init>');
+				
 				var i;
 				var j = 0;
 				for (i = 0; i < instr.size(); i++) {

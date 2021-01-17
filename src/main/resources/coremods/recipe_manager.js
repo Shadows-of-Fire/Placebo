@@ -8,8 +8,6 @@ function initializeCoreMod() {
                 'methodDesc': '(Lnet/minecraft/command/Commands$EnvironmentType;I)V'
             },
             'transformer': function(method) {
-                ASMAPI.log('[PlaceboASM]: Patching DataPackRegistries#<init>');
-
                 var owner = "shadows/placebo/recipe/RecipeHelper";
                 var name = "reload";
                 var desc = "(Lnet/minecraft/item/crafting/RecipeManager;Lnet/minecraft/resources/IReloadableResourceManager;)V";
@@ -20,6 +18,7 @@ function initializeCoreMod() {
                 var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
                 var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
 				var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode');
+				ASMAPI.log('INFO', 'Patching DataPackRegistries#<init>');
 				
 				var i = 0;
 				var list = new InsnList();
