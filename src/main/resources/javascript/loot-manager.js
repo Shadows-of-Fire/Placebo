@@ -8,7 +8,7 @@ function initializeCoreMod() {
                 'methodDesc': '(Ljava/util/Map;Lnet/minecraft/resources/IResourceManager;Lnet/minecraft/profiler/IProfiler;)V'
             },
             'transformer': function(method) {
-                print('[PlaceboASM]: Patching LootTableManager#apply');
+                ASMAPI.log('[PlaceboASM]: Patching LootTableManager#apply');
 
                 var owner = "shadows/placebo/loot/LootSystem";
                 var name = "reload";

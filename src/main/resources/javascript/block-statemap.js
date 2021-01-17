@@ -8,7 +8,7 @@ function initializeCoreMod() {
                 'methodDesc': '(Lnet/minecraft/util/ResourceLocation;Lnet/minecraft/block/BlockState;)Lnet/minecraft/client/renderer/model/ModelResourceLocation;'
             },
             'transformer': function(method) {
-                print('[PlaceboASM]: Patching BlockModelShapes#getModelLocation');
+                ASMAPI.log('[PlaceboASM]: Patching BlockModelShapes#getModelLocation');
 
                 var owner = "shadows/placebo/statemap/ModelMapRegistry";
                 var name = "getMRL";

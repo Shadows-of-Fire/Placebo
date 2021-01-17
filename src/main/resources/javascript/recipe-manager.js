@@ -8,7 +8,7 @@ function initializeCoreMod() {
                 'methodDesc': '(Lnet/minecraft/command/Commands$EnvironmentType;I)V'
             },
             'transformer': function(method) {
-                print('[PlaceboASM]: Patching DataPackRegistries#<init>');
+                ASMAPI.log('[PlaceboASM]: Patching DataPackRegistries#<init>');
 
                 var owner = "shadows/placebo/recipe/RecipeHelper";
                 var name = "reload";

@@ -8,7 +8,7 @@ function initializeCoreMod() {
                 'methodDesc': '(Lnet/minecraft/profiler/IProfiler;I)V'
             },
             'transformer': function(method) {
-                print('[PlaceboASM]: Patching ModelBakery#<init>');
+                ASMAPI.log('[PlaceboASM]: Patching ModelBakery#<init>');
 
                 var owner = "shadows/placebo/statemap/ModelMapRegistry";
                 var name = "getMRL";
