@@ -1,15 +1,16 @@
 package shadows.placebo.events;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -18,37 +19,44 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.fml.LogicalSide;
 
 /**
- * 
+ * This event is fired when an item would be used via {@link Item#onItemUse}<br>
+ * It allows for the usage to be changed or cancelled.
  */
 @Cancelable
 public class ItemUseEvent extends PlayerEvent {
 
-	protected final Hand hand;
-	protected final BlockPos pos;
-	protected final Direction face;
-	protected final Vector3d hitVec;
+	protected final ItemUseContext ctx;
 	protected ActionResultType cancellationResult = null;
 
 	public ItemUseEvent(ItemUseContext ctx) {
-		this(ctx.getPlayer(), ctx.getHand(), ctx.getPos(), ctx.getFace(), ctx.getHitVec());
+		super(ctx.getPlayer());
+		this.ctx = ctx;
 	}
 
-	public ItemUseEvent(PlayerEntity player, Hand hand, BlockPos pos, Direction face, Vector3d hitVec) {
-		super(player);
-		this.hand = hand;
-		this.pos = pos;
-		this.face = face;
-		this.hitVec = hitVec;
+	public ItemUseEvent(PlayerEntity player, Hand hand, BlockRayTraceResult res) {
+		this(new ItemUseContext(player, hand, res));
 	}
 
-	/**
-	 * @return The ray trace result targeting the block.
-	 */
+	public BlockPos getPos() {
+		return ctx.getPos();
+	}
+
+	public Direction getFace() {
+		return ctx.getFace();
+	}
+
 	public Vector3d getHitVec() {
-		return hitVec;
+		return ctx.getHitVec();
+	}
+
+	public boolean isInside() {
+		return ctx.isInside();
+	}
+
+	public ItemUseContext getContext() {
+		return ctx;
 	}
 
 	/**
@@ -56,7 +64,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	@Nonnull
 	public Hand getHand() {
-		return hand;
+		return ctx.getHand();
 	}
 
 	/**
@@ -64,27 +72,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	@Nonnull
 	public ItemStack getItemStack() {
-		return getPlayer().getHeldItem(hand);
-	}
-
-	/**
-	 * If the interaction was on an entity, will be a BlockPos centered on the entity.
-	 * If the interaction was on a block, will be the position of that block.
-	 * Otherwise, will be a BlockPos centered on the player.
-	 * Will never be null.
-	 * @return The position involved in this interaction.
-	 */
-	@Nonnull
-	public BlockPos getPos() {
-		return pos;
-	}
-
-	/**
-	 * @return The face involved in this interaction. For all non-block interactions, this will return null.
-	 */
-	@Nullable
-	public Direction getFace() {
-		return face;
+		return getPlayer().getHeldItem(getHand());
 	}
 
 	/**
@@ -92,13 +80,6 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	public World getWorld() {
 		return getPlayer().getEntityWorld();
-	}
-
-	/**
-	 * @return The effective, i.e. logical, side of this interaction. This will be {@link LogicalSide#CLIENT} on the client thread, and {@link LogicalSide#SERVER} on the server thread.
-	 */
-	public LogicalSide getSide() {
-		return getWorld().isRemote ? LogicalSide.CLIENT : LogicalSide.SERVER;
 	}
 
 	/**

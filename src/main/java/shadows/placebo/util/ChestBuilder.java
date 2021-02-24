@@ -43,14 +43,6 @@ public class ChestBuilder {
 		}
 	}
 
-	public ChestBuilder(ChestTileEntity tileEntity, Random rand) {
-		chest = tileEntity;
-		if (chest != null) {
-			random = rand;
-			isValid = true;
-		}
-	}
-
 	public void fill(ResourceLocation loot) {
 		if (iWorld != null) {
 			LockableLootTileEntity.setLootTable(iWorld, random, position, loot);
