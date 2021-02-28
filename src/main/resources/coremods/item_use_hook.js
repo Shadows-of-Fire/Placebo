@@ -1,6 +1,6 @@
 function initializeCoreMod() {
     return {
-        'apothitemusehook': {
+        'placeboitemusehook': {
             'target': {
                 'type': 'METHOD',
                 'class': 'net.minecraft.item.ItemStack',

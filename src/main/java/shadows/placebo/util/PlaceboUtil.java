@@ -6,10 +6,12 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.recipe.RecipeHelper;
 
@@ -86,6 +88,16 @@ public class PlaceboUtil {
 			list = new ArrayList<T>(list);
 		}
 		return list;
+	}
+
+	/**
+	 * Attempt to break a block as this player.
+	 * @param player The player breaking the block.
+	 * @param pos The location of the block to break.
+	 * @return If a block was successfully broken.
+	 */
+	public boolean tryHarvestBlock(ServerPlayerEntity player, BlockPos pos) {
+		return player.interactionManager.tryHarvestBlock(pos);
 	}
 
 }

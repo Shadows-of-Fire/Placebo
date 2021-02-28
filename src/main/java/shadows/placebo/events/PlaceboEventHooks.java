@@ -2,6 +2,7 @@ package shadows.placebo.events;
 
 import java.util.function.Function;
 
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -9,6 +10,7 @@ import net.minecraft.item.ItemUseContext;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.CachedBlockInfo;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -44,6 +46,16 @@ public class PlaceboEventHooks {
 
 			return actionresulttype;
 		}
+	}
+
+	/**
+	 * ASM Hook: Called from {@link LivingEntity#attackEntityFrom}
+	 * See coremods/shield_block_hook.js
+	 */
+	public static float onShieldBlock(LivingEntity blocker, DamageSource source, float blocked) {
+		ShieldBlockEvent e = new ShieldBlockEvent(blocker, source, blocked);
+		MinecraftForge.EVENT_BUS.post(e);
+		return e.getBlocked();
 	}
 
 }
