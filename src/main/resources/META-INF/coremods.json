@@ -3,5 +3,6 @@
   "item_statemap": "coremods/item_statemap.js",
   "recipe_manager": "coremods/recipe_manager.js",
   "loot_tables": "coremods/loot_manager.js",
-  "item_use": "coremods/item_use_hook.js"
+  "item_use": "coremods/item_use_hook.js",
+  "shield_block": "coremods/shield_block_hook.js"
 }
