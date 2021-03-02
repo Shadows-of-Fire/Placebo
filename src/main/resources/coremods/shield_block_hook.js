@@ -5,7 +5,7 @@ function initializeCoreMod() {
                 'type': 'METHOD',
                 'class': 'net.minecraft.entity.LivingEntity',
                 'methodName': 'func_70097_a',
-                'methodDesc': '(Lnet/minecraft/util/DamageSource;F)V'
+                'methodDesc': '(Lnet/minecraft/util/DamageSource;F)Z'
             },
             'transformer': function(method) {
                 var owner = "shadows/placebo/events/PlaceboEventHooks";
@@ -16,8 +16,9 @@ function initializeCoreMod() {
                 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
                 var Opcodes = Java.type('org.objectweb.asm.Opcodes');
                 var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
+				var InsnNode = Java.type('org.objectweb.asm.tree.InsnNode');
                 var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
-				ASMAPI.log('INFO', 'Patching LivingEntity#blockUsingShield');
+				ASMAPI.log('INFO', 'Patching LivingEntity#attackEntityFrom');
 
 				var i;
 				var j = 0;
@@ -37,10 +38,10 @@ function initializeCoreMod() {
 							insn.add(new VarInsnNode(Opcodes.FLOAD,  5));	//Load amtBlocked (which was amount)
 							insn.add(new VarInsnNode(Opcodes.FSTORE, 2));	//amount = amtBlocked
 							insn.add(new VarInsnNode(Opcodes.FSTORE, 5));	//amtBlocked = eventBlocked
-							insn.add(new VarInsnNode(Opcodes.FLOAD,  5));	//Load amount
-							insn.add(new VarInsnNode(Opcodes.FSTORE, 2));	//Load curBlocked
+							insn.add(new VarInsnNode(Opcodes.FLOAD,  2));	//Load amount
+							insn.add(new VarInsnNode(Opcodes.FLOAD,  5));	//Load curBlocked
 							insn.add(new InsnNode(Opcodes.FSUB));			//amount - curBlocked
-							insn.add(new VarInsnNode(Opcodes.FSTORE, 5));	//amount = amount - curBlocked
+							insn.add(new VarInsnNode(Opcodes.FSTORE, 2));	//amount = amount - curBlocked
 							instr.insert(n, insn);
 						}
 					}

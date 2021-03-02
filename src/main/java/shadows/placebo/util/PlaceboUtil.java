@@ -96,7 +96,7 @@ public class PlaceboUtil {
 	 * @param pos The location of the block to break.
 	 * @return If a block was successfully broken.
 	 */
-	public boolean tryHarvestBlock(ServerPlayerEntity player, BlockPos pos) {
+	public static boolean tryHarvestBlock(ServerPlayerEntity player, BlockPos pos) {
 		return player.interactionManager.tryHarvestBlock(pos);
 	}
 
