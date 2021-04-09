@@ -10,7 +10,7 @@ import net.minecraft.tileentity.MobSpawnerTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.WeightedSpawnerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.IWorld;
 
 /**
  * A Util class to edit spawners in world.  Constructing one will create a spawner if not present.
@@ -30,12 +30,12 @@ public class SpawnerEditor {
 
 	protected MobSpawnerTileEntity spawner;
 
-	public SpawnerEditor(World world, BlockPos pos) {
+	public SpawnerEditor(IWorld world, BlockPos pos) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof MobSpawnerTileEntity) {
 			spawner = (MobSpawnerTileEntity) te;
 		} else {
-			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState());
+			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
 			te = world.getTileEntity(pos);
 			spawner = (MobSpawnerTileEntity) te;
 		}
@@ -115,17 +115,26 @@ public class SpawnerEditor {
 	}
 
 	/**
-	 * Sets the additional NBT data for the first mob spawned (or all, if potentials are not set).
+	 * Sets the additional NBT data for the first mob spawned (or all, if potentials are not set). <br>
 	 * @param data An entity, written to NBT, in the format read by AnvilChunkLoader.readWorldEntity()
 	 */
 	public SpawnerEditor setSpawnData(int weight, @Nullable CompoundNBT data) {
-		if (data == null) this.spawner.getSpawnerBaseLogic().spawnData = new WeightedSpawnerEntity();
-		else this.spawner.getSpawnerBaseLogic().spawnData = new WeightedSpawnerEntity(weight, data);
+		return setSpawnData(data == null ? null : new WeightedSpawnerEntity(weight, data));
+	}
+
+	/**
+	 * Sets the additional NBT data for the first mob spawned (or all, if potentials are not set). <br>
+	 * @param data An entity, written to NBT, in the format read by AnvilChunkLoader.readWorldEntity()
+	 */
+	public SpawnerEditor setSpawnData(@Nullable WeightedSpawnerEntity entity) {
+		if (entity == null) this.spawner.getSpawnerBaseLogic().spawnData = new WeightedSpawnerEntity();
+		else this.spawner.getSpawnerBaseLogic().spawnData = entity;
 		return this;
 	}
 
 	/*
-	 * Sets the list of entities the mob spawner will choose from.
+	 * Sets the list of entities the mob spawner will choose from. <br>
+	 * Does not change the currently spawned mob.  Should probably be followed up by a call to setSpawnData.
 	 */
 	public SpawnerEditor setPotentials(WeightedSpawnerEntity... entries) {
 		this.spawner.getSpawnerBaseLogic().potentialSpawns.clear();

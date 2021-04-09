@@ -91,9 +91,7 @@ public class ChestBuilder {
 
 		@Override
 		protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
-			ItemStack s = new ItemStack(i);
-			func.apply(s, ctx);
-			list.accept(s);
+			list.accept(func.apply(new ItemStack(i), ctx));
 		}
 
 	}
