@@ -81,8 +81,8 @@ public class ChestBuilder {
 
 	public static class EnchantedEntry extends StackLootEntry {
 
-		final ILootFunction func = EnchantRandomly.func_215900_c().build();
-		private Item i;
+		protected final ILootFunction func = EnchantRandomly.func_215900_c().build();
+		protected Item i;
 
 		public EnchantedEntry(Item i, int weight) {
 			super(i, 1, 1, weight, 5);
