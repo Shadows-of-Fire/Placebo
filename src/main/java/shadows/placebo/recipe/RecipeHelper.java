@@ -25,6 +25,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
 import shadows.placebo.util.RunnableReloader;
@@ -148,7 +149,8 @@ public class RecipeHelper {
 	}
 
 	/**
-	 * ASM Hook: Called from {@link DataPackRegistries.DataPackRegistries()}
+	 * ASM Hook: Called from {@link #DataPackRegistries()}<br>
+	 * Called right before {@link ForgeEventFactory#onResourceReload()}
 	 * @param mgr The Recipe Manager, accessed from the DPR's constructor.
 	 * @param rel The resource reload manager from the same location.
 	 */
