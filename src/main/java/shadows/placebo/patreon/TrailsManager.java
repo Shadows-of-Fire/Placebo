@@ -22,7 +22,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import shadows.placebo.Placebo;
 
-@EventBusSubscriber(bus = Bus.FORGE, modid = Placebo.MODID)
+@EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID)
 public class TrailsManager {
 
 	private static Map<UUID, TrailType> TRAILS = new HashMap<>();
@@ -34,8 +34,8 @@ public class TrailsManager {
 			try {
 				URL url = new URL("https://raw.githubusercontent.com/Shadows-of-Fire/Placebo/1.16/PatreonTrails.txt");
 				try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
-					while (reader.ready()) {
-						String s = reader.readLine();
+					String s;
+					while ((s = reader.readLine()) != null) {
 						String[] split = s.split(" ", 2);
 						if (split.length != 2) {
 							Placebo.LOGGER.error("Invalid patreon data entry {} will be ignored.", s);
@@ -51,7 +51,8 @@ public class TrailsManager {
 			} catch (Exception k) {
 				//not possible
 			}
-			MinecraftForge.EVENT_BUS.addListener(TrailsManager::playerTick);
+			Placebo.LOGGER.info("Loaded {} patreon trails.", TRAILS.size());
+			if (TRAILS.size() > 0) MinecraftForge.EVENT_BUS.addListener(TrailsManager::playerTick);
 		}, "Placebo Patreon Loader").start();
 	}
 
