@@ -8,11 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
@@ -22,7 +24,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import shadows.placebo.Placebo;
 
-@EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID)
+@EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID, value = Dist.CLIENT)
 public class TrailsManager {
 
 	private static Map<UUID, TrailType> TRAILS = new HashMap<>();
@@ -57,8 +59,26 @@ public class TrailsManager {
 	}
 
 	private static enum TrailType {
-		SOUL_FIRE,
-		FIRE
+		SOUL_FIRE(() -> ParticleTypes.SOUL_FIRE_FLAME),
+		FIRE(() -> ParticleTypes.FLAME),
+		CAMPFIRE_SMOKE(() -> ParticleTypes.CAMPFIRE_COSY_SMOKE),
+		CLOUD(() -> ParticleTypes.CLOUD),
+		GROWTH(() -> ParticleTypes.HAPPY_VILLAGER),
+		DMG_HEART(() -> ParticleTypes.DAMAGE_INDICATOR),
+		HEART(() -> ParticleTypes.HEART),
+		DRAGON_BREATH(() -> ParticleTypes.DRAGON_BREATH),
+		END_ROD(() -> ParticleTypes.END_ROD),
+		FIREWORK(() -> ParticleTypes.FIREWORK),
+		SLIME(() -> ParticleTypes.ITEM_SLIME),
+		SNOW(() -> ParticleTypes.ITEM_SNOWBALL),
+		SOUL(() -> ParticleTypes.SOUL),
+		WITCH(() -> ParticleTypes.WITCH);
+
+		Supplier<IParticleData> type;
+
+		TrailType(Supplier<IParticleData> type) {
+			this.type = type;
+		}
 	}
 
 	public static void playerTick(PlayerTickEvent e) {
@@ -67,8 +87,8 @@ public class TrailsManager {
 			World world = e.player.world;
 			PlayerEntity player = e.player;
 			Random rand = world.rand;
-			IParticleData type = t == TrailType.SOUL_FIRE ? ParticleTypes.SOUL_FIRE_FLAME : ParticleTypes.FLAME;
-			world.addParticle(type, player.getPosX() + rand.nextDouble() * 0.4 - 0.2, player.getPosY(), player.getPosZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);
+			IParticleData type = t.type.get();
+			world.addParticle(type, player.getPosX() + rand.nextDouble() * 0.4 - 0.2, player.getPosY() + 0.1, player.getPosZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);
 		}
 	}
 
