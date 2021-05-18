@@ -9,14 +9,19 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import org.lwjgl.glfw.GLFW;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -28,8 +33,13 @@ public class TrailsManager {
 
 	private static Map<UUID, PatreonParticleType> TRAILS = new HashMap<>();
 
+	public static final KeyBinding TOGGLE = new KeyBinding("placebo.togglePatreon", GLFW.GLFW_KEY_KP_9, "key.categories.misc");
+
+	public static boolean enabled = true;
+
 	@SubscribeEvent
 	public static void init(FMLClientSetupEvent e) {
+		ClientRegistry.registerKeyBinding(TOGGLE);
 		new Thread(() -> {
 			Placebo.LOGGER.info("Loading patreon data...");
 			try {
@@ -53,19 +63,23 @@ public class TrailsManager {
 				//not possible
 			}
 			Placebo.LOGGER.info("Loaded {} patreon trails.", TRAILS.size());
-			if (TRAILS.size() > 0) MinecraftForge.EVENT_BUS.addListener(TrailsManager::playerTick);
+			if (TRAILS.size() > 0) MinecraftForge.EVENT_BUS.addListener(TrailsManager::clientTick);
 		}, "Placebo Patreon Loader").start();
 	}
 
-	public static void playerTick(PlayerTickEvent e) {
+	public static void clientTick(ClientTickEvent e) {
+		if (TOGGLE.isPressed()) enabled = !enabled;
 		PatreonParticleType t = null;
-		if (e.phase == Phase.END && e.player.world.isRemote && e.player.ticksExisted * 3 % 2 == 0 && (t = TRAILS.get(e.player.getUniqueID())) != null) {
-			World world = e.player.world;
-			PlayerEntity player = e.player;
-			Random rand = world.rand;
-			IParticleData type = t.type.get();
-			world.addParticle(type, player.getPosX() + rand.nextDouble() * 0.4 - 0.2, player.getPosY() + 0.1, player.getPosZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);
+		if (enabled && e.phase == Phase.END && Minecraft.getInstance().world != null) {
+			for (PlayerEntity player : Minecraft.getInstance().world.getPlayers()) {
+				if (player.ticksExisted * 3 % 2 == 0 && (t = TRAILS.get(player.getUniqueID())) != null) {
+					ClientWorld world = (ClientWorld) player.world;
+					Random rand = world.rand;
+					IParticleData type = t.type.get();
+					world.addParticle(type, player.getPosX() + rand.nextDouble() * 0.4 - 0.2, player.getPosY() + 0.1, player.getPosZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);
+				}
+			}
 		}
-	}
 
+	}
 }
