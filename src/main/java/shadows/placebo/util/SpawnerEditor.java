@@ -33,11 +33,11 @@ public class SpawnerEditor {
 	public SpawnerEditor(IWorld world, BlockPos pos) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof MobSpawnerTileEntity) {
-			spawner = (MobSpawnerTileEntity) te;
+			this.spawner = (MobSpawnerTileEntity) te;
 		} else {
 			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
 			te = world.getTileEntity(pos);
-			spawner = (MobSpawnerTileEntity) te;
+			this.spawner = (MobSpawnerTileEntity) te;
 		}
 	}
 
@@ -119,7 +119,7 @@ public class SpawnerEditor {
 	 * @param data An entity, written to NBT, in the format read by AnvilChunkLoader.readWorldEntity()
 	 */
 	public SpawnerEditor setSpawnData(int weight, @Nullable CompoundNBT data) {
-		return setSpawnData(data == null ? null : new WeightedSpawnerEntity(weight, data));
+		return this.setSpawnData(data == null ? null : new WeightedSpawnerEntity(weight, data));
 	}
 
 	/**

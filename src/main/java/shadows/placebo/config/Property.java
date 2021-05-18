@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class Property {
 	public String getComment() {
-		return comment;
+		return this.comment;
 	}
 
 	public void setComment(String comment) {
@@ -49,7 +49,7 @@ public class Property {
 		}
 
 		public char getID() {
-			return name().charAt(0);
+			return this.name().charAt(0);
 		}
 	}
 
@@ -100,12 +100,12 @@ public class Property {
 	}
 
 	Property(String name, String value, Type type, boolean read, String[] validValues, String langKey) {
-		setName(name);
+		this.setName(name);
 		this.value = value;
 		this.values = new String[0];
 		this.type = type;
-		wasRead = read;
-		isList = false;
+		this.wasRead = read;
+		this.isList = false;
 		this.defaultValue = value;
 		this.defaultValues = new String[0];
 		this.validValues = validValues;
@@ -134,11 +134,11 @@ public class Property {
 	}
 
 	Property(String name, String[] values, Type type, boolean read, String[] validValues, String langKey) {
-		setName(name);
+		this.setName(name);
 		this.type = type;
 		this.values = Arrays.copyOf(values, values.length);
-		wasRead = read;
-		isList = true;
+		this.wasRead = read;
+		this.isList = true;
 		this.value = "";
 		this.defaultValue = "";
 		for (String s : values)
@@ -161,48 +161,48 @@ public class Property {
 	 */
 	public boolean isDefault() {
 		if (this.isBooleanList()) {
-			if (values.length == defaultValues.length) {
-				for (int i = 0; i < values.length; i++)
-					if (Boolean.parseBoolean(values[i]) != Boolean.parseBoolean(defaultValues[i])) return false;
+			if (this.values.length == this.defaultValues.length) {
+				for (int i = 0; i < this.values.length; i++)
+					if (Boolean.parseBoolean(this.values[i]) != Boolean.parseBoolean(this.defaultValues[i])) return false;
 
 				return true;
 			} else return false;
 		}
 
 		if (this.isIntList()) {
-			if (values.length == defaultValues.length) {
-				for (int i = 0; i < values.length; i++)
-					if (Integer.parseInt(values[i]) != Integer.parseInt(defaultValues[i])) return false;
+			if (this.values.length == this.defaultValues.length) {
+				for (int i = 0; i < this.values.length; i++)
+					if (Integer.parseInt(this.values[i]) != Integer.parseInt(this.defaultValues[i])) return false;
 
 				return true;
 			} else return false;
 		}
 
 		if (this.isDoubleList()) {
-			if (values.length == defaultValues.length) {
-				for (int i = 0; i < values.length; i++)
-					if (Double.parseDouble(values[i]) != Double.parseDouble(defaultValues[i])) return false;
+			if (this.values.length == this.defaultValues.length) {
+				for (int i = 0; i < this.values.length; i++)
+					if (Double.parseDouble(this.values[i]) != Double.parseDouble(this.defaultValues[i])) return false;
 
 				return true;
 			} else return false;
 		}
 
 		if (this.isList()) {
-			if (values.length == defaultValues.length) {
-				for (int i = 0; i < values.length; i++)
-					if (!values[i].equals(defaultValues[i])) return false;
+			if (this.values.length == this.defaultValues.length) {
+				for (int i = 0; i < this.values.length; i++)
+					if (!this.values[i].equals(this.defaultValues[i])) return false;
 
 				return true;
 			} else return false;
 		}
 
-		if (this.type == Type.BOOLEAN && this.isBooleanValue()) return Boolean.parseBoolean(value) == Boolean.parseBoolean(defaultValue);
+		if (this.type == Type.BOOLEAN && this.isBooleanValue()) return Boolean.parseBoolean(this.value) == Boolean.parseBoolean(this.defaultValue);
 
-		if (this.type == Type.INTEGER && this.isIntValue()) return Integer.parseInt(value) == Integer.parseInt(defaultValue);
+		if (this.type == Type.INTEGER && this.isIntValue()) return Integer.parseInt(this.value) == Integer.parseInt(this.defaultValue);
 
-		if (this.type == Type.DOUBLE && this.isDoubleValue()) return Double.parseDouble(value) == Double.parseDouble(defaultValue);
+		if (this.type == Type.DOUBLE && this.isDoubleValue()) return Double.parseDouble(this.value) == Double.parseDouble(this.defaultValue);
 
-		return value.equals(defaultValue);
+		return this.value.equals(this.defaultValue);
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class Property {
 	 * @return the default value String
 	 */
 	public String getDefault() {
-		return defaultValue;
+		return this.defaultValue;
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class Property {
 	 * Defaults to true unless set to false.
 	 */
 	public boolean showInGui() {
-		return showInGui;
+		return this.showInGui;
 	}
 
 	/**
@@ -295,9 +295,9 @@ public class Property {
 	public Property setMaxListLength(int max) {
 		this.maxListLength = max;
 		if (this.maxListLength != -1) {
-			if (values != null && values.length != maxListLength) if (this.isListLengthFixed || values.length > maxListLength) values = Arrays.copyOf(values, maxListLength);
+			if (this.values != null && this.values.length != this.maxListLength) if (this.isListLengthFixed || this.values.length > this.maxListLength) this.values = Arrays.copyOf(this.values, this.maxListLength);
 
-			if (defaultValues != null && defaultValues.length != maxListLength) if (this.isListLengthFixed || defaultValues.length > maxListLength) defaultValues = Arrays.copyOf(defaultValues, maxListLength);
+			if (this.defaultValues != null && this.defaultValues.length != this.maxListLength) if (this.isListLengthFixed || this.defaultValues.length > this.maxListLength) this.defaultValues = Arrays.copyOf(this.defaultValues, this.maxListLength);
 		}
 		return this;
 	}
@@ -394,7 +394,7 @@ public class Property {
 	 * @param defaultValue an int value
 	 */
 	public Property setDefaultValue(int defaultValue) {
-		setDefaultValue(Integer.toString(defaultValue));
+		this.setDefaultValue(Integer.toString(defaultValue));
 		return this;
 	}
 
@@ -408,7 +408,7 @@ public class Property {
 		for (int i = 0; i < defaultValues.length; i++)
 			temp[i] = Integer.toString(defaultValues[i]);
 
-		setDefaultValues(temp);
+		this.setDefaultValues(temp);
 		return this;
 	}
 
@@ -418,7 +418,7 @@ public class Property {
 	 * @param defaultValue a double value
 	 */
 	public Property setDefaultValue(double defaultValue) {
-		setDefaultValue(Double.toString(defaultValue));
+		this.setDefaultValue(Double.toString(defaultValue));
 		return this;
 	}
 
@@ -432,7 +432,7 @@ public class Property {
 		for (int i = 0; i < defaultValues.length; i++)
 			temp[i] = Double.toString(defaultValues[i]);
 
-		setDefaultValues(temp);
+		this.setDefaultValues(temp);
 		return this;
 	}
 
@@ -442,7 +442,7 @@ public class Property {
 	 * @param defaultValue a boolean value
 	 */
 	public Property setDefaultValue(boolean defaultValue) {
-		setDefaultValue(Boolean.toString(defaultValue));
+		this.setDefaultValue(Boolean.toString(defaultValue));
 		return this;
 	}
 
@@ -456,7 +456,7 @@ public class Property {
 		for (int i = 0; i < defaultValues.length; i++)
 			temp[i] = Boolean.toString(defaultValues[i]);
 
-		setDefaultValues(temp);
+		this.setDefaultValues(temp);
 		return this;
 	}
 
@@ -506,7 +506,7 @@ public class Property {
 	 * @return the minimum value bound
 	 */
 	public String getMinValue() {
-		return minValue;
+		return this.minValue;
 	}
 
 	/**
@@ -515,7 +515,7 @@ public class Property {
 	 * @return the maximum value bound
 	 */
 	public String getMaxValue() {
-		return maxValue;
+		return this.maxValue;
 	}
 
 	/**
@@ -524,7 +524,7 @@ public class Property {
 	 * @return current value
 	 */
 	public String getString() {
-		return value;
+		return this.value;
 	}
 
 	/**
@@ -554,7 +554,7 @@ public class Property {
 	 * @return The value
 	 */
 	public int getInt() {
-		return getInt(Integer.parseInt(defaultValue));
+		return this.getInt(Integer.parseInt(this.defaultValue));
 	}
 
 	/**
@@ -567,7 +567,7 @@ public class Property {
 	 */
 	public int getInt(int _default) {
 		try {
-			return Integer.parseInt(value);
+			return Integer.parseInt(this.value);
 		} catch (NumberFormatException e) {
 			return _default;
 		}
@@ -579,7 +579,7 @@ public class Property {
 	 */
 	public boolean isIntValue() {
 		try {
-			Integer.parseInt(value);
+			Integer.parseInt(this.value);
 			return true;
 		} catch (NumberFormatException e) {
 			return false;
@@ -593,7 +593,7 @@ public class Property {
 	 * @return The value
 	 */
 	public long getLong() {
-		return getLong(Long.parseLong(defaultValue));
+		return this.getLong(Long.parseLong(this.defaultValue));
 	}
 
 	/**
@@ -606,7 +606,7 @@ public class Property {
 	 */
 	public long getLong(long _default) {
 		try {
-			return Long.parseLong(value);
+			return Long.parseLong(this.value);
 		} catch (NumberFormatException e) {
 			return _default;
 		}
@@ -618,7 +618,7 @@ public class Property {
 	 */
 	public boolean isLongValue() {
 		try {
-			Long.parseLong(value);
+			Long.parseLong(this.value);
 			return true;
 		} catch (NumberFormatException e) {
 			return false;
@@ -634,8 +634,8 @@ public class Property {
 	 * @return The value as a boolean, or the default
 	 */
 	public boolean getBoolean(boolean _default) {
-		if (isBooleanValue()) {
-			return Boolean.parseBoolean(value);
+		if (this.isBooleanValue()) {
+			return Boolean.parseBoolean(this.value);
 		} else {
 			return _default;
 		}
@@ -647,10 +647,10 @@ public class Property {
 	 * @return The value as a boolean, or the default
 	 */
 	public boolean getBoolean() {
-		if (isBooleanValue()) {
-			return Boolean.parseBoolean(value);
+		if (this.isBooleanValue()) {
+			return Boolean.parseBoolean(this.value);
 		} else {
-			return Boolean.parseBoolean(defaultValue);
+			return Boolean.parseBoolean(this.defaultValue);
 		}
 	}
 
@@ -660,7 +660,7 @@ public class Property {
 	 * @return True if it is a boolean value
 	 */
 	public boolean isBooleanValue() {
-		return "true".equals(value.toLowerCase()) || "false".equals(value.toLowerCase());
+		return "true".equals(this.value.toLowerCase()) || "false".equals(this.value.toLowerCase());
 	}
 
 	/**
@@ -669,7 +669,7 @@ public class Property {
 	 */
 	public boolean isDoubleValue() {
 		try {
-			Double.parseDouble(value);
+			Double.parseDouble(this.value);
 			return true;
 		} catch (NumberFormatException e) {
 			return false;
@@ -686,7 +686,7 @@ public class Property {
 	 */
 	public double getDouble(double _default) {
 		try {
-			return Double.parseDouble(value);
+			return Double.parseDouble(this.value);
 		} catch (NumberFormatException e) {
 			return _default;
 		}
@@ -699,14 +699,14 @@ public class Property {
 	 */
 	public double getDouble() {
 		try {
-			return Double.parseDouble(value);
+			return Double.parseDouble(this.value);
 		} catch (NumberFormatException e) {
-			return Double.parseDouble(defaultValue);
+			return Double.parseDouble(this.defaultValue);
 		}
 	}
 
 	public String[] getStringList() {
-		return values;
+		return this.values;
 	}
 
 	/**
@@ -718,7 +718,7 @@ public class Property {
 	public int[] getIntList() {
 		ArrayList<Integer> nums = new ArrayList<Integer>();
 
-		for (String value : values) {
+		for (String value : this.values) {
 			try {
 				nums.add(Integer.parseInt(value));
 			} catch (NumberFormatException e) {
@@ -739,14 +739,14 @@ public class Property {
 	 * @return True if the type of the Property is an Integer List
 	 */
 	public boolean isIntList() {
-		if (isList && type == Type.INTEGER) for (String value : values) {
+		if (this.isList && this.type == Type.INTEGER) for (String value : this.values) {
 			try {
 				Integer.parseInt(value);
 			} catch (NumberFormatException e) {
 				return false;
 			}
 		}
-		return isList && type == Type.INTEGER;
+		return this.isList && this.type == Type.INTEGER;
 	}
 
 	/**
@@ -757,7 +757,7 @@ public class Property {
 	 */
 	public boolean[] getBooleanList() {
 		ArrayList<Boolean> tmp = new ArrayList<Boolean>();
-		for (String value : values) {
+		for (String value : this.values) {
 			try {
 				tmp.add(Boolean.parseBoolean(value));
 			} catch (NumberFormatException e) {
@@ -778,11 +778,11 @@ public class Property {
 	 * @return True if it is a boolean value
 	 */
 	public boolean isBooleanList() {
-		if (isList && type == Type.BOOLEAN) for (String value : values) {
+		if (this.isList && this.type == Type.BOOLEAN) for (String value : this.values) {
 			if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) { return false; }
 		}
 
-		return isList && type == Type.BOOLEAN;
+		return this.isList && this.type == Type.BOOLEAN;
 	}
 
 	/**
@@ -793,7 +793,7 @@ public class Property {
 	 */
 	public double[] getDoubleList() {
 		ArrayList<Double> tmp = new ArrayList<Double>();
-		for (String value : values) {
+		for (String value : this.values) {
 			try {
 				tmp.add(Double.parseDouble(value));
 			} catch (NumberFormatException e) {
@@ -814,7 +814,7 @@ public class Property {
 	 * @return True if the type of the Property is a double List
 	 */
 	public boolean isDoubleList() {
-		if (isList && type == Type.DOUBLE) for (String value : values) {
+		if (this.isList && this.type == Type.DOUBLE) for (String value : this.values) {
 			try {
 				Double.parseDouble(value);
 			} catch (NumberFormatException e) {
@@ -822,7 +822,7 @@ public class Property {
 			}
 		}
 
-		return isList && type == Type.DOUBLE;
+		return this.isList && this.type == Type.DOUBLE;
 	}
 
 	/**
@@ -831,7 +831,7 @@ public class Property {
 	 * @return the Property name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -851,7 +851,7 @@ public class Property {
 	 * @return True if this property was loaded from the config file with a value
 	 */
 	public boolean wasRead() {
-		return wasRead;
+		return this.wasRead;
 	}
 
 	/**
@@ -860,7 +860,7 @@ public class Property {
 	 * @return the Property's type
 	 */
 	public Type getType() {
-		return type;
+		return this.type;
 	}
 
 	/**
@@ -869,7 +869,7 @@ public class Property {
 	 * @return true if this Property is a list/array, false otherwise
 	 */
 	public boolean isList() {
-		return isList;
+		return this.isList;
 	}
 
 	/**
@@ -878,11 +878,11 @@ public class Property {
 	 * @return true if this Property has changed, false otherwise
 	 */
 	public boolean hasChanged() {
-		return changed;
+		return this.changed;
 	}
 
 	void resetChangedState() {
-		changed = false;
+		this.changed = false;
 	}
 
 	/**
@@ -890,7 +890,7 @@ public class Property {
 	 */
 	public Property setValue(String value) {
 		this.value = value;
-		changed = true;
+		this.changed = true;
 		return this;
 	}
 
@@ -903,7 +903,7 @@ public class Property {
 	 */
 	public Property setValues(String[] values) {
 		this.values = Arrays.copyOf(values, values.length);
-		changed = true;
+		this.changed = true;
 		return this;
 	}
 
@@ -915,7 +915,7 @@ public class Property {
 	 * Sets the value of this Property to the provided int value.
 	 */
 	public Property setValue(int value) {
-		setValue(Integer.toString(value));
+		this.setValue(Integer.toString(value));
 		return this;
 	}
 
@@ -923,7 +923,7 @@ public class Property {
 	 * Sets the value of this Property to the provided boolean value.
 	 */
 	public Property setValue(boolean value) {
-		setValue(Boolean.toString(value));
+		this.setValue(Boolean.toString(value));
 		return this;
 	}
 
@@ -931,7 +931,7 @@ public class Property {
 	 * Sets the value of this Property to the provided double value.
 	 */
 	public Property setValue(double value) {
-		setValue(Double.toString(value));
+		this.setValue(Double.toString(value));
 		return this;
 	}
 
@@ -942,7 +942,7 @@ public class Property {
 		this.values = new String[values.length];
 		for (int i = 0; i < values.length; i++)
 			this.values[i] = String.valueOf(values[i]);
-		changed = true;
+		this.changed = true;
 		return this;
 	}
 
@@ -957,7 +957,7 @@ public class Property {
 		this.values = new String[values.length];
 		for (int i = 0; i < values.length; i++)
 			this.values[i] = String.valueOf(values[i]);
-		changed = true;
+		this.changed = true;
 		return this;
 	}
 
@@ -972,7 +972,7 @@ public class Property {
 		this.values = new String[values.length];
 		for (int i = 0; i < values.length; i++)
 			this.values[i] = String.valueOf(values[i]);
-		changed = true;
+		this.changed = true;
 		return this;
 	}
 
@@ -981,18 +981,18 @@ public class Property {
 	}
 
 	public void set(int value) {
-		set(Integer.toString(value));
+		this.set(Integer.toString(value));
 	}
 
 	public void set(long value) {
-		set(Long.toString(value));
+		this.set(Long.toString(value));
 	}
 
 	public void set(boolean value) {
-		set(Boolean.toString(value));
+		this.set(Boolean.toString(value));
 	}
 
 	public void set(double value) {
-		set(Double.toString(value));
+		this.set(Double.toString(value));
 	}
 }

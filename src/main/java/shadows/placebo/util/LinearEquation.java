@@ -18,15 +18,15 @@ public class LinearEquation {
 	}
 
 	public Vector3d step(double step) {
-		return new Vector3d(dest.getX() + step * vec.getX(), dest.getY() + step * vec.getY(), dest.getZ() + step * vec.getZ());
+		return new Vector3d(this.dest.getX() + step * this.vec.getX(), this.dest.getY() + step * this.vec.getY(), this.dest.getZ() + step * this.vec.getZ());
 	}
 
 	public Vector3d getSrc() {
-		return src;
+		return this.src;
 	}
 
 	public Vector3d getDest() {
-		return dest;
+		return this.dest;
 	}
 
 }

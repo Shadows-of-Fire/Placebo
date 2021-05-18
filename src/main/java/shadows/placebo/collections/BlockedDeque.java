@@ -10,31 +10,31 @@ public abstract class BlockedDeque<T> extends ArrayDeque<T> {
 
 	@Override
 	public void addFirst(T t) {
-		if (isBlocked(t)) return;
+		if (this.isBlocked(t)) return;
 		super.addFirst(t);
 	}
 
 	@Override
 	public void addLast(T t) {
-		if (isBlocked(t)) return;
+		if (this.isBlocked(t)) return;
 		super.addLast(t);
 	}
 
 	@Override
 	public boolean add(T t) {
-		addLast(t);
-		return !isBlocked(t);
+		this.addLast(t);
+		return !this.isBlocked(t);
 	}
 
 	@Override
 	public boolean offerFirst(T t) {
-		addFirst(t);
-		return !isBlocked(t);
+		this.addFirst(t);
+		return !this.isBlocked(t);
 	}
 
 	@Override
 	public boolean offerLast(T t) {
-		addLast(t);
-		return !isBlocked(t);
+		this.addLast(t);
+		return !this.isBlocked(t);
 	}
 }

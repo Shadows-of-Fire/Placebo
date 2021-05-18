@@ -22,7 +22,7 @@ public class RunnableReloader extends ReloadListener<Object> {
 
 	@Override
 	protected void apply(Object objectIn, IResourceManager resourceManagerIn, IProfiler profilerIn) {
-		r.run();
+		this.r.run();
 	}
 
 	public static RunnableReloader of(Runnable r) {

@@ -20,32 +20,32 @@ public class ItemTier implements IItemTier {
 
 	@Override
 	public int getMaxUses() {
-		return durability;
+		return this.durability;
 	}
 
 	@Override
 	public float getEfficiency() {
-		return efficiency;
+		return this.efficiency;
 	}
 
 	@Override
 	public float getAttackDamage() {
-		return damage;
+		return this.damage;
 	}
 
 	@Override
 	public int getHarvestLevel() {
-		return level;
+		return this.level;
 	}
 
 	@Override
 	public int getEnchantability() {
-		return enchantability;
+		return this.enchantability;
 	}
 
 	@Override
 	public Ingredient getRepairMaterial() {
-		return repair;
+		return this.repair;
 	}
 
 }

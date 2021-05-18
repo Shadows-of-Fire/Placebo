@@ -29,7 +29,7 @@ public class LambdaLootEntry extends StandaloneLootEntry {
 
 	@Override
 	protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
-		loot.accept(list, ctx);
+		this.loot.accept(list, ctx);
 	}
 
 	@Override

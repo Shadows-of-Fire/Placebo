@@ -68,18 +68,18 @@ public class ConfigCategory implements Map<String, Property> {
 	public boolean equals(Object obj) {
 		if (obj instanceof ConfigCategory) {
 			ConfigCategory cat = (ConfigCategory) obj;
-			return name.equals(cat.name) && children.equals(cat.children);
+			return this.name.equals(cat.name) && this.children.equals(cat.children);
 		}
 
 		return false;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public String getQualifiedName() {
-		return getQualifiedName(name, parent);
+		return getQualifiedName(this.name, this.parent);
 	}
 
 	public static String getQualifiedName(String name, ConfigCategory parent) {
@@ -87,25 +87,25 @@ public class ConfigCategory implements Map<String, Property> {
 	}
 
 	public ConfigCategory getFirstParent() {
-		return parent == null ? this : parent.getFirstParent();
+		return this.parent == null ? this : this.parent.getFirstParent();
 	}
 
 	public boolean isChild() {
-		return parent != null;
+		return this.parent != null;
 	}
 
 	public Map<String, Property> getValues() {
-		return ImmutableMap.copyOf(properties);
+		return ImmutableMap.copyOf(this.properties);
 	}
 
 	public List<Property> getOrderedValues() {
 		if (this.propertyOrder != null) {
 			ArrayList<Property> set = new ArrayList<Property>();
 			for (String key : this.propertyOrder)
-				if (properties.containsKey(key)) set.add(properties.get(key));
+				if (this.properties.containsKey(key)) set.add(this.properties.get(key));
 
 			return ImmutableList.copyOf(set);
-		} else return ImmutableList.copyOf(properties.values());
+		} else return ImmutableList.copyOf(this.properties.values());
 	}
 
 	public ConfigCategory setLanguageKey(String languagekey) {
@@ -115,7 +115,7 @@ public class ConfigCategory implements Map<String, Property> {
 
 	public String getLanguagekey() {
 		if (this.languagekey != null) return this.languagekey;
-		else return getQualifiedName();
+		else return this.getQualifiedName();
 	}
 
 	public void setComment(String comment) {
@@ -158,7 +158,7 @@ public class ConfigCategory implements Map<String, Property> {
 	 * Defaults to true unless set to false.
 	 */
 	public boolean showInGui() {
-		return showInGui;
+		return this.showInGui;
 	}
 
 	/**
@@ -182,26 +182,26 @@ public class ConfigCategory implements Map<String, Property> {
 
 	public ConfigCategory setPropertyOrder(List<String> propertyOrder) {
 		this.propertyOrder = propertyOrder;
-		for (String s : properties.keySet())
+		for (String s : this.properties.keySet())
 			if (!propertyOrder.contains(s)) propertyOrder.add(s);
 		return this;
 	}
 
 	public List<String> getPropertyOrder() {
 		if (this.propertyOrder != null) return ImmutableList.copyOf(this.propertyOrder);
-		else return ImmutableList.copyOf(properties.keySet());
+		else return ImmutableList.copyOf(this.properties.keySet());
 	}
 
 	public boolean containsKey(String key) {
-		return properties.containsKey(key);
+		return this.properties.containsKey(key);
 	}
 
 	public Property get(String key) {
-		return properties.get(key);
+		return this.properties.get(key);
 	}
 
 	private void write(BufferedWriter out, String... data) throws IOException {
-		write(out, true, data);
+		this.write(out, true, data);
 	}
 
 	private void write(BufferedWriter out, boolean new_line, String... data) throws IOException {
@@ -212,32 +212,32 @@ public class ConfigCategory implements Map<String, Property> {
 	}
 
 	public void write(BufferedWriter out, int indent) throws IOException {
-		String pad0 = getIndent(indent);
-		String pad1 = getIndent(indent + 1);
-		String pad2 = getIndent(indent + 2);
+		String pad0 = this.getIndent(indent);
+		String pad1 = this.getIndent(indent + 1);
+		String pad2 = this.getIndent(indent + 2);
 
-		if (comment != null && !comment.isEmpty()) {
-			write(out, pad0, COMMENT_SEPARATOR);
-			write(out, pad0, "# ", name);
-			write(out, pad0, "#--------------------------------------------------------------------------------------------------------#");
+		if (this.comment != null && !this.comment.isEmpty()) {
+			this.write(out, pad0, COMMENT_SEPARATOR);
+			this.write(out, pad0, "# ", this.name);
+			this.write(out, pad0, "#--------------------------------------------------------------------------------------------------------#");
 			Splitter splitter = Splitter.onPattern("\r?\n");
 
-			for (String line : splitter.split(comment)) {
-				write(out, pad0, "# ", line);
+			for (String line : splitter.split(this.comment)) {
+				this.write(out, pad0, "# ", line);
 			}
 
-			write(out, pad0, COMMENT_SEPARATOR, NEW_LINE);
+			this.write(out, pad0, COMMENT_SEPARATOR, NEW_LINE);
 		}
 
-		String displayName = name;
+		String displayName = this.name;
 
-		if (!allowedProperties.matchesAllOf(name)) {
-			displayName = '"' + name + '"';
+		if (!allowedProperties.matchesAllOf(this.name)) {
+			displayName = '"' + this.name + '"';
 		}
 
-		write(out, pad0, displayName, " {");
+		this.write(out, pad0, displayName, " {");
 
-		Property[] props = getOrderedValues().toArray(new Property[] {});
+		Property[] props = this.getOrderedValues().toArray(new Property[] {});
 
 		for (int x = 0; x < props.length; x++) {
 			Property prop = props[x];
@@ -249,7 +249,7 @@ public class ConfigCategory implements Map<String, Property> {
 
 				Splitter splitter = Splitter.onPattern("\r?\n");
 				for (String commentLine : splitter.split(prop.getComment())) {
-					write(out, pad1, "# ", commentLine);
+					this.write(out, pad1, "# ", commentLine);
 				}
 			}
 
@@ -262,30 +262,30 @@ public class ConfigCategory implements Map<String, Property> {
 			if (prop.isList()) {
 				char type = prop.getType().getID();
 
-				write(out, pad1, String.valueOf(type), ":", propName, " <");
+				this.write(out, pad1, String.valueOf(type), ":", propName, " <");
 
 				for (String line : prop.getStringList()) {
-					write(out, pad2, line);
+					this.write(out, pad2, line);
 				}
 
-				write(out, pad1, " >");
+				this.write(out, pad1, " >");
 			} else if (prop.getType() == null) {
-				write(out, pad1, propName, "=", prop.getString());
+				this.write(out, pad1, propName, "=", prop.getString());
 			} else {
 				char type = prop.getType().getID();
-				write(out, pad1, String.valueOf(type), ":", propName, "=", prop.getString());
+				this.write(out, pad1, String.valueOf(type), ":", propName, "=", prop.getString());
 			}
 
 			prop.resetChangedState();
 		}
 
-		if (children.size() > 0) out.newLine();
+		if (this.children.size() > 0) out.newLine();
 
-		for (ConfigCategory child : children) {
+		for (ConfigCategory child : this.children) {
 			child.write(out, indent + 1);
 		}
 
-		write(out, pad0, "}", NEW_LINE);
+		this.write(out, pad0, "}", NEW_LINE);
 	}
 
 	private String getIndent(int indent) {
@@ -297,16 +297,16 @@ public class ConfigCategory implements Map<String, Property> {
 	}
 
 	public boolean hasChanged() {
-		if (changed) return true;
-		for (Property prop : properties.values()) {
+		if (this.changed) return true;
+		for (Property prop : this.properties.values()) {
 			if (prop.hasChanged()) return true;
 		}
 		return false;
 	}
 
 	void resetChangedState() {
-		changed = false;
-		for (Property prop : properties.values()) {
+		this.changed = false;
+		for (Property prop : this.properties.values()) {
 			prop.resetChangedState();
 		}
 	}
@@ -314,79 +314,79 @@ public class ConfigCategory implements Map<String, Property> {
 	//Map bouncer functions for compatibility with older mods, to be removed once all mods stop using it.
 	@Override
 	public int size() {
-		return properties.size();
+		return this.properties.size();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return properties.isEmpty();
+		return this.properties.isEmpty();
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
-		return properties.containsKey(key);
+		return this.properties.containsKey(key);
 	}
 
 	@Override
 	public boolean containsValue(Object value) {
-		return properties.containsValue(value);
+		return this.properties.containsValue(value);
 	}
 
 	@Override
 	public Property get(Object key) {
-		return properties.get(key);
+		return this.properties.get(key);
 	}
 
 	@Override
 	public Property put(String key, Property value) {
-		changed = true;
+		this.changed = true;
 		if (this.propertyOrder != null && !this.propertyOrder.contains(key)) this.propertyOrder.add(key);
-		return properties.put(key, value);
+		return this.properties.put(key, value);
 	}
 
 	@Override
 	public Property remove(Object key) {
-		changed = true;
-		return properties.remove(key);
+		this.changed = true;
+		return this.properties.remove(key);
 	}
 
 	@Override
 	public void putAll(Map<? extends String, ? extends Property> m) {
-		changed = true;
+		this.changed = true;
 		if (this.propertyOrder != null) for (String key : m.keySet())
 			if (!this.propertyOrder.contains(key)) this.propertyOrder.add(key);
-		properties.putAll(m);
+		this.properties.putAll(m);
 	}
 
 	@Override
 	public void clear() {
-		changed = true;
-		properties.clear();
+		this.changed = true;
+		this.properties.clear();
 	}
 
 	@Override
 	public Set<String> keySet() {
-		return properties.keySet();
+		return this.properties.keySet();
 	}
 
 	@Override
 	public Collection<Property> values() {
-		return properties.values();
+		return this.properties.values();
 	}
 
 	@Override //Immutable copy, changes will NOT be reflected in this category
 	public Set<Entry<String, Property>> entrySet() {
-		return ImmutableSet.copyOf(properties.entrySet());
+		return ImmutableSet.copyOf(this.properties.entrySet());
 	}
 
 	public Set<ConfigCategory> getChildren() {
-		return ImmutableSet.copyOf(children);
+		return ImmutableSet.copyOf(this.children);
 	}
 
 	public void removeChild(ConfigCategory child) {
-		if (children.contains(child)) {
-			children.remove(child);
-			changed = true;
+		if (this.children.contains(child)) {
+			this.children.remove(child);
+			this.changed = true;
 		}
 	}
 }

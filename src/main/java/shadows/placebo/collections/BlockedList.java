@@ -13,25 +13,25 @@ public abstract class BlockedList<T> extends ArrayList<T> {
 
 	@Override
 	public void add(int index, T t) {
-		if (isBlocked(t)) return;
+		if (this.isBlocked(t)) return;
 		super.add(index, t);
 	}
 
 	@Override
 	public boolean add(T t) {
-		if (isBlocked(t)) return false;
+		if (this.isBlocked(t)) return false;
 		return super.add(t);
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends T> c) {
-		if (isBlocked(c)) return false;
+		if (this.isBlocked(c)) return false;
 		return super.addAll(c);
 	}
 
 	@Override
 	public boolean addAll(int index, Collection<? extends T> c) {
-		if (isBlocked(c)) return false;
+		if (this.isBlocked(c)) return false;
 		return super.addAll(index, c);
 	}
 }

@@ -34,21 +34,21 @@ public class TagIngredient extends Ingredient {
 
 	@Override
 	public boolean test(ItemStack stack) {
-		return tag().contains(stack.getItem());
+		return this.tag().contains(stack.getItem());
 	}
 
 	@Override
 	public ItemStack[] getMatchingStacks() {
-		if (tag().getAllElements().size() != stacks.length) {
-			stacks = tag().getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
+		if (this.tag().getAllElements().size() != this.stacks.length) {
+			this.stacks = this.tag().getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
-		return stacks;
+		return this.stacks;
 	}
 
 	@Override
 	public IntList getValidItemStacksPacked() {
 		if (this.matchingStacksPacked == null) {
-			ItemStack[] matchingStacks = getMatchingStacks();
+			ItemStack[] matchingStacks = this.getMatchingStacks();
 			this.matchingStacksPacked = new IntArrayList(matchingStacks.length);
 			for (ItemStack itemstack : matchingStacks) {
 				this.matchingStacksPacked.add(RecipeItemHelper.pack(itemstack));
@@ -60,7 +60,7 @@ public class TagIngredient extends Ingredient {
 
 	@Override
 	public boolean hasNoMatchingItems() {
-		return tag().getAllElements().isEmpty();
+		return this.tag().getAllElements().isEmpty();
 	}
 
 	@Override
@@ -69,11 +69,11 @@ public class TagIngredient extends Ingredient {
 	}
 
 	protected ITag<Item> tag() {
-		return tag != null ? tag : (tag = ItemTags.makeWrapperTag(tagId));
+		return this.tag != null ? this.tag : (this.tag = ItemTags.makeWrapperTag(this.tagId));
 	}
 
 	protected void redefine() {
-		tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(tagId));
+		this.tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(this.tagId));
 	}
 
 }

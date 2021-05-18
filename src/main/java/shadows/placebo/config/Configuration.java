@@ -75,7 +75,7 @@ public class Configuration {
 	private static final String CONFIG_VERSION_MARKER = "~CONFIG_VERSION";
 	private static final Pattern CONFIG_START = Pattern.compile("START: \"([^\\\"]+)\"");
 	private static final Pattern CONFIG_END = Pattern.compile("END: \"([^\\\"]+)\"");
-	public static final CharMatcher allowedProperties = CharMatcher.forPredicate(c -> Character.isLetterOrDigit(c)).or(CharMatcher.anyOf(ALLOWED_CHARS));
+	public static final CharMatcher allowedProperties = CharMatcher.forPredicate(Character::isLetterOrDigit).or(CharMatcher.anyOf(ALLOWED_CHARS));
 	private static Configuration PARENT = null;
 
 	File file;
@@ -98,13 +98,13 @@ public class Configuration {
 	public Configuration(File file) {
 		this.file = file;
 		try {
-			load();
+			this.load();
 		} catch (Throwable e) {
 			File fileBak = new File(file.getAbsolutePath() + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".errored");
 			Placebo.LOGGER.fatal("An exception occurred while loading config file {}. This file will be renamed to {} " + "and a new config file will be generated.", file.getName(), fileBak.getName(), e);
 
 			file.renameTo(fileBak);
-			load();
+			this.load();
 		}
 	}
 
@@ -114,7 +114,7 @@ public class Configuration {
 
 	@Override
 	public String toString() {
-		return file.getAbsolutePath();
+		return this.file.getAbsolutePath();
 	}
 
 	public String getDefinedConfigVersion() {
@@ -140,7 +140,7 @@ public class Configuration {
 	 * @return a boolean Property object without a comment
 	 */
 	public Property get(String category, String key, boolean defaultValue) {
-		return get(category, key, defaultValue, null);
+		return this.get(category, key, defaultValue, null);
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class Configuration {
 	 * @return a boolean Property object without a comment
 	 */
 	public Property get(String category, String key, boolean defaultValue, String comment) {
-		Property prop = get(category, key, Boolean.toString(defaultValue), comment, BOOLEAN);
+		Property prop = this.get(category, key, Boolean.toString(defaultValue), comment, BOOLEAN);
 		prop.setDefaultValue(Boolean.toString(defaultValue));
 
 		if (!prop.isBooleanValue()) {
@@ -172,7 +172,7 @@ public class Configuration {
 	 * @return a boolean array Property without a comment using these defaults: isListLengthFixed = false, maxListLength = -1
 	 */
 	public Property get(String category, String key, boolean[] defaultValues) {
-		return get(category, key, defaultValues, null);
+		return this.get(category, key, defaultValues, null);
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class Configuration {
 	 * @return a boolean array Property with a comment using these defaults: isListLengthFixed = false, maxListLength = -1
 	 */
 	public Property get(String category, String key, boolean[] defaultValues, String comment) {
-		return get(category, key, defaultValues, comment, false, -1);
+		return this.get(category, key, defaultValues, comment, false, -1);
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class Configuration {
 			values[i] = Boolean.toString(defaultValues[i]);
 		}
 
-		Property prop = get(category, key, values, comment, BOOLEAN);
+		Property prop = this.get(category, key, values, comment, BOOLEAN);
 		prop.setDefaultValues(values);
 		prop.setIsListLengthFixed(isListLengthFixed);
 		prop.setMaxListLength(maxListLength);
@@ -233,7 +233,7 @@ public class Configuration {
 	 * @return an integer Property object with default bounds of Integer.MIN_VALUE and Integer.MAX_VALUE
 	 */
 	public Property get(String category, String key, int defaultValue) {
-		return get(category, key, defaultValue, null, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		return this.get(category, key, defaultValue, null, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -246,7 +246,7 @@ public class Configuration {
 	 * @return an integer Property object with default bounds of Integer.MIN_VALUE and Integer.MAX_VALUE
 	 */
 	public Property get(String category, String key, int defaultValue, String comment) {
-		return get(category, key, defaultValue, comment, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		return this.get(category, key, defaultValue, comment, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -261,7 +261,7 @@ public class Configuration {
 	 * @return an integer Property object with the defined comment, minimum and maximum bounds
 	 */
 	public Property get(String category, String key, int defaultValue, String comment, int minValue, int maxValue) {
-		Property prop = get(category, key, Integer.toString(defaultValue), comment, INTEGER);
+		Property prop = this.get(category, key, Integer.toString(defaultValue), comment, INTEGER);
 		prop.setDefaultValue(Integer.toString(defaultValue));
 		prop.setMinValue(minValue);
 		prop.setMaxValue(maxValue);
@@ -282,7 +282,7 @@ public class Configuration {
 	 *         maxListLength = -1
 	 */
 	public Property get(String category, String key, int[] defaultValues) {
-		return get(category, key, defaultValues, null);
+		return this.get(category, key, defaultValues, null);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class Configuration {
 	 *         maxListLength = -1
 	 */
 	public Property get(String category, String key, int[] defaultValues, String comment) {
-		return get(category, key, defaultValues, comment, Integer.MIN_VALUE, Integer.MAX_VALUE, false, -1);
+		return this.get(category, key, defaultValues, comment, Integer.MIN_VALUE, Integer.MAX_VALUE, false, -1);
 	}
 
 	/**
@@ -312,7 +312,7 @@ public class Configuration {
 	 *         = false, maxListLength = -1
 	 */
 	public Property get(String category, String key, int[] defaultValues, String comment, int minValue, int maxValue) {
-		return get(category, key, defaultValues, comment, minValue, maxValue, false, -1);
+		return this.get(category, key, defaultValues, comment, minValue, maxValue, false, -1);
 	}
 
 	/**
@@ -335,7 +335,7 @@ public class Configuration {
 			values[i] = Integer.toString(defaultValues[i]);
 		}
 
-		Property prop = get(category, key, values, comment, INTEGER);
+		Property prop = this.get(category, key, values, comment, INTEGER);
 		prop.setDefaultValues(values);
 		prop.setMinValue(minValue);
 		prop.setMaxValue(maxValue);
@@ -364,7 +364,7 @@ public class Configuration {
 	 * @return a double Property object with default bounds of Double.MIN_VALUE and Double.MAX_VALUE
 	 */
 	public Property get(String category, String key, double defaultValue) {
-		return get(category, key, defaultValue, null);
+		return this.get(category, key, defaultValue, null);
 	}
 
 	/**
@@ -377,7 +377,7 @@ public class Configuration {
 	 * @return a double Property object with default bounds of Double.MIN_VALUE and Double.MAX_VALUE
 	 */
 	public Property get(String category, String key, double defaultValue, String comment) {
-		return get(category, key, defaultValue, comment, -Double.MAX_VALUE, Double.MAX_VALUE);
+		return this.get(category, key, defaultValue, comment, -Double.MAX_VALUE, Double.MAX_VALUE);
 	}
 
 	/**
@@ -392,7 +392,7 @@ public class Configuration {
 	 * @return a double Property object with the defined comment, minimum and maximum bounds
 	 */
 	public Property get(String category, String key, double defaultValue, String comment, double minValue, double maxValue) {
-		Property prop = get(category, key, Double.toString(defaultValue), comment, DOUBLE);
+		Property prop = this.get(category, key, Double.toString(defaultValue), comment, DOUBLE);
 		prop.setDefaultValue(Double.toString(defaultValue));
 		prop.setMinValue(minValue);
 		prop.setMaxValue(maxValue);
@@ -413,7 +413,7 @@ public class Configuration {
 	 *         maxListLength = -1
 	 */
 	public Property get(String category, String key, double[] defaultValues) {
-		return get(category, key, defaultValues, null);
+		return this.get(category, key, defaultValues, null);
 	}
 
 	/**
@@ -427,7 +427,7 @@ public class Configuration {
 	 *         maxListLength = -1
 	 */
 	public Property get(String category, String key, double[] defaultValues, String comment) {
-		return get(category, key, defaultValues, comment, -Double.MAX_VALUE, Double.MAX_VALUE, false, -1);
+		return this.get(category, key, defaultValues, comment, -Double.MAX_VALUE, Double.MAX_VALUE, false, -1);
 	}
 
 	/**
@@ -443,7 +443,7 @@ public class Configuration {
 	 *         false, maxListLength = -1
 	 */
 	public Property get(String category, String key, double[] defaultValues, String comment, double minValue, double maxValue) {
-		return get(category, key, defaultValues, comment, minValue, maxValue, false, -1);
+		return this.get(category, key, defaultValues, comment, minValue, maxValue, false, -1);
 	}
 
 	/**
@@ -466,7 +466,7 @@ public class Configuration {
 			values[i] = Double.toString(defaultValues[i]);
 		}
 
-		Property prop = get(category, key, values, comment, DOUBLE);
+		Property prop = this.get(category, key, values, comment, DOUBLE);
 		prop.setDefaultValues(values);
 		prop.setMinValue(minValue);
 		prop.setMaxValue(maxValue);
@@ -495,7 +495,7 @@ public class Configuration {
 	 * @return a string Property with validationPattern = null, validValues = null
 	 */
 	public Property get(String category, String key, String defaultValue) {
-		return get(category, key, defaultValue, null);
+		return this.get(category, key, defaultValue, null);
 	}
 
 	/**
@@ -508,7 +508,7 @@ public class Configuration {
 	 * @return a string Property with validationPattern = null, validValues = null
 	 */
 	public Property get(String category, String key, String defaultValue, String comment) {
-		return get(category, key, defaultValue, comment, STRING);
+		return this.get(category, key, defaultValue, comment, STRING);
 	}
 
 	/**
@@ -522,7 +522,7 @@ public class Configuration {
 	 * @return a string Property with the defined validationPattern, validValues = null
 	 */
 	public Property get(String category, String key, String defaultValue, String comment, Pattern validationPattern) {
-		Property prop = get(category, key, defaultValue, comment, STRING);
+		Property prop = this.get(category, key, defaultValue, comment, STRING);
 		prop.setValidationPattern(validationPattern);
 		return prop;
 	}
@@ -539,7 +539,7 @@ public class Configuration {
 	 * @return a string Property with the defined validValues array, validationPattern = null
 	 */
 	public Property get(String category, String key, String defaultValue, String comment, String[] validValues) {
-		Property prop = get(category, key, defaultValue, comment, STRING);
+		Property prop = this.get(category, key, defaultValue, comment, STRING);
 		prop.setValidValues(validValues);
 		return prop;
 	}
@@ -553,7 +553,7 @@ public class Configuration {
 	 * @return a string array Property with validationPattern = null, isListLengthFixed = false, maxListLength = -1
 	 */
 	public Property get(String category, String key, String[] defaultValues) {
-		return get(category, key, defaultValues, null, false, -1, null);
+		return this.get(category, key, defaultValues, null, false, -1, null);
 	}
 
 	/**
@@ -566,7 +566,7 @@ public class Configuration {
 	 * @return a string array Property with validationPattern = null, isListLengthFixed = false, maxListLength = -1
 	 */
 	public Property get(String category, String key, String[] defaultValues, String comment) {
-		return get(category, key, defaultValues, comment, false, -1, null);
+		return this.get(category, key, defaultValues, comment, false, -1, null);
 	}
 
 	/**
@@ -580,7 +580,7 @@ public class Configuration {
 	 * @return a string array Property with the defined validationPattern, isListLengthFixed = false, maxListLength = -1
 	 */
 	public Property get(String category, String key, String[] defaultValues, String comment, Pattern validationPattern) {
-		return get(category, key, defaultValues, comment, false, -1, validationPattern);
+		return this.get(category, key, defaultValues, comment, false, -1, validationPattern);
 	}
 
 	/**
@@ -597,7 +597,7 @@ public class Configuration {
 	 * @return a string array Property with a comment with all settings defined
 	 */
 	public Property get(String category, String key, String[] defaultValues, String comment, boolean isListLengthFixed, int maxListLength, Pattern validationPattern) {
-		Property prop = get(category, key, defaultValues, comment, STRING);
+		Property prop = this.get(category, key, defaultValues, comment, STRING);
 		prop.setIsListLengthFixed(isListLengthFixed);
 		prop.setMaxListLength(maxListLength);
 		prop.setValidationPattern(validationPattern);
@@ -621,7 +621,7 @@ public class Configuration {
 	 * @return a Property object of the specified type using default settings
 	 */
 	public Property get(String category, String key, String defaultValue, String comment, Property.Type type) {
-		ConfigCategory cat = getCategory(category);
+		ConfigCategory cat = this.getCategory(category);
 
 		if (cat.containsKey(key)) {
 			Property prop = cat.get(key);
@@ -657,7 +657,7 @@ public class Configuration {
 	 * @return a list (array) Property object of the specified type using default settings
 	 */
 	public Property get(String category, String key, String[] defaultValues, String comment, Property.Type type) {
-		ConfigCategory cat = getCategory(category);
+		ConfigCategory cat = this.getCategory(category);
 
 		if (cat.containsKey(key)) {
 			Property prop = cat.get(key);
@@ -689,13 +689,13 @@ public class Configuration {
 	 *************************************************************************************************************** */
 
 	public boolean hasCategory(String category) {
-		if (!caseSensitiveCustomCategories) category = category.toLowerCase(Locale.ENGLISH);
-		return categories.get(category) != null;
+		if (!this.caseSensitiveCustomCategories) category = category.toLowerCase(Locale.ENGLISH);
+		return this.categories.get(category) != null;
 	}
 
 	public boolean hasKey(String category, String key) {
-		if (!caseSensitiveCustomCategories) category = category.toLowerCase(Locale.ENGLISH);
-		ConfigCategory cat = categories.get(category);
+		if (!this.caseSensitiveCustomCategories) category = category.toLowerCase(Locale.ENGLISH);
+		ConfigCategory cat = this.categories.get(category);
 		return cat != null && cat.containsKey(key);
 	}
 
@@ -705,20 +705,20 @@ public class Configuration {
 		BufferedReader buffer = null;
 		UnicodeInputStreamReader input = null;
 		try {
-			if (file.getParentFile() != null) {
-				file.getParentFile().mkdirs();
+			if (this.file.getParentFile() != null) {
+				this.file.getParentFile().mkdirs();
 			}
 
-			if (!file.exists()) {
+			if (!this.file.exists()) {
 				// Either a previous load attempt failed or the file is new; clear maps
-				categories.clear();
-				children.clear();
-				if (!file.createNewFile()) return;
+				this.categories.clear();
+				this.children.clear();
+				if (!this.file.createNewFile()) return;
 			}
 
-			if (file.canRead()) {
-				input = new UnicodeInputStreamReader(new FileInputStream(file), defaultEncoding);
-				defaultEncoding = input.getEncoding();
+			if (this.file.canRead()) {
+				input = new UnicodeInputStreamReader(new FileInputStream(this.file), this.defaultEncoding);
+				this.defaultEncoding = input.getEncoding();
 				buffer = new BufferedReader(input);
 
 				String line;
@@ -727,14 +727,14 @@ public class Configuration {
 				ArrayList<String> tmpList = null;
 				int lineNum = 0;
 				String name = null;
-				loadedConfigVersion = null;
+				this.loadedConfigVersion = null;
 
 				while (true) {
 					lineNum++;
 					line = buffer.readLine();
 
 					if (line == null) {
-						if (lineNum == 1) loadedConfigVersion = definedConfigVersion;
+						if (lineNum == 1) this.loadedConfigVersion = this.definedConfigVersion;
 						break;
 					}
 
@@ -742,11 +742,11 @@ public class Configuration {
 					Matcher end = CONFIG_END.matcher(line);
 
 					if (start.matches()) {
-						fileName = start.group(1);
-						categories = new TreeMap<String, ConfigCategory>();
+						this.fileName = start.group(1);
+						this.categories = new TreeMap<String, ConfigCategory>();
 						continue;
 					} else if (end.matches()) {
-						fileName = end.group(1);
+						this.fileName = end.group(1);
 						//	Configuration child = new Configuration(null);
 						//	child.categories = categories;
 						//	this.children.put(fileName, child);
@@ -791,13 +791,13 @@ public class Configuration {
 								if (tmpList != null) // allow special characters as part of string lists
 									break;
 								name = line.substring(nameStart, nameEnd + 1);
-								if (!caseSensitiveCustomCategories) name = name.toLowerCase(Locale.ENGLISH);
+								if (!this.caseSensitiveCustomCategories) name = name.toLowerCase(Locale.ENGLISH);
 								String qualifiedName = ConfigCategory.getQualifiedName(name, currentCat);
 
-								ConfigCategory cat = categories.get(qualifiedName);
+								ConfigCategory cat = this.categories.get(qualifiedName);
 								if (cat == null) {
 									currentCat = new ConfigCategory(name, currentCat);
-									categories.put(qualifiedName, currentCat);
+									this.categories.put(qualifiedName, currentCat);
 								} else {
 									currentCat = cat;
 								}
@@ -809,7 +809,7 @@ public class Configuration {
 								if (tmpList != null) // allow special characters as part of string lists
 									break;
 								if (currentCat == null) {
-									throw new RuntimeException(String.format("Config file corrupt, attempted to close to many categories '%s:%d'", fileName, lineNum));
+									throw new RuntimeException(String.format("Config file corrupt, attempted to close to many categories '%s:%d'", this.fileName, lineNum));
 								}
 								currentCat = currentCat.parent;
 								break;
@@ -820,7 +820,7 @@ public class Configuration {
 								name = line.substring(nameStart, nameEnd + 1);
 
 								if (currentCat == null) {
-									throw new RuntimeException(String.format("'%s' has no scope in '%s:%d'", name, fileName, lineNum));
+									throw new RuntimeException(String.format("'%s' has no scope in '%s:%d'", name, this.fileName, lineNum));
 								}
 
 								Property prop = new Property(name, line.substring(i + 1), type, true);
@@ -839,12 +839,12 @@ public class Configuration {
 
 							case '<':
 								if (tmpList != null && i + 1 == line.length() || tmpList == null && i + 1 != line.length()) {
-									throw new RuntimeException(String.format("Malformed list property \"%s:%d\"", fileName, lineNum));
+									throw new RuntimeException(String.format("Malformed list property \"%s:%d\"", this.fileName, lineNum));
 								} else if (i + 1 == line.length()) {
 									name = line.substring(nameStart, nameEnd + 1);
 
 									if (currentCat == null) {
-										throw new RuntimeException(String.format("'%s' has no scope in '%s:%d'", name, fileName, lineNum));
+										throw new RuntimeException(String.format("'%s' has no scope in '%s:%d'", name, this.fileName, lineNum));
 									}
 
 									tmpList = new ArrayList<String>();
@@ -856,7 +856,7 @@ public class Configuration {
 
 							case '>':
 								if (tmpList == null) {
-									throw new RuntimeException(String.format("Malformed list property \"%s:%d\"", fileName, lineNum));
+									throw new RuntimeException(String.format("Malformed list property \"%s:%d\"", this.fileName, lineNum));
 								}
 
 								if (isFirstNonWhitespaceCharOnLine) {
@@ -873,7 +873,7 @@ public class Configuration {
 
 								if (line.startsWith(CONFIG_VERSION_MARKER)) {
 									int colon = line.indexOf(':');
-									if (colon != -1) loadedConfigVersion = line.substring(colon + 1).trim();
+									if (colon != -1) this.loadedConfigVersion = line.substring(colon + 1).trim();
 
 									skip = true;
 								}
@@ -882,27 +882,27 @@ public class Configuration {
 							default:
 								if (tmpList != null) // allow special characters as part of string lists
 									break;
-								throw new RuntimeException(String.format("Unknown character '%s' in '%s:%d'", line.charAt(i), fileName, lineNum));
+								throw new RuntimeException(String.format("Unknown character '%s' in '%s:%d'", line.charAt(i), this.fileName, lineNum));
 							}
 							isFirstNonWhitespaceCharOnLine = false;
 						}
 					}
 
 					if (quoted) {
-						throw new RuntimeException(String.format("Unmatched quote in '%s:%d'", fileName, lineNum));
+						throw new RuntimeException(String.format("Unmatched quote in '%s:%d'", this.fileName, lineNum));
 					} else if (tmpList != null && !skip) {
 						tmpList.add(line.trim());
 					}
 				}
 			}
 		} catch (IOException e) {
-			LOGGER.error("Error while loading config {}.", fileName, e);
+			LOGGER.error("Error while loading config {}.", this.fileName, e);
 		} finally {
 			IOUtils.closeQuietly(buffer);
 			IOUtils.closeQuietly(input);
 		}
 
-		resetChangedState();
+		this.resetChangedState();
 	}
 
 	public void save() {
@@ -912,24 +912,24 @@ public class Configuration {
 		}
 
 		try {
-			if (file.getParentFile() != null) {
-				file.getParentFile().mkdirs();
+			if (this.file.getParentFile() != null) {
+				this.file.getParentFile().mkdirs();
 			}
 
-			if (!file.exists() && !file.createNewFile()) { return; }
+			if (!this.file.exists() && !this.file.createNewFile()) { return; }
 
-			if (file.canWrite()) {
-				FileOutputStream fos = new FileOutputStream(file);
-				BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, defaultEncoding));
+			if (this.file.canWrite()) {
+				FileOutputStream fos = new FileOutputStream(this.file);
+				BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, this.defaultEncoding));
 
 				buffer.write("# Configuration file" + NEW_LINE + NEW_LINE);
 
 				if (this.definedConfigVersion != null) buffer.write(CONFIG_VERSION_MARKER + ": " + this.definedConfigVersion + NEW_LINE + NEW_LINE);
 
-				if (children.isEmpty()) {
-					save(buffer);
+				if (this.children.isEmpty()) {
+					this.save(buffer);
 				} else {
-					for (Entry<String, Configuration> entry : children.entrySet()) {
+					for (Entry<String, Configuration> entry : this.children.entrySet()) {
 						buffer.write("START: \"" + entry.getKey() + "\"" + NEW_LINE);
 						entry.getValue().save(buffer);
 						buffer.write("END: \"" + entry.getKey() + "\"" + NEW_LINE + NEW_LINE);
@@ -940,12 +940,12 @@ public class Configuration {
 				fos.close();
 			}
 		} catch (IOException e) {
-			LOGGER.error("Error while saving config {}.", fileName, e);
+			LOGGER.error("Error while saving config {}.", this.fileName, e);
 		}
 	}
 
 	private void save(BufferedWriter out) throws IOException {
-		for (ConfigCategory cat : categories.values()) {
+		for (ConfigCategory cat : this.categories.values()) {
 			if (!cat.isChild()) {
 				cat.write(out, 0);
 				out.newLine();
@@ -954,29 +954,29 @@ public class Configuration {
 	}
 
 	public ConfigCategory getCategory(String category) {
-		if (!caseSensitiveCustomCategories) category = category.toLowerCase(Locale.ENGLISH);
+		if (!this.caseSensitiveCustomCategories) category = category.toLowerCase(Locale.ENGLISH);
 
-		ConfigCategory ret = categories.get(category);
+		ConfigCategory ret = this.categories.get(category);
 
 		if (ret == null) {
 			if (category.contains(CATEGORY_SPLITTER)) {
 				String[] hierarchy = category.split("\\" + CATEGORY_SPLITTER);
-				ConfigCategory parent = categories.get(hierarchy[0]);
+				ConfigCategory parent = this.categories.get(hierarchy[0]);
 
 				if (parent == null) {
 					parent = new ConfigCategory(hierarchy[0]);
-					categories.put(parent.getQualifiedName(), parent);
-					changed = true;
+					this.categories.put(parent.getQualifiedName(), parent);
+					this.changed = true;
 				}
 
 				for (int i = 1; i < hierarchy.length; i++) {
 					String name = ConfigCategory.getQualifiedName(hierarchy[i], parent);
-					ConfigCategory child = categories.get(name);
+					ConfigCategory child = this.categories.get(name);
 
 					if (child == null) {
 						child = new ConfigCategory(hierarchy[i], parent);
-						categories.put(name, child);
-						changed = true;
+						this.categories.put(name, child);
+						this.changed = true;
 					}
 
 					ret = child;
@@ -984,8 +984,8 @@ public class Configuration {
 				}
 			} else {
 				ret = new ConfigCategory(category);
-				categories.put(category, ret);
-				changed = true;
+				this.categories.put(category, ret);
+				this.changed = true;
 			}
 		}
 
@@ -994,15 +994,15 @@ public class Configuration {
 
 	public void removeCategory(ConfigCategory category) {
 		for (ConfigCategory child : category.getChildren()) {
-			removeCategory(child);
+			this.removeCategory(child);
 		}
 
-		if (categories.containsKey(category.getQualifiedName())) {
-			categories.remove(category.getQualifiedName());
+		if (this.categories.containsKey(category.getQualifiedName())) {
+			this.categories.remove(category.getQualifiedName());
 			if (category.parent != null) {
 				category.parent.removeChild(category);
 			}
-			changed = true;
+			this.changed = true;
 		}
 	}
 
@@ -1013,7 +1013,7 @@ public class Configuration {
 	 * @param comment a String comment
 	 */
 	public Configuration setCategoryComment(String category, String comment) {
-		getCategory(category).setComment(comment);
+		this.getCategory(category).setComment(comment);
 		return this;
 	}
 
@@ -1028,7 +1028,7 @@ public class Configuration {
 	 * @param langKey a language key string such as configcategory.general
 	 */
 	public Configuration setCategoryLanguageKey(String category, String langKey) {
-		getCategory(category).setLanguageKey(langKey);
+		this.getCategory(category).setLanguageKey(langKey);
 		return this;
 	}
 
@@ -1056,7 +1056,7 @@ public class Configuration {
 	 * true if all child properties/categories are unable to be modified while a world is running.
 	 */
 	public Configuration setCategoryRequiresWorldRestart(String category, boolean requiresWorldRestart) {
-		getCategory(category).setRequiresWorldRestart(requiresWorldRestart);
+		this.getCategory(category).setRequiresWorldRestart(requiresWorldRestart);
 		return this;
 	}
 
@@ -1067,7 +1067,7 @@ public class Configuration {
 	 * of the child properties/categories while a world is running.
 	 */
 	public Configuration setCategoryRequiresMcRestart(String category, boolean requiresMcRestart) {
-		getCategory(category).setRequiresMcRestart(requiresMcRestart);
+		this.getCategory(category).setRequiresMcRestart(requiresMcRestart);
 		return this;
 	}
 
@@ -1076,7 +1076,7 @@ public class Configuration {
 	 * config GUIs.
 	 */
 	public Configuration setCategoryPropertyOrder(String category, List<String> propOrder) {
-		getCategory(category).setPropertyOrder(propOrder);
+		this.getCategory(category).setPropertyOrder(propOrder);
 		return this;
 	}
 
@@ -1126,28 +1126,28 @@ public class Configuration {
 		}
 
 		public String getEncoding() {
-			return input.getEncoding();
+			return this.input.getEncoding();
 		}
 
 		@Override
 		public int read(char[] cbuf, int off, int len) throws IOException {
-			return input.read(cbuf, off, len);
+			return this.input.read(cbuf, off, len);
 		}
 
 		@Override
 		public void close() throws IOException {
-			input.close();
+			this.input.close();
 		}
 	}
 
 	public boolean hasChanged() {
-		if (changed) return true;
+		if (this.changed) return true;
 
-		for (ConfigCategory cat : categories.values()) {
+		for (ConfigCategory cat : this.categories.values()) {
 			if (cat.hasChanged()) return true;
 		}
 
-		for (Configuration child : children.values()) {
+		for (Configuration child : this.children.values()) {
 			if (child.hasChanged()) return true;
 		}
 
@@ -1155,18 +1155,18 @@ public class Configuration {
 	}
 
 	private void resetChangedState() {
-		changed = false;
-		for (ConfigCategory cat : categories.values()) {
+		this.changed = false;
+		for (ConfigCategory cat : this.categories.values()) {
 			cat.resetChangedState();
 		}
 
-		for (Configuration child : children.values()) {
+		for (Configuration child : this.children.values()) {
 			child.resetChangedState();
 		}
 	}
 
 	public Set<String> getCategoryNames() {
-		return ImmutableSet.copyOf(categories.keySet());
+		return ImmutableSet.copyOf(this.categories.keySet());
 	}
 
 	/**
@@ -1178,8 +1178,8 @@ public class Configuration {
 	 * @return true if the category and property exist, false otherwise
 	 */
 	public boolean renameProperty(String category, String oldPropName, String newPropName) {
-		if (hasCategory(category)) {
-			ConfigCategory cat = getCategory(category);
+		if (this.hasCategory(category)) {
+			ConfigCategory cat = this.getCategory(category);
 			if (cat.containsKey(oldPropName) && !oldPropName.equalsIgnoreCase(newPropName)) {
 				Property prop = cat.remove(oldPropName);
 				prop.setName(newPropName);
@@ -1199,8 +1199,8 @@ public class Configuration {
 	 * @return true if the old category and property exist, false otherwise
 	 */
 	public boolean moveProperty(String oldCategory, String propName, String newCategory) {
-		if (!oldCategory.equals(newCategory)) if (hasCategory(oldCategory)) if (getCategory(oldCategory).containsKey(propName)) {
-			getCategory(newCategory).put(propName, getCategory(oldCategory).remove(propName));
+		if (!oldCategory.equals(newCategory)) if (this.hasCategory(oldCategory)) if (this.getCategory(oldCategory).containsKey(propName)) {
+			this.getCategory(newCategory).put(propName, this.getCategory(oldCategory).remove(propName));
 			return true;
 		}
 		return false;
@@ -1232,7 +1232,7 @@ public class Configuration {
 	 * @return The value of the new string property.
 	 */
 	public String getString(String name, String category, String defaultValue, String comment) {
-		return getString(name, category, defaultValue, comment, name, null);
+		return this.getString(name, category, defaultValue, comment, name, null);
 	}
 
 	/**
@@ -1246,7 +1246,7 @@ public class Configuration {
 	 * @return The value of the new string property.
 	 */
 	public String getString(String name, String category, String defaultValue, String comment, String langKey) {
-		return getString(name, category, defaultValue, comment, langKey, null);
+		return this.getString(name, category, defaultValue, comment, langKey, null);
 	}
 
 	/**
@@ -1259,7 +1259,7 @@ public class Configuration {
 	 * @return The value of the new string property.
 	 */
 	public String getString(String name, String category, String defaultValue, String comment, Pattern pattern) {
-		return getString(name, category, defaultValue, comment, name, pattern);
+		return this.getString(name, category, defaultValue, comment, name, pattern);
 	}
 
 	/**
@@ -1291,7 +1291,7 @@ public class Configuration {
 	 * @return The value of the new string property.
 	 */
 	public String getString(String name, String category, String defaultValue, String comment, String[] validValues) {
-		return getString(name, category, defaultValue, comment, validValues, name);
+		return this.getString(name, category, defaultValue, comment, validValues, name);
 	}
 
 	/**
@@ -1323,7 +1323,7 @@ public class Configuration {
 	 * @return The value of the new string property.
 	 */
 	public String[] getStringList(String name, String category, String[] defaultValues, String comment) {
-		return getStringList(name, category, defaultValues, comment, null, name);
+		return this.getStringList(name, category, defaultValues, comment, null, name);
 	}
 
 	/**
@@ -1336,7 +1336,7 @@ public class Configuration {
 	 * @return The value of the new string property.
 	 */
 	public String[] getStringList(String name, String category, String[] defaultValue, String comment, String[] validValues) {
-		return getStringList(name, category, defaultValue, comment, validValues, name);
+		return this.getStringList(name, category, defaultValue, comment, validValues, name);
 	}
 
 	/**
@@ -1366,7 +1366,7 @@ public class Configuration {
 	 * @return The value of the new boolean property.
 	 */
 	public boolean getBoolean(String name, String category, boolean defaultValue, String comment) {
-		return getBoolean(name, category, defaultValue, comment, name);
+		return this.getBoolean(name, category, defaultValue, comment, name);
 	}
 
 	/**
@@ -1398,7 +1398,7 @@ public class Configuration {
 	 * @return The value of the new integer property.
 	 */
 	public int getInt(String name, String category, int defaultValue, int minValue, int maxValue, String comment) {
-		return getInt(name, category, defaultValue, minValue, maxValue, comment, name);
+		return this.getInt(name, category, defaultValue, minValue, maxValue, comment, name);
 	}
 
 	/**
@@ -1434,7 +1434,7 @@ public class Configuration {
 	 * @return The value of the new float property.
 	 */
 	public float getFloat(String name, String category, float defaultValue, float minValue, float maxValue, String comment) {
-		return getFloat(name, category, defaultValue, minValue, maxValue, comment, name);
+		return this.getFloat(name, category, defaultValue, minValue, maxValue, comment, name);
 	}
 
 	/**
@@ -1465,6 +1465,6 @@ public class Configuration {
 	}
 
 	public File getConfigFile() {
-		return file;
+		return this.file;
 	}
 }

@@ -36,7 +36,7 @@ public class ShieldBlockEvent extends EntityEvent {
 	 * @return The damage source.
 	 */
 	public DamageSource getSource() {
-		return source;
+		return this.source;
 	}
 
 	/**
@@ -44,14 +44,14 @@ public class ShieldBlockEvent extends EntityEvent {
 	 * incoming attack value.
 	 */
 	public float getOriginalBlocked() {
-		return blocked;
+		return this.blocked;
 	}
 
 	/**
 	 * @return The current amount of damage blocked, as a result of this event.
 	 */
 	public float getBlocked() {
-		return curBlocked;
+		return this.curBlocked;
 	}
 
 	/**
@@ -64,6 +64,7 @@ public class ShieldBlockEvent extends EntityEvent {
 		this.curBlocked = Math.min(this.blocked, blocked);
 	}
 
+	@Override
 	public LivingEntity getEntity() {
 		return (LivingEntity) super.getEntity();
 	}

@@ -45,21 +45,21 @@ public class SpawnerBuilder {
 	WeightedSpawnerEntity baseEntity = new WeightedSpawnerEntity();
 
 	public SpawnerBuilder() {
-		tag.put(SPAWN_DATA, baseEntity.getNbt());
+		this.tag.put(SPAWN_DATA, this.baseEntity.getNbt());
 	}
 
 	/**
 	 * Sets the mob type of the first spawn (or all spawns if potentials are not set).
 	 */
 	public SpawnerBuilder setType(EntityType<? extends Entity> entity) {
-		return setType(entity.getRegistryName());
+		return this.setType(entity.getRegistryName());
 	}
 
 	/**
 	 * Sets the mob type of the first spawn (or all spawns if potentials are not set).
 	 */
 	public SpawnerBuilder setType(ResourceLocation entity) {
-		baseEntity.getNbt().putString(ID, entity.toString());
+		this.baseEntity.getNbt().putString(ID, entity.toString());
 		return this;
 	}
 
@@ -67,7 +67,7 @@ public class SpawnerBuilder {
 	 * Sets the delay before the first spawn. Set to -1 to skip first spawn.
 	 */
 	public SpawnerBuilder setDelay(int delay) {
-		tag.putShort(SPAWN_DELAY, (short) delay);
+		this.tag.putShort(SPAWN_DELAY, (short) delay);
 		return this;
 	}
 
@@ -75,7 +75,7 @@ public class SpawnerBuilder {
 	 * Sets min spawn delay.
 	 */
 	public SpawnerBuilder setMinDelay(int delay) {
-		tag.putShort(MIN_SPAWN_DELAY, (short) delay);
+		this.tag.putShort(MIN_SPAWN_DELAY, (short) delay);
 		return this;
 	}
 
@@ -83,7 +83,7 @@ public class SpawnerBuilder {
 	 * Sets max spawn delay.
 	 */
 	public SpawnerBuilder setMaxDelay(int delay) {
-		tag.putShort(MAX_SPAWN_DELAY, (short) delay);
+		this.tag.putShort(MAX_SPAWN_DELAY, (short) delay);
 		return this;
 	}
 
@@ -100,7 +100,7 @@ public class SpawnerBuilder {
 	 * Sets the number of spawn attempts.
 	 */
 	public SpawnerBuilder setSpawnCount(int count) {
-		tag.putShort(SPAWN_COUNT, (short) count);
+		this.tag.putShort(SPAWN_COUNT, (short) count);
 		return this;
 	}
 
@@ -108,7 +108,7 @@ public class SpawnerBuilder {
 	 * Sets the max nearby entities.
 	 */
 	public SpawnerBuilder setMaxNearbyEntities(int max) {
-		tag.putShort(MAX_NEARBY_ENTITIES, (short) max);
+		this.tag.putShort(MAX_NEARBY_ENTITIES, (short) max);
 		return this;
 	}
 
@@ -116,7 +116,7 @@ public class SpawnerBuilder {
 	 * Sets the required player radius (in blocks) to activate.
 	 */
 	public SpawnerBuilder setPlayerRange(int range) {
-		tag.putShort(REQUIRED_PLAYER_RANGE, (short) range);
+		this.tag.putShort(REQUIRED_PLAYER_RANGE, (short) range);
 		return this;
 	}
 
@@ -124,7 +124,7 @@ public class SpawnerBuilder {
 	 * Sets the spawn radius (in blocks).
 	 */
 	public SpawnerBuilder setSpawnRange(int range) {
-		tag.putShort(SPAWN_RANGE, (short) range);
+		this.tag.putShort(SPAWN_RANGE, (short) range);
 		return this;
 	}
 
@@ -137,7 +137,7 @@ public class SpawnerBuilder {
 			data = new CompoundNBT();
 			data.putString(ID, "minecraft:pig");
 		}
-		baseEntity.nbt = data.copy();
+		this.baseEntity.nbt = data.copy();
 		return this;
 	}
 
@@ -145,9 +145,9 @@ public class SpawnerBuilder {
 	 * Sets the list of entities the mob spawner will choose from.
 	 */
 	public SpawnerBuilder setPotentials(WeightedSpawnerEntity... entries) {
-		hasPotentials = true;
-		tag.put(SPAWN_POTENTIALS, new ListNBT());
-		ListNBT list = tag.getList(SPAWN_POTENTIALS, 10);
+		this.hasPotentials = true;
+		this.tag.put(SPAWN_POTENTIALS, new ListNBT());
+		ListNBT list = this.tag.getList(SPAWN_POTENTIALS, 10);
 		for (WeightedSpawnerEntity e : entries)
 			list.add(e.toCompoundTag());
 		return this;
@@ -157,8 +157,8 @@ public class SpawnerBuilder {
 	 * Adds to the list of entities the mob spawner will choose from.
 	 */
 	public SpawnerBuilder addPotentials(WeightedSpawnerEntity... entries) {
-		hasPotentials = true;
-		ListNBT list = tag.getList(SPAWN_POTENTIALS, 10);
+		this.hasPotentials = true;
+		ListNBT list = this.tag.getList(SPAWN_POTENTIALS, 10);
 		for (WeightedSpawnerEntity e : entries)
 			list.add(e.toCompoundTag());
 		return this;
@@ -168,14 +168,14 @@ public class SpawnerBuilder {
 	 * @return The spawn data, represented as an entity nbt tag.
 	 */
 	public CompoundNBT getSpawnData() {
-		return tag.getCompound(SPAWN_DATA);
+		return this.tag.getCompound(SPAWN_DATA);
 	}
 
 	/**
 	 * @return The spawn data, represented as an entity nbt tag.
 	 */
 	public ListNBT getPotentials() {
-		return tag.getList(SPAWN_POTENTIALS, 10);
+		return this.tag.getList(SPAWN_POTENTIALS, 10);
 	}
 
 	public void build(IWorld world, BlockPos pos) {
@@ -184,7 +184,7 @@ public class SpawnerBuilder {
 			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
 		}
 		TileEntity s = world.getTileEntity(pos);
-		s.read(blockState, tag);
+		s.read(blockState, this.tag);
 		s.setPos(pos);
 	}
 }

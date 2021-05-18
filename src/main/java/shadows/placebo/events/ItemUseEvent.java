@@ -40,23 +40,23 @@ public class ItemUseEvent extends PlayerEvent {
 	}
 
 	public BlockPos getPos() {
-		return ctx.getPos();
+		return this.ctx.getPos();
 	}
 
 	public Direction getFace() {
-		return ctx.getFace();
+		return this.ctx.getFace();
 	}
 
 	public Vector3d getHitVec() {
-		return ctx.getHitVec();
+		return this.ctx.getHitVec();
 	}
 
 	public boolean isInside() {
-		return ctx.isInside();
+		return this.ctx.isInside();
 	}
 
 	public ItemUseContext getContext() {
-		return ctx;
+		return this.ctx;
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	@Nonnull
 	public Hand getHand() {
-		return ctx.getHand();
+		return this.ctx.getHand();
 	}
 
 	/**
@@ -72,14 +72,14 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	@Nonnull
 	public ItemStack getItemStack() {
-		return getPlayer().getHeldItem(getHand());
+		return this.getPlayer().getHeldItem(this.getHand());
 	}
 
 	/**
 	 * @return Convenience method to get the world of this interaction.
 	 */
 	public World getWorld() {
-		return getPlayer().getEntityWorld();
+		return this.getPlayer().getEntityWorld();
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 * the client to keep trying more interactions until something works.
 	 */
 	public ActionResultType getCancellationResult() {
-		return cancellationResult;
+		return this.cancellationResult;
 	}
 
 	/**

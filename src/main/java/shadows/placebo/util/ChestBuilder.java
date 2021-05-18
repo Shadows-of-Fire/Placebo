@@ -35,19 +35,19 @@ public class ChestBuilder {
 	public ChestBuilder(IWorld world, Random rand, BlockPos pos) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof ChestTileEntity) {
-			random = rand;
-			chest = (ChestTileEntity) tileEntity;
-			isValid = true;
-			position = pos;
-			iWorld = world;
+			this.random = rand;
+			this.chest = (ChestTileEntity) tileEntity;
+			this.isValid = true;
+			this.position = pos;
+			this.iWorld = world;
 		}
 	}
 
 	public void fill(ResourceLocation loot) {
-		if (iWorld != null) {
-			LockableLootTileEntity.setLootTable(iWorld, random, position, loot);
+		if (this.iWorld != null) {
+			LockableLootTileEntity.setLootTable(this.iWorld, this.random, this.position, loot);
 		} else {
-			chest.setLootTable(loot, random.nextLong());
+			this.chest.setLootTable(loot, this.random.nextLong());
 		}
 	}
 
@@ -91,7 +91,7 @@ public class ChestBuilder {
 
 		@Override
 		protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
-			list.accept(func.apply(new ItemStack(i), ctx));
+			list.accept(this.func.apply(new ItemStack(this.i), ctx));
 		}
 
 	}

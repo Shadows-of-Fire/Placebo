@@ -11,8 +11,8 @@ public class PoolBuilder extends LootPool.Builder {
 	static int k = 0;
 
 	public PoolBuilder(int minRolls, int maxRolls) {
-		rolls(new RandomValueRange(minRolls, maxRolls));
-		name("placebo_code_pool_" + k++);
+		this.rolls(new RandomValueRange(minRolls, maxRolls));
+		this.name("placebo_code_pool_" + k++);
 	}
 
 	public PoolBuilder addEntries(LootEntry... entries) {

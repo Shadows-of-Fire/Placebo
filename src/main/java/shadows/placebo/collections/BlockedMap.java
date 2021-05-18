@@ -13,19 +13,19 @@ public abstract class BlockedMap<K, V> extends HashMap<K, V> {
 
 	@Override
 	public V put(K key, V value) {
-		if (isBlocked(key, value)) return null;
+		if (this.isBlocked(key, value)) return null;
 		return super.put(key, value);
 	}
 
 	@Override
 	public void putAll(Map<? extends K, ? extends V> m) {
-		if (isBlocked(m)) return;
+		if (this.isBlocked(m)) return;
 		super.putAll(m);
 	}
 
 	@Override
 	public V putIfAbsent(K key, V value) {
-		if (isBlocked(key, value)) return null;
+		if (this.isBlocked(key, value)) return null;
 		return super.putIfAbsent(key, value);
 	}
 }

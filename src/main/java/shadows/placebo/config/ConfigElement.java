@@ -36,7 +36,7 @@ public class ConfigElement implements IConfigElement {
 
 	public ConfigElement(ConfigCategory category) {
 		this.category = category;
-		isProperty = false;
+		this.isProperty = false;
 	}
 
 	public ConfigElement(Property prop) {
@@ -52,11 +52,11 @@ public class ConfigElement implements IConfigElement {
 
 	@Override
 	public List<IConfigElement> getChildElements() {
-		if (!isProperty) {
+		if (!this.isProperty) {
 			List<IConfigElement> elements = new ArrayList<IConfigElement>();
-			Iterator<ConfigCategory> ccI = category.getChildren().iterator();
-			Iterator<Property> pI = category.getOrderedValues().iterator();
-			if (categoriesFirst) while (ccI.hasNext()) {
+			Iterator<ConfigCategory> ccI = this.category.getChildren().iterator();
+			Iterator<Property> pI = this.category.getOrderedValues().iterator();
+			if (this.categoriesFirst) while (ccI.hasNext()) {
 				ConfigElement temp = new ConfigElement(ccI.next());
 				if (temp.showInGui()) // don't bother adding elements that shouldn't show
 					elements.add(temp);
@@ -67,7 +67,7 @@ public class ConfigElement implements IConfigElement {
 				if (temp.showInGui()) elements.add(temp);
 			}
 
-			if (!categoriesFirst) while (ccI.hasNext()) {
+			if (!this.categoriesFirst) while (ccI.hasNext()) {
 				ConfigElement temp = new ConfigElement(ccI.next());
 				if (temp.showInGui()) elements.add(temp);
 			}
@@ -79,22 +79,22 @@ public class ConfigElement implements IConfigElement {
 
 	@Override
 	public String getName() {
-		return isProperty ? prop.getName() : category.getName();
+		return this.isProperty ? this.prop.getName() : this.category.getName();
 	}
 
 	@Override
 	public boolean isProperty() {
-		return isProperty;
+		return this.isProperty;
 	}
 
 	@Override
 	public String getQualifiedName() {
-		return isProperty ? prop.getName() : category.getQualifiedName();
+		return this.isProperty ? this.prop.getName() : this.category.getQualifiedName();
 	}
 
 	@Override
 	public ConfigGuiType getType() {
-		return isProperty ? getType(this.prop) : ConfigGuiType.CONFIG_CATEGORY;
+		return this.isProperty ? getType(this.prop) : ConfigGuiType.CONFIG_CATEGORY;
 	}
 
 	public static ConfigGuiType getType(Property prop) {
@@ -103,52 +103,52 @@ public class ConfigElement implements IConfigElement {
 
 	@Override
 	public boolean isList() {
-		return isProperty && prop.isList();
+		return this.isProperty && this.prop.isList();
 	}
 
 	@Override
 	public boolean isListLengthFixed() {
-		return isProperty && prop.isListLengthFixed();
+		return this.isProperty && this.prop.isListLengthFixed();
 	}
 
 	@Override
 	public int getMaxListLength() {
-		return isProperty ? prop.getMaxListLength() : -1;
+		return this.isProperty ? this.prop.getMaxListLength() : -1;
 	}
 
 	@Override
 	public String getComment() {
-		return isProperty ? prop.getComment() : category.getComment();
+		return this.isProperty ? this.prop.getComment() : this.category.getComment();
 	}
 
 	@Override
 	public boolean isDefault() {
-		return !isProperty || prop.isDefault();
+		return !this.isProperty || this.prop.isDefault();
 	}
 
 	@Override
 	public void setToDefault() {
-		if (isProperty) prop.setToDefault();
+		if (this.isProperty) this.prop.setToDefault();
 	}
 
 	@Override
 	public boolean requiresWorldRestart() {
-		return isProperty ? prop.requiresWorldRestart() : category.requiresWorldRestart();
+		return this.isProperty ? this.prop.requiresWorldRestart() : this.category.requiresWorldRestart();
 	}
 
 	@Override
 	public boolean showInGui() {
-		return isProperty ? prop.showInGui() : category.showInGui();
+		return this.isProperty ? this.prop.showInGui() : this.category.showInGui();
 	}
 
 	@Override
 	public boolean requiresMcRestart() {
-		return isProperty ? prop.requiresMcRestart() : category.requiresMcRestart();
+		return this.isProperty ? this.prop.requiresMcRestart() : this.category.requiresMcRestart();
 	}
 
 	@Override
 	public String[] getValidValues() {
-		return isProperty ? prop.getValidValues() : null;
+		return this.isProperty ? this.prop.getValidValues() : null;
 	}
 
 	@Override
@@ -158,29 +158,29 @@ public class ConfigElement implements IConfigElement {
 
 	@Override
 	public String getLanguageKey() {
-		return isProperty ? prop.getLanguageKey() : category.getLanguagekey();
+		return this.isProperty ? this.prop.getLanguageKey() : this.category.getLanguagekey();
 	}
 
 	@Override
 	public Object getDefault() {
-		return isProperty ? prop.getDefault() : null;
+		return this.isProperty ? this.prop.getDefault() : null;
 	}
 
 	@Override
 	public Object[] getDefaults() {
-		if (isProperty) {
-			String[] aVal = prop.getDefaults();
-			if (type == Property.Type.BOOLEAN) {
+		if (this.isProperty) {
+			String[] aVal = this.prop.getDefaults();
+			if (this.type == Property.Type.BOOLEAN) {
 				Boolean[] ba = new Boolean[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					ba[i] = Boolean.valueOf(aVal[i]);
 				return ba;
-			} else if (type == Property.Type.DOUBLE) {
+			} else if (this.type == Property.Type.DOUBLE) {
 				Double[] da = new Double[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					da[i] = Double.valueOf(aVal[i].toString());
 				return da;
-			} else if (type == Property.Type.INTEGER) {
+			} else if (this.type == Property.Type.INTEGER) {
 				Integer[] ia = new Integer[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					ia[i] = Integer.valueOf(aVal[i].toString());
@@ -192,7 +192,7 @@ public class ConfigElement implements IConfigElement {
 
 	@Override
 	public Pattern getValidationPattern() {
-		return isProperty ? prop.getValidationPattern() : null;
+		return this.isProperty ? this.prop.getValidationPattern() : null;
 	}
 
 	@Override
@@ -202,24 +202,24 @@ public class ConfigElement implements IConfigElement {
 
 	@Override
 	public Object get() {
-		return isProperty ? prop.getString() : null;
+		return this.isProperty ? this.prop.getString() : null;
 	}
 
 	@Override
 	public Object[] getList() {
-		if (isProperty) {
-			String[] aVal = prop.getStringList();
-			if (type == Property.Type.BOOLEAN) {
+		if (this.isProperty) {
+			String[] aVal = this.prop.getStringList();
+			if (this.type == Property.Type.BOOLEAN) {
 				Boolean[] ba = new Boolean[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					ba[i] = Boolean.valueOf(aVal[i]);
 				return ba;
-			} else if (type == Property.Type.DOUBLE) {
+			} else if (this.type == Property.Type.DOUBLE) {
 				Double[] da = new Double[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					da[i] = Double.valueOf(aVal[i].toString());
 				return da;
-			} else if (type == Property.Type.INTEGER) {
+			} else if (this.type == Property.Type.INTEGER) {
 				Integer[] ia = new Integer[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					ia[i] = Integer.valueOf(aVal[i].toString());
@@ -231,48 +231,48 @@ public class ConfigElement implements IConfigElement {
 
 	@Override
 	public void set(Object value) {
-		if (isProperty) {
-			if (type == Property.Type.BOOLEAN) prop.set(Boolean.parseBoolean(value.toString()));
-			else if (type == Property.Type.DOUBLE) prop.set(Double.parseDouble(value.toString()));
-			else if (type == Property.Type.INTEGER) prop.set(Integer.parseInt(value.toString()));
-			else prop.set(value.toString());
+		if (this.isProperty) {
+			if (this.type == Property.Type.BOOLEAN) this.prop.set(Boolean.parseBoolean(value.toString()));
+			else if (this.type == Property.Type.DOUBLE) this.prop.set(Double.parseDouble(value.toString()));
+			else if (this.type == Property.Type.INTEGER) this.prop.set(Integer.parseInt(value.toString()));
+			else this.prop.set(value.toString());
 		}
 	}
 
 	@Override
 	public void set(Object[] aVal) {
-		if (isProperty) {
-			if (type == Property.Type.BOOLEAN) {
+		if (this.isProperty) {
+			if (this.type == Property.Type.BOOLEAN) {
 				boolean[] ba = new boolean[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					ba[i] = Boolean.valueOf(aVal[i].toString());
-				prop.set(ba);
-			} else if (type == Property.Type.DOUBLE) {
+				this.prop.set(ba);
+			} else if (this.type == Property.Type.DOUBLE) {
 				double[] da = new double[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					da[i] = Double.valueOf(aVal[i].toString());
-				prop.set(da);
-			} else if (type == Property.Type.INTEGER) {
+				this.prop.set(da);
+			} else if (this.type == Property.Type.INTEGER) {
 				int[] ia = new int[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					ia[i] = Integer.valueOf(aVal[i].toString());
-				prop.set(ia);
+				this.prop.set(ia);
 			} else {
 				String[] is = new String[aVal.length];
 				for (int i = 0; i < aVal.length; i++)
 					is[i] = aVal[i].toString();
-				prop.set(is);
+				this.prop.set(is);
 			}
 		}
 	}
 
 	@Override
 	public Object getMinValue() {
-		return isProperty ? prop.getMinValue() : null;
+		return this.isProperty ? this.prop.getMinValue() : null;
 	}
 
 	@Override
 	public Object getMaxValue() {
-		return isProperty ? prop.getMaxValue() : null;
+		return this.isProperty ? this.prop.getMaxValue() : null;
 	}
 }

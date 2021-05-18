@@ -53,16 +53,16 @@ public class RecipeHelper {
 
 	public void addShapeless(Object output, Object... inputs) {
 		ItemStack out = makeStack(output);
-		addRecipe(new ShapelessRecipe(name(out), modid, out, createInput(false, inputs)));
+		addRecipe(new ShapelessRecipe(this.name(out), this.modid, out, this.createInput(false, inputs)));
 	}
 
 	public void addShaped(Object output, int width, int height, Object... input) {
-		addRecipe(genShaped(makeStack(output), width, height, input));
+		addRecipe(this.genShaped(makeStack(output), width, height, input));
 	}
 
 	public ShapedRecipe genShaped(ItemStack output, int l, int w, Object... input) {
-		if (l * w != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + modid);
-		return new ShapedRecipe(name(output), modid, l, w, createInput(true, input), output);
+		if (l * w != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + this.modid);
+		return new ShapedRecipe(this.name(output), this.modid, l, w, this.createInput(true, input), output);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -75,22 +75,22 @@ public class RecipeHelper {
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, CachedIngredient.create(makeStack(k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
 			else if (allowEmpty) inputL.add(i, Ingredient.EMPTY);
-			else throw new UnsupportedOperationException("Attempted to add invalid recipe.  Complain to the author of " + modid + ". (Input " + k + " not allowed.)");
+			else throw new UnsupportedOperationException("Attempted to add invalid recipe.  Complain to the author of " + this.modid + ". (Input " + k + " not allowed.)");
 		}
 		return inputL;
 	}
 
 	public void addSimpleShapeless(Object output, Object input, int numInputs) {
-		addShapeless(output, NonNullList.withSize(numInputs, makeStack(input)).toArray(new Object[0]));
+		this.addShapeless(output, NonNullList.withSize(numInputs, makeStack(input)).toArray(new Object[0]));
 	}
 
 	private ResourceLocation name(ItemStack out) {
 		String name = out.getItem().getRegistryName().getPath();
-		while (names.contains(name)) {
+		while (this.names.contains(name)) {
 			name += "_";
 		}
-		names.add(name);
-		return new ResourceLocation(modid, name);
+		this.names.add(name);
+		return new ResourceLocation(this.modid, name);
 	}
 
 	public static ItemStack makeStack(Object thing, int size) {
@@ -128,7 +128,7 @@ public class RecipeHelper {
 		private static Int2ObjectMap<CachedIngredient> ingredients = new Int2ObjectOpenHashMap<>();
 
 		private CachedIngredient(ItemStack... matches) {
-			super(Arrays.stream(matches).map(s -> new SingleItemList(s)));
+			super(Arrays.stream(matches).map(SingleItemList::new));
 			if (matches.length == 1) ingredients.put(RecipeItemHelper.pack(matches[0]), this);
 		}
 

@@ -45,8 +45,8 @@ public class StackLootEntry extends StandaloneLootEntry {
 
 	@Override
 	protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
-		ItemStack s = stack.copy();
-		s.setCount(MathHelper.nextInt(ctx.getRandom(), min, max));
+		ItemStack s = this.stack.copy();
+		s.setCount(MathHelper.nextInt(ctx.getRandom(), this.min, this.max));
 		list.accept(s);
 	}
 

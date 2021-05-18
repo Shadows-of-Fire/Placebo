@@ -43,27 +43,27 @@ public class StackPrimer {
 	}
 
 	public ItemStack genStack() {
-		ItemStack stack = new ItemStack(item == null ? item = block.asItem() : item, size);
-		stack.setTag(tag.copy());
+		ItemStack stack = new ItemStack(this.item == null ? this.item = this.block.asItem() : this.item, this.size);
+		stack.setTag(this.tag.copy());
 		return stack;
 	}
 
 	public boolean isEmpty() {
-		return item == null || size <= 0;
+		return this.item == null || this.size <= 0;
 	}
 
 	@Nullable
 	public Block getBlock() {
-		return block;
+		return this.block;
 	}
 
 	@Nullable
 	public Item getItem() {
-		return item;
+		return this.item;
 	}
 
 	public int getCount() {
-		return size;
+		return this.size;
 	}
 
 }
