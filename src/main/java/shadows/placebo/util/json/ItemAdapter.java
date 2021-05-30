@@ -2,6 +2,8 @@ package shadows.placebo.util.json;
 
 import java.lang.reflect.Type;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -20,6 +22,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<ItemStack> {
 
 	public static final ItemAdapter INSTANCE = new ItemAdapter();
+
+	public static final Gson ITEM_READER = new GsonBuilder().registerTypeAdapter(ItemStack.class, INSTANCE).registerTypeAdapter(CompoundNBT.class, NBTAdapter.INSTANCE).create();
 
 	@Override
 	public ItemStack deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) throws JsonParseException {

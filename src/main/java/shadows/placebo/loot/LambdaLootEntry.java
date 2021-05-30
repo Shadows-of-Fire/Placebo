@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import shadows.placebo.Placebo;
 
+@Deprecated
 public class LambdaLootEntry extends StandaloneLootEntry {
 	public static final Serializer SERIALIZER = new Serializer();
 	public static final LootPoolEntryType LAMBDALOOTENTRYTYPE = Registry.register(Registry.LOOT_POOL_ENTRY_TYPE, new ResourceLocation(Placebo.MODID, "lambda_entry"), new LootPoolEntryType(SERIALIZER));
