@@ -1,3 +1,5 @@
 {
-	"placebo.togglePatreon": "[Placebo] Toggle Patreon Trails"
+	"key.categories.placebo": "Placebo",
+	"placebo.toggleTrails": "Toggle Patreon Trails",
+	"placebo.toggleWings": "Toggle Patreon Wings"
 }
