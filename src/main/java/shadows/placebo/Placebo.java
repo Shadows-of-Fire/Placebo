@@ -16,6 +16,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import shadows.placebo.net.MessageButtonClick;
+import shadows.placebo.net.MessagePatreonDisable;
 import shadows.placebo.recipe.TagIngredient;
 import shadows.placebo.util.NetworkUtils;
 
@@ -44,6 +45,7 @@ public class Placebo {
 	public void setup(FMLCommonSetupEvent e) {
 		CraftingHelper.register(new ResourceLocation(Placebo.MODID, "tag"), TagIngredient.SERIALIZER);
 		NetworkUtils.registerMessage(CHANNEL, 0, new MessageButtonClick());
+		NetworkUtils.registerMessage(CHANNEL, 1, new MessagePatreonDisable(0));
 	}
 
 }

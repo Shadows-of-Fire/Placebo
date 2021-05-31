@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
@@ -26,6 +28,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import shadows.placebo.Placebo;
+import shadows.placebo.net.MessagePatreonDisable;
 import shadows.placebo.patreon.PatreonUtils.PatreonParticleType;
 
 @EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID, value = Dist.CLIENT)
@@ -33,15 +36,15 @@ public class TrailsManager {
 
 	private static Map<UUID, PatreonParticleType> TRAILS = new HashMap<>();
 
-	public static final KeyBinding TOGGLE = new KeyBinding("placebo.togglePatreon", GLFW.GLFW_KEY_KP_9, "key.categories.misc");
+	public static final KeyBinding TOGGLE = new KeyBinding("placebo.toggleTrails", GLFW.GLFW_KEY_KP_9, "key.categories.placebo");
 
-	public static boolean enabled = true;
+	public static final Set<UUID> DISABLED = new HashSet<>();
 
 	@SubscribeEvent
 	public static void init(FMLClientSetupEvent e) {
 		ClientRegistry.registerKeyBinding(TOGGLE);
 		new Thread(() -> {
-			Placebo.LOGGER.info("Loading patreon data...");
+			Placebo.LOGGER.info("Loading patreon trails data...");
 			try {
 				URL url = new URL("https://raw.githubusercontent.com/Shadows-of-Fire/Placebo/1.16/PatreonTrails.txt");
 				try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
@@ -49,14 +52,14 @@ public class TrailsManager {
 					while ((s = reader.readLine()) != null) {
 						String[] split = s.split(" ", 2);
 						if (split.length != 2) {
-							Placebo.LOGGER.error("Invalid patreon data entry {} will be ignored.", s);
+							Placebo.LOGGER.error("Invalid patreon trail entry {} will be ignored.", s);
 							continue;
 						}
 						TRAILS.put(UUID.fromString(split[0]), PatreonParticleType.valueOf(split[1]));
 					}
 					reader.close();
 				} catch (IOException ex) {
-					Placebo.LOGGER.error("Exception loading patreon data!");
+					Placebo.LOGGER.error("Exception loading patreon trails data!");
 					ex.printStackTrace();
 				}
 			} catch (Exception k) {
@@ -64,15 +67,15 @@ public class TrailsManager {
 			}
 			Placebo.LOGGER.info("Loaded {} patreon trails.", TRAILS.size());
 			if (TRAILS.size() > 0) MinecraftForge.EVENT_BUS.addListener(TrailsManager::clientTick);
-		}, "Placebo Patreon Loader").start();
+		}, "Placebo Patreon Trail Loader").start();
 	}
 
 	public static void clientTick(ClientTickEvent e) {
-		if (TOGGLE.isPressed()) enabled = !enabled;
+		if (TOGGLE.isPressed()) Placebo.CHANNEL.sendToServer(new MessagePatreonDisable(0));
 		PatreonParticleType t = null;
-		if (enabled && e.phase == Phase.END && Minecraft.getInstance().world != null) {
+		if (e.phase == Phase.END && Minecraft.getInstance().world != null) {
 			for (PlayerEntity player : Minecraft.getInstance().world.getPlayers()) {
-				if (player.ticksExisted * 3 % 2 == 0 && (t = TRAILS.get(player.getUniqueID())) != null) {
+				if (!player.isInvisible() && player.ticksExisted * 3 % 2 == 0 && !DISABLED.contains(player.getUniqueID()) && (t = TRAILS.get(player.getUniqueID())) != null) {
 					ClientWorld world = (ClientWorld) player.world;
 					Random rand = world.rand;
 					IParticleData type = t.type.get();
