@@ -8,6 +8,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.ChestTileEntity;
+import net.minecraft.tileentity.LockableLootTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +29,8 @@ public class ChestBuilder {
 	protected Random random;
 	protected ChestTileEntity chest;
 	protected boolean isValid;
+	protected BlockPos position;
+	protected IWorld iWorld;
 
 	public ChestBuilder(IWorld world, Random rand, BlockPos pos) {
 		TileEntity tileEntity = world.getTileEntity(pos);
@@ -35,6 +38,8 @@ public class ChestBuilder {
 			random = rand;
 			chest = (ChestTileEntity) tileEntity;
 			isValid = true;
+			position = pos;
+			iWorld = world;
 		}
 	}
 
@@ -47,7 +52,12 @@ public class ChestBuilder {
 	}
 
 	public void fill(ResourceLocation loot) {
-		chest.setLootTable(loot, random.nextLong());
+		//chest.setLootTable(loot, random.nextLong());
+		if (iWorld != null) {
+			LockableLootTileEntity.setLootTable(iWorld, random, position, loot);
+		} else {
+			chest.setLootTable(loot, random.nextLong());
+		}
 	}
 
 	public static LootEntry loot(Item item, int min, int max, int weight, int quality) {
