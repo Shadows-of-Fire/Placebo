@@ -24,6 +24,7 @@ import net.minecraft.potion.PotionUtils;
  * @author Shadows
  *
  */
+@Deprecated
 public class TagBuilder {
 
 	public static final String HAND_ITEMS = "HandItems";
