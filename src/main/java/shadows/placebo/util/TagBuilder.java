@@ -90,10 +90,10 @@ public class TagBuilder {
 
 		for (EquipmentSlotType s : EquipmentSlotType.values()) {
 			ItemStack stack = stacks[s.ordinal()];
-			if (s.getSlotType() == EquipmentSlotType.Group.HAND && !stack.isEmpty()) {
-				tagListHands.set(s.getIndex(), stack.write(new CompoundNBT()));
+			if (s.getType() == EquipmentSlotType.Group.HAND && !stack.isEmpty()) {
+				tagListHands.set(s.getIndex(), stack.save(new CompoundNBT()));
 			} else if (!stack.isEmpty()) {
-				tagListArmor.set(s.getIndex(), stack.write(new CompoundNBT()));
+				tagListArmor.set(s.getIndex(), stack.save(new CompoundNBT()));
 			}
 		}
 
@@ -121,7 +121,7 @@ public class TagBuilder {
 
 		for (EquipmentSlotType s : EquipmentSlotType.values()) {
 			FloatNBT chance = FloatNBT.valueOf(fixed[s.ordinal()]);
-			if (s.getSlotType() == EquipmentSlotType.Group.HAND) {
+			if (s.getType() == EquipmentSlotType.Group.HAND) {
 				tagListHands.set(s.getIndex(), chance);
 			} else tagListArmor.set(s.getIndex(), chance);
 
@@ -174,7 +174,7 @@ public class TagBuilder {
 	 * Adds a potion effect to the stack and returns it.
 	 */
 	public static ItemStack addPotionEffect(ItemStack stack, Effect potion, int duration, int amplifier) {
-		return PotionUtils.appendEffects(stack, Arrays.asList(new EffectInstance(potion, duration, amplifier)));
+		return PotionUtils.setCustomEffects(stack, Arrays.asList(new EffectInstance(potion, duration, amplifier)));
 	}
 
 	/**
@@ -204,7 +204,7 @@ public class TagBuilder {
 	public static CompoundNBT addPotionEffect(CompoundNBT entity, Effect potion, int duration, int amplifier, boolean showParticles) {
 		ListNBT effects = entity.getList(EFFECTS, 10);
 		EffectInstance fx = new EffectInstance(potion, duration, amplifier, false, showParticles);
-		effects.add(fx.write(new CompoundNBT()));
+		effects.add(fx.save(new CompoundNBT()));
 		entity.put(EFFECTS, effects);
 		return entity;
 	}
@@ -253,8 +253,8 @@ public class TagBuilder {
 	 */
 	public static CompoundNBT applyTNTHat(CompoundNBT tag) {
 		TagBuilder.setMotion(tag, 0.0, 0.3, 0.0);
-		TagBuilder.addPotionEffect(tag, Effects.SPEED, 1);
-		TagBuilder.addPotionEffect(tag, Effects.RESISTANCE, -6);
+		TagBuilder.addPotionEffect(tag, Effects.MOVEMENT_SPEED, 1);
+		TagBuilder.addPotionEffect(tag, Effects.DAMAGE_RESISTANCE, -6);
 		addPassengers(tag, TNT.copy());
 		return tag;
 	}

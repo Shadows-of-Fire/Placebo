@@ -38,20 +38,20 @@ public class TagIngredient extends Ingredient {
 	}
 
 	@Override
-	public ItemStack[] getMatchingStacks() {
-		if (this.tag().getAllElements().size() != this.stacks.length) {
-			this.stacks = this.tag().getAllElements().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
+	public ItemStack[] getItems() {
+		if (this.tag().getValues().size() != this.stacks.length) {
+			this.stacks = this.tag().getValues().stream().map(ItemStack::new).collect(Collectors.toList()).toArray(new ItemStack[0]);
 		}
 		return this.stacks;
 	}
 
 	@Override
-	public IntList getValidItemStacksPacked() {
+	public IntList getStackingIds() {
 		if (this.matchingStacksPacked == null) {
-			ItemStack[] matchingStacks = this.getMatchingStacks();
+			ItemStack[] matchingStacks = this.getItems();
 			this.matchingStacksPacked = new IntArrayList(matchingStacks.length);
 			for (ItemStack itemstack : matchingStacks) {
-				this.matchingStacksPacked.add(RecipeItemHelper.pack(itemstack));
+				this.matchingStacksPacked.add(RecipeItemHelper.getStackingIndex(itemstack));
 			}
 			this.matchingStacksPacked.sort(IntComparators.NATURAL_COMPARATOR);
 		}
@@ -59,8 +59,8 @@ public class TagIngredient extends Ingredient {
 	}
 
 	@Override
-	public boolean hasNoMatchingItems() {
-		return this.tag().getAllElements().isEmpty();
+	public boolean isEmpty() {
+		return this.tag().getValues().isEmpty();
 	}
 
 	@Override
@@ -69,11 +69,11 @@ public class TagIngredient extends Ingredient {
 	}
 
 	protected ITag<Item> tag() {
-		return this.tag != null ? this.tag : (this.tag = ItemTags.makeWrapperTag(this.tagId));
+		return this.tag != null ? this.tag : (this.tag = ItemTags.bind(this.tagId));
 	}
 
 	protected void redefine() {
-		this.tag = TagCollectionManager.getManager().getItemTags().get(new ResourceLocation(this.tagId));
+		this.tag = TagCollectionManager.getInstance().getItems().getTag(new ResourceLocation(this.tagId));
 	}
 
 }

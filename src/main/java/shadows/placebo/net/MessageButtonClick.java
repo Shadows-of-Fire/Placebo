@@ -37,8 +37,8 @@ public class MessageButtonClick extends MessageProvider<MessageButtonClick> {
 	@Override
 	public void handle(MessageButtonClick msg, Supplier<Context> ctx) {
 		NetworkUtils.handlePacket(() -> () -> {
-			if (ctx.get().getSender().openContainer instanceof IButtonContainer) {
-				((IButtonContainer) ctx.get().getSender().openContainer).onButtonClick(msg.button);
+			if (ctx.get().getSender().containerMenu instanceof IButtonContainer) {
+				((IButtonContainer) ctx.get().getSender().containerMenu).onButtonClick(msg.button);
 			}
 		}, ctx.get());
 	}

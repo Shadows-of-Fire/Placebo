@@ -70,39 +70,39 @@ public class NetHandlerSpaghettiServer extends ServerPlayNetHandler {
 	}
 
 	@Override
-	public void setPlayerLocation(double x, double y, double z, float yaw, float pitch) {
+	public void teleport(double x, double y, double z, float yaw, float pitch) {
 	}
 
 	@Override
-	public void func_217261_a(CLockDifficultyPacket p_217261_1_) {
+	public void handleLockDifficulty(CLockDifficultyPacket p_217261_1_) {
 	}
 
 	@Override
-	public void func_217263_a(CSetDifficultyPacket p_217263_1_) {
+	public void handleChangeDifficulty(CSetDifficultyPacket p_217263_1_) {
 	}
 
 	@Override
-	public void func_217262_a(CUpdateJigsawBlockPacket p_217262_1_) {
+	public void handleSetJigsawBlock(CUpdateJigsawBlockPacket p_217262_1_) {
 	}
 
 	@Override
-	public void handleAnimation(CAnimateHandPacket packetIn) {
+	public void handleAnimate(CAnimateHandPacket packetIn) {
 	}
 
 	@Override
-	public void processClientStatus(CClientStatusPacket packetIn) {
+	public void handleClientCommand(CClientStatusPacket packetIn) {
 	}
 
 	@Override
-	public void processPlayer(CPlayerPacket packetIn) {
+	public void handleMovePlayer(CPlayerPacket packetIn) {
 	}
 
 	@Override
-	public void processEnchantItem(CEnchantItemPacket packetIn) {
+	public void handleContainerButtonClick(CEnchantItemPacket packetIn) {
 	}
 
 	@Override
-	public void processCloseWindow(CCloseWindowPacket packetIn) {
+	public void handleContainerClose(CCloseWindowPacket packetIn) {
 	}
 
 	@Override
@@ -110,151 +110,151 @@ public class NetHandlerSpaghettiServer extends ServerPlayNetHandler {
 	}
 
 	@Override
-	public void processVehicleMove(CMoveVehiclePacket packetIn) {
+	public void handleMoveVehicle(CMoveVehiclePacket packetIn) {
 	}
 
 	@Override
-	public void handleRecipeBookUpdate(CMarkRecipeSeenPacket packetIn) {
+	public void handleRecipeBookSeenRecipePacket(CMarkRecipeSeenPacket packetIn) {
 	}
 
 	@Override
-	public void handleResourcePackStatus(CResourcePackStatusPacket packetIn) {
+	public void handleResourcePackResponse(CResourcePackStatusPacket packetIn) {
 	}
 
 	@Override
-	public void processChatMessage(CChatMessagePacket packetIn) {
+	public void handleChat(CChatMessagePacket packetIn) {
 	}
 
 	@Override
-	public void handleSpectate(CSpectatePacket packetIn) {
+	public void handleTeleportToEntityPacket(CSpectatePacket packetIn) {
 	}
 
 	@Override
-	public void processClientSettings(CClientSettingsPacket packetIn) {
+	public void handleClientInformation(CClientSettingsPacket packetIn) {
 	}
 
 	@Override
-	public void processClickWindow(CClickWindowPacket packetIn) {
+	public void handleContainerClick(CClickWindowPacket packetIn) {
 	}
 
 	@Override
-	public void processCustomPayload(CCustomPayloadPacket packetIn) {
+	public void handleCustomPayload(CCustomPayloadPacket packetIn) {
 	}
 
 	@Override
-	public void processCreativeInventoryAction(CCreativeInventoryActionPacket packetIn) {
+	public void handleSetCreativeModeSlot(CCreativeInventoryActionPacket packetIn) {
 	}
 
 	@Override
-	public void processConfirmTeleport(CConfirmTeleportPacket packetIn) {
+	public void handleAcceptTeleportPacket(CConfirmTeleportPacket packetIn) {
 	}
 
 	@Override
-	public void processEntityAction(CEntityActionPacket packetIn) {
+	public void handlePlayerCommand(CEntityActionPacket packetIn) {
 	}
 
 	@Override
-	public void processConfirmTransaction(CConfirmTransactionPacket packetIn) {
+	public void handleContainerAck(CConfirmTransactionPacket packetIn) {
 	}
 
 	@Override
-	public void processInput(CInputPacket packetIn) {
+	public void handlePlayerInput(CInputPacket packetIn) {
 	}
 
 	@Override
-	public void processEditBook(CEditBookPacket packetIn) {
+	public void handleEditBook(CEditBookPacket packetIn) {
 	}
 
 	@Override
-	public void processNBTQueryBlockEntity(CQueryTileEntityNBTPacket packetIn) {
+	public void handleBlockEntityTagQuery(CQueryTileEntityNBTPacket packetIn) {
 	}
 
 	@Override
-	public void processHeldItemChange(CHeldItemChangePacket packetIn) {
+	public void handleSetCarriedItem(CHeldItemChangePacket packetIn) {
 	}
 
 	@Override
-	public void processPlaceRecipe(CPlaceRecipePacket packetIn) {
+	public void handlePlaceRecipe(CPlaceRecipePacket packetIn) {
 	}
 
 	@Override
-	public void processKeepAlive(CKeepAlivePacket packetIn) {
+	public void handleKeepAlive(CKeepAlivePacket packetIn) {
 	}
 
 	@Override
-	public void processPlayerDigging(CPlayerDiggingPacket packetIn) {
+	public void handlePlayerAction(CPlayerDiggingPacket packetIn) {
 	}
 
 	@Override
-	public void processNBTQueryEntity(CQueryEntityNBTPacket packetIn) {
+	public void handleEntityTagQuery(CQueryEntityNBTPacket packetIn) {
 	}
 
 	@Override
-	public void processSelectTrade(CSelectTradePacket packetIn) {
+	public void handleSelectTrade(CSelectTradePacket packetIn) {
 	}
 
 	@Override
-	public void processPickItem(CPickItemPacket packetIn) {
+	public void handlePickItem(CPickItemPacket packetIn) {
 	}
 
 	@Override
-	public void processTabComplete(CTabCompletePacket packetIn) {
+	public void handleCustomCommandSuggestions(CTabCompletePacket packetIn) {
 	}
 
 	@Override
-	public void processPlayerAbilities(CPlayerAbilitiesPacket packetIn) {
+	public void handlePlayerAbilities(CPlayerAbilitiesPacket packetIn) {
 	}
 
 	@Override
-	public void processTryUseItemOnBlock(CPlayerTryUseItemOnBlockPacket packetIn) {
+	public void handleUseItemOn(CPlayerTryUseItemOnBlockPacket packetIn) {
 	}
 
 	@Override
-	public void processSteerBoat(CSteerBoatPacket packetIn) {
+	public void handlePaddleBoat(CSteerBoatPacket packetIn) {
 	}
 
 	@Override
-	public void processUpdateCommandBlock(CUpdateCommandBlockPacket packetIn) {
+	public void handleSetCommandBlock(CUpdateCommandBlockPacket packetIn) {
 	}
 
 	@Override
-	public void processRenameItem(CRenameItemPacket packetIn) {
+	public void handleRenameItem(CRenameItemPacket packetIn) {
 	}
 
 	@Override
-	public void processUpdateSign(CUpdateSignPacket packetIn) {
+	public void handleSignUpdate(CUpdateSignPacket packetIn) {
 	}
 
 	@Override
-	public void processTryUseItem(CPlayerTryUseItemPacket packetIn) {
+	public void handleUseItem(CPlayerTryUseItemPacket packetIn) {
 	}
 
 	@Override
-	public void processUseEntity(CUseEntityPacket packetIn) {
+	public void handleInteract(CUseEntityPacket packetIn) {
 	}
 
 	@Override
-	public void processUpdateCommandMinecart(CUpdateMinecartCommandBlockPacket packetIn) {
+	public void handleSetCommandMinecart(CUpdateMinecartCommandBlockPacket packetIn) {
 	}
 
 	@Override
-	public void processUpdateStructureBlock(CUpdateStructureBlockPacket packetIn) {
+	public void handleSetStructureBlock(CUpdateStructureBlockPacket packetIn) {
 	}
 
 	@Override
-	public void processUpdateBeacon(CUpdateBeaconPacket packetIn) {
+	public void handleSetBeaconPacket(CUpdateBeaconPacket packetIn) {
 	}
 
 	@Override
-	public void sendPacket(IPacket<?> packetIn, GenericFutureListener<? extends Future<? super Void>> futureListeners) {
+	public void send(IPacket<?> packetIn, GenericFutureListener<? extends Future<? super Void>> futureListeners) {
 	}
 
 	@Override
-	public void setPlayerLocation(double x, double y, double z, float yaw, float pitch, Set<Flags> relativeSet) {
+	public void teleport(double x, double y, double z, float yaw, float pitch, Set<Flags> relativeSet) {
 	}
 
 	@Override
-	public void sendPacket(IPacket<?> packetIn) {
+	public void send(IPacket<?> packetIn) {
 	}
 
 	@Override

@@ -18,7 +18,7 @@ public class LinearEquation {
 	}
 
 	public Vector3d step(double step) {
-		return new Vector3d(this.dest.getX() + step * this.vec.getX(), this.dest.getY() + step * this.vec.getY(), this.dest.getZ() + step * this.vec.getZ());
+		return new Vector3d(this.dest.x() + step * this.vec.x(), this.dest.y() + step * this.vec.y(), this.dest.z() + step * this.vec.z());
 	}
 
 	public Vector3d getSrc() {

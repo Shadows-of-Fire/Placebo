@@ -29,12 +29,12 @@ public class LambdaLootEntry extends StandaloneLootEntry {
 	}
 
 	@Override
-	protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
+	protected void createItemStack(Consumer<ItemStack> list, LootContext ctx) {
 		this.loot.accept(list, ctx);
 	}
 
 	@Override
-	public LootPoolEntryType func_230420_a_() {
+	public LootPoolEntryType getType() {
 		return LAMBDALOOTENTRYTYPE;
 	}
 

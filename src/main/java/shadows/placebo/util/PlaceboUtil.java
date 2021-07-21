@@ -45,7 +45,7 @@ public class PlaceboUtil {
 	public static void registerOverrideBlock(Block b, String modid) {
 		Block old = ForgeRegistries.BLOCKS.getValue(b.getRegistryName());
 		ForgeRegistries.BLOCKS.register(b);
-		ForgeRegistries.ITEMS.register(new BlockItem(b, new Item.Properties().group(old.asItem().getGroup())) {
+		ForgeRegistries.ITEMS.register(new BlockItem(b, new Item.Properties().tab(old.asItem().getItemCategory())) {
 			@Override
 			public String getCreatorModId(ItemStack itemStack) {
 				return modid;
@@ -60,7 +60,7 @@ public class PlaceboUtil {
 	public static <B extends Block & IReplacementBlock> void registerOverride(B block, String modid) {
 		Block old = ForgeRegistries.BLOCKS.getValue(block.getRegistryName());
 		ForgeRegistries.BLOCKS.register(block);
-		ForgeRegistries.ITEMS.register(new BlockItem(block, new Item.Properties().group(old.asItem().getGroup())) {
+		ForgeRegistries.ITEMS.register(new BlockItem(block, new Item.Properties().tab(old.asItem().getItemCategory())) {
 			@Override
 			public String getCreatorModId(ItemStack itemStack) {
 				return modid;
@@ -73,10 +73,10 @@ public class PlaceboUtil {
 	 * Updates the references for a replaced block such that original BlockState objects are still valid.
 	 */
 	public static <B extends Block & IReplacementBlock> void overrideStates(Block old, B block) {
-		block.setStateContainer(old.getStateContainer());
-		block._setDefaultState(old.getDefaultState());
-		block.getStateContainer().getValidStates().forEach(b -> b.instance = block);
-		block.getStateContainer().owner = block;
+		block.setStateContainer(old.getStateDefinition());
+		block._setDefaultState(old.defaultBlockState());
+		block.getStateDefinition().getPossibleStates().forEach(b -> b.owner = block);
+		block.getStateDefinition().owner = block;
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class PlaceboUtil {
 	 * @return If a block was successfully broken.
 	 */
 	public static boolean tryHarvestBlock(ServerPlayerEntity player, BlockPos pos) {
-		return player.interactionManager.tryHarvestBlock(pos);
+		return player.gameMode.destroyBlock(pos);
 	}
 
 }

@@ -13,9 +13,9 @@ public class VanillaPacketDispatcher {
 	 * Sends a {@link SUpdateTileEntityPacket} to all players watching this tile entity.
 	 */
 	public static void dispatchTEToNearbyPlayers(TileEntity tile) {
-		ServerWorld world = (ServerWorld) tile.getWorld();
-		world.getChunkProvider().chunkManager.getTrackingPlayers(new ChunkPos(tile.getPos()), false).forEach(player -> {
-			player.connection.sendPacket(tile.getUpdatePacket());
+		ServerWorld world = (ServerWorld) tile.getLevel();
+		world.getChunkSource().chunkMap.getPlayers(new ChunkPos(tile.getBlockPos()), false).forEach(player -> {
+			player.connection.send(tile.getUpdatePacket());
 		});
 
 	}
@@ -24,7 +24,7 @@ public class VanillaPacketDispatcher {
 	 * Sends a {@link SUpdateTileEntityPacket} to all players watching this tile entity.
 	 */
 	public static void dispatchTEToNearbyPlayers(World world, BlockPos pos) {
-		TileEntity tile = world.getTileEntity(pos);
+		TileEntity tile = world.getBlockEntity(pos);
 		if (tile != null) dispatchTEToNearbyPlayers(tile);
 	}
 }

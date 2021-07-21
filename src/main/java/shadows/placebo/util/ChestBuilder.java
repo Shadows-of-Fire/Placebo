@@ -33,7 +33,7 @@ public class ChestBuilder {
 	protected IWorld iWorld;
 
 	public ChestBuilder(IWorld world, Random rand, BlockPos pos) {
-		TileEntity tileEntity = world.getTileEntity(pos);
+		TileEntity tileEntity = world.getBlockEntity(pos);
 		if (tileEntity instanceof ChestTileEntity) {
 			this.random = rand;
 			this.chest = (ChestTileEntity) tileEntity;
@@ -64,7 +64,7 @@ public class ChestBuilder {
 	}
 
 	public static void place(IWorld world, Random random, BlockPos pos, ResourceLocation loot) {
-		world.setBlockState(pos, Blocks.CHEST.getDefaultState(), 2);
+		world.setBlock(pos, Blocks.CHEST.defaultBlockState(), 2);
 		ChestBuilder chest = new ChestBuilder(world, random, pos);
 		if (chest.isValid) {
 			chest.fill(loot);
@@ -72,7 +72,7 @@ public class ChestBuilder {
 	}
 
 	public static void placeTrapped(IWorld world, Random random, BlockPos pos, ResourceLocation loot) {
-		world.setBlockState(pos, Blocks.TRAPPED_CHEST.getDefaultState(), 2);
+		world.setBlock(pos, Blocks.TRAPPED_CHEST.defaultBlockState(), 2);
 		ChestBuilder chest = new ChestBuilder(world, random, pos);
 		if (chest.isValid) {
 			chest.fill(loot);
@@ -81,7 +81,7 @@ public class ChestBuilder {
 
 	public static class EnchantedEntry extends StackLootEntry {
 
-		protected final ILootFunction func = EnchantRandomly.func_215900_c().build();
+		protected final ILootFunction func = EnchantRandomly.randomApplicableEnchantment().build();
 		protected Item i;
 
 		public EnchantedEntry(Item i, int weight) {
@@ -90,7 +90,7 @@ public class ChestBuilder {
 		}
 
 		@Override
-		protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
+		protected void createItemStack(Consumer<ItemStack> list, LootContext ctx) {
 			list.accept(this.func.apply(new ItemStack(this.i), ctx));
 		}
 

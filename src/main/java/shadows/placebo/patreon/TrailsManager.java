@@ -71,15 +71,15 @@ public class TrailsManager {
 	}
 
 	public static void clientTick(ClientTickEvent e) {
-		if (TOGGLE.isPressed()) Placebo.CHANNEL.sendToServer(new MessagePatreonDisable(0));
+		if (TOGGLE.consumeClick()) Placebo.CHANNEL.sendToServer(new MessagePatreonDisable(0));
 		PatreonParticleType t = null;
-		if (e.phase == Phase.END && Minecraft.getInstance().world != null) {
-			for (PlayerEntity player : Minecraft.getInstance().world.getPlayers()) {
-				if (!player.isInvisible() && player.ticksExisted * 3 % 2 == 0 && !DISABLED.contains(player.getUniqueID()) && (t = TRAILS.get(player.getUniqueID())) != null) {
-					ClientWorld world = (ClientWorld) player.world;
-					Random rand = world.rand;
+		if (e.phase == Phase.END && Minecraft.getInstance().level != null) {
+			for (PlayerEntity player : Minecraft.getInstance().level.players()) {
+				if (!player.isInvisible() && player.tickCount * 3 % 2 == 0 && !DISABLED.contains(player.getUUID()) && (t = TRAILS.get(player.getUUID())) != null) {
+					ClientWorld world = (ClientWorld) player.level;
+					Random rand = world.random;
 					IParticleData type = t.type.get();
-					world.addParticle(type, player.getPosX() + rand.nextDouble() * 0.4 - 0.2, player.getPosY() + 0.1, player.getPosZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);
+					world.addParticle(type, player.getX() + rand.nextDouble() * 0.4 - 0.2, player.getY() + 0.1, player.getZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);
 				}
 			}
 		}

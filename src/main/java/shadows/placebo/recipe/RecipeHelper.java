@@ -30,6 +30,8 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
 import shadows.placebo.util.RunnableReloader;
 
+import net.minecraft.item.crafting.Ingredient.SingleItemList;
+
 public class RecipeHelper {
 
 	private static final List<IRecipe<?>> recipes = new ArrayList<>();
@@ -129,13 +131,13 @@ public class RecipeHelper {
 
 		private CachedIngredient(ItemStack... matches) {
 			super(Arrays.stream(matches).map(SingleItemList::new));
-			if (matches.length == 1) ingredients.put(RecipeItemHelper.pack(matches[0]), this);
+			if (matches.length == 1) ingredients.put(RecipeItemHelper.getStackingIndex(matches[0]), this);
 		}
 
 		public static CachedIngredient create(ItemStack... matches) {
 			synchronized (ingredients) {
 				if (matches.length == 1) {
-					CachedIngredient coi = ingredients.get(RecipeItemHelper.pack(matches[0]));
+					CachedIngredient coi = ingredients.get(RecipeItemHelper.getStackingIndex(matches[0]));
 					return coi != null ? coi : new CachedIngredient(matches);
 				} else return new CachedIngredient(matches);
 			}
@@ -155,7 +157,7 @@ public class RecipeHelper {
 	 * @param rel The resource reload manager from the same location.
 	 */
 	public static void reload(RecipeManager mgr, IReloadableResourceManager rel) {
-		rel.addReloadListener(RunnableReloader.of(() -> {
+		rel.registerReloadListener(RunnableReloader.of(() -> {
 			mutableManager(mgr);
 			addRecipes(mgr);
 		}));

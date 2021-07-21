@@ -18,13 +18,13 @@ public class WingLayer extends LayerRenderer<AbstractClientPlayerEntity, PlayerM
 
 	@Override
 	public void render(MatrixStack stack, IRenderTypeBuffer buf, int packedLightIn, AbstractClientPlayerEntity player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-		if (WingsManager.DISABLED.contains(player.getUniqueID())) return;
-		WingType type = WingsManager.getType(player.getUniqueID());
+		if (WingsManager.DISABLED.contains(player.getUUID())) return;
+		WingType type = WingsManager.getType(player.getUUID());
 		if (type != null) {
-			stack.push();
+			stack.pushPose();
 			stack.translate(0, type.yOffset, 0);
-			type.model.get().render(stack, buf, packedLightIn, player, partialTicks, type.textureGetter.apply(player), this.getEntityModel());
-			stack.pop();
+			type.model.get().render(stack, buf, packedLightIn, player, partialTicks, type.textureGetter.apply(player), this.getParentModel());
+			stack.popPose();
 		}
 	}
 

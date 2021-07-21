@@ -54,7 +54,7 @@ public class LootSystem {
 	 */
 	public static void defaultBlockTable(Block b) {
 		LootTable.Builder builder = tableBuilder();
-		builder.addLootPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).acceptCondition(SurvivesExplosion.builder()));
+		builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(SurvivesExplosion.survivesExplosion()));
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
@@ -62,9 +62,9 @@ public class LootSystem {
 	 * ASM Hook: Called from {@link LootTableManager#apply}
 	 */
 	public static void reload(LootTableManager mgr) {
-		mgr.registeredLootTables = new HashMap<>(mgr.registeredLootTables);
+		mgr.tables = new HashMap<>(mgr.tables);
 		PLACEBO_TABLES.forEach((key, val) -> {
-			if (!mgr.registeredLootTables.containsKey(key)) mgr.registeredLootTables.put(key, val);
+			if (!mgr.tables.containsKey(key)) mgr.tables.put(key, val);
 		});
 		Placebo.LOGGER.info("Registered {} additional loot tables.", PLACEBO_TABLES.keySet().size());
 	}

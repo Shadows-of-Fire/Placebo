@@ -32,21 +32,21 @@ public class MessagePatreonDisable extends MessageProvider<MessagePatreonDisable
 	public void write(MessagePatreonDisable msg, PacketBuffer buf) {
 		buf.writeByte(msg.type);
 		buf.writeByte(msg.id == null ? 0 : 1);
-		if (msg.id != null) buf.writeUniqueId(msg.id);
+		if (msg.id != null) buf.writeUUID(msg.id);
 	}
 
 	@Override
 	public MessagePatreonDisable read(PacketBuffer buf) {
 		int type = buf.readByte();
 		if (buf.readByte() == 1) {
-			return new MessagePatreonDisable(type, buf.readUniqueId());
+			return new MessagePatreonDisable(type, buf.readUUID());
 		} else return new MessagePatreonDisable(type);
 	}
 
 	@Override
 	public void handle(MessagePatreonDisable msg, Supplier<Context> ctx) {
 		if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) NetworkUtils.handlePacket(() -> () -> {
-			Placebo.CHANNEL.send(PacketDistributor.ALL.noArg(), new MessagePatreonDisable(msg.type, ctx.get().getSender().getUniqueID()));
+			Placebo.CHANNEL.send(PacketDistributor.ALL.noArg(), new MessagePatreonDisable(msg.type, ctx.get().getSender().getUUID()));
 		}, ctx.get());
 		else NetworkUtils.handlePacket(() -> () -> {
 			Set<UUID> set = msg.type == 0 ? TrailsManager.DISABLED : WingsManager.DISABLED;

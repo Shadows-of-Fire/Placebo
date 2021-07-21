@@ -26,7 +26,7 @@ public class NBTAdapter implements JsonDeserializer<CompoundNBT>, JsonSerializer
 	@Override
 	public CompoundNBT deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 		try {
-			return JsonToNBT.getTagFromJson(json.getAsString());
+			return JsonToNBT.parseTag(json.getAsString());
 		} catch (CommandSyntaxException e) {
 			throw new JsonParseException(e);
 		}

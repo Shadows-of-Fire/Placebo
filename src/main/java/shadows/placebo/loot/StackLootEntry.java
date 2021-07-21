@@ -49,14 +49,14 @@ public class StackLootEntry extends StandaloneLootEntry {
 	}
 
 	@Override
-	protected void func_216154_a(Consumer<ItemStack> list, LootContext ctx) {
+	protected void createItemStack(Consumer<ItemStack> list, LootContext ctx) {
 		ItemStack s = this.stack.copy();
 		s.setCount(MathHelper.nextInt(ctx.getRandom(), this.min, this.max));
 		list.accept(s);
 	}
 
 	@Override
-	public LootPoolEntryType func_230420_a_() {
+	public LootPoolEntryType getType() {
 		return STACKLOOTENTRYTYPE;
 	}
 
@@ -64,15 +64,15 @@ public class StackLootEntry extends StandaloneLootEntry {
 
 		@Override
 		protected StackLootEntry deserialize(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, ILootCondition[] lootConditions, ILootFunction[] lootFunctions) {
-			int min = JSONUtils.getInt(jsonObject, "min", 1);
-			int max = JSONUtils.getInt(jsonObject, "max", 1);
+			int min = JSONUtils.getAsInt(jsonObject, "min", 1);
+			int max = JSONUtils.getAsInt(jsonObject, "max", 1);
 			ItemStack stack = ItemAdapter.ITEM_READER.fromJson(jsonObject.get("stack"), ItemStack.class);
 			return new StackLootEntry(stack, min, max, weight, quality);
 		}
 
 		@Override
-		public void doSerialize(JsonObject object, StackLootEntry e, JsonSerializationContext conditions) {
-			super.doSerialize(object, e, conditions);
+		public void serializeCustom(JsonObject object, StackLootEntry e, JsonSerializationContext conditions) {
+			super.serializeCustom(object, e, conditions);
 			object.addProperty("min", e.min);
 			object.addProperty("max", e.max);
 			object.add("stack", ItemAdapter.ITEM_READER.toJsonTree(e.stack));

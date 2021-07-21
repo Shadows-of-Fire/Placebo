@@ -21,8 +21,8 @@ public class NetworkUtils {
 	 * Helper message to send a packet to all players watching a chunk.
 	 */
 	public static void sendToTracking(SimpleChannel channel, Object packet, ServerWorld world, BlockPos pos) {
-		world.getChunkProvider().chunkManager.getTrackingPlayers(new ChunkPos(pos), false).forEach(p -> {
-			channel.sendTo(packet, p.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+		world.getChunkSource().chunkMap.getPlayers(new ChunkPos(pos), false).forEach(p -> {
+			channel.sendTo(packet, p.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
 		});
 	}
 

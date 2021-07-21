@@ -41,7 +41,7 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 
 	@Override
 	public JsonElement serialize(ItemStack stack, Type typeOfSrc, JsonSerializationContext ctx) {
-		CompoundNBT written = stack.write(new CompoundNBT());
+		CompoundNBT written = stack.save(new CompoundNBT());
 		JsonObject obj = new JsonObject();
 		obj.add("item", ctx.serialize(stack.getItem().getRegistryName().toString()));
 		obj.add("count", ctx.serialize(stack.getCount()));

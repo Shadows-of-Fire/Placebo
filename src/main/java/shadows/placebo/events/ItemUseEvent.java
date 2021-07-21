@@ -40,15 +40,15 @@ public class ItemUseEvent extends PlayerEvent {
 	}
 
 	public BlockPos getPos() {
-		return this.ctx.getPos();
+		return this.ctx.getClickedPos();
 	}
 
 	public Direction getFace() {
-		return this.ctx.getFace();
+		return this.ctx.getClickedFace();
 	}
 
 	public Vector3d getHitVec() {
-		return this.ctx.getHitVec();
+		return this.ctx.getClickLocation();
 	}
 
 	public boolean isInside() {
@@ -72,14 +72,14 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	@Nonnull
 	public ItemStack getItemStack() {
-		return this.getPlayer().getHeldItem(this.getHand());
+		return this.getPlayer().getItemInHand(this.getHand());
 	}
 
 	/**
 	 * @return Convenience method to get the world of this interaction.
 	 */
 	public World getWorld() {
-		return this.getPlayer().getEntityWorld();
+		return this.getPlayer().getCommandSenderWorld();
 	}
 
 	/**

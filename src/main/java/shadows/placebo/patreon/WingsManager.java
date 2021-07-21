@@ -40,7 +40,7 @@ public class WingsManager {
 	public static void init(FMLClientSetupEvent e) {
 		ClientRegistry.registerKeyBinding(TOGGLE);
 		e.enqueueWork(() -> {
-			Minecraft.getInstance().getRenderManager().getSkinMap().values().forEach(r -> {
+			Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().values().forEach(r -> {
 				r.addLayer(new WingLayer(r));
 			});
 		});
@@ -72,7 +72,7 @@ public class WingsManager {
 	}
 
 	public static void clientTick(ClientTickEvent e) {
-		if (TOGGLE.isPressed()) Placebo.CHANNEL.sendToServer(new MessagePatreonDisable(1));
+		if (TOGGLE.consumeClick()) Placebo.CHANNEL.sendToServer(new MessagePatreonDisable(1));
 	}
 
 	public static WingType getType(UUID id) {

@@ -35,8 +35,8 @@ public class SpawnerBuilder {
 	public static final CompoundNBT BASE_TAG;
 	static {
 		MobSpawnerTileEntity te = (MobSpawnerTileEntity) Blocks.SPAWNER.createTileEntity(null, null);
-		te.getSpawnerBaseLogic().setEntityType(EntityType.PIG);
-		BASE_TAG = te.write(new CompoundNBT());
+		te.getSpawner().setEntityId(EntityType.PIG);
+		BASE_TAG = te.save(new CompoundNBT());
 		BASE_TAG.getList(SPAWN_POTENTIALS, NBT.TAG_COMPOUND).clear();
 	}
 
@@ -45,7 +45,7 @@ public class SpawnerBuilder {
 	WeightedSpawnerEntity baseEntity = new WeightedSpawnerEntity();
 
 	public SpawnerBuilder() {
-		this.tag.put(SPAWN_DATA, this.baseEntity.getNbt());
+		this.tag.put(SPAWN_DATA, this.baseEntity.getTag());
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class SpawnerBuilder {
 	 * Sets the mob type of the first spawn (or all spawns if potentials are not set).
 	 */
 	public SpawnerBuilder setType(ResourceLocation entity) {
-		this.baseEntity.getNbt().putString(ID, entity.toString());
+		this.baseEntity.getTag().putString(ID, entity.toString());
 		return this;
 	}
 
@@ -137,7 +137,7 @@ public class SpawnerBuilder {
 			data = new CompoundNBT();
 			data.putString(ID, "minecraft:pig");
 		}
-		this.baseEntity.nbt = data.copy();
+		this.baseEntity.tag = data.copy();
 		return this;
 	}
 
@@ -149,7 +149,7 @@ public class SpawnerBuilder {
 		this.tag.put(SPAWN_POTENTIALS, new ListNBT());
 		ListNBT list = this.tag.getList(SPAWN_POTENTIALS, 10);
 		for (WeightedSpawnerEntity e : entries)
-			list.add(e.toCompoundTag());
+			list.add(e.save());
 		return this;
 	}
 
@@ -160,7 +160,7 @@ public class SpawnerBuilder {
 		this.hasPotentials = true;
 		ListNBT list = this.tag.getList(SPAWN_POTENTIALS, 10);
 		for (WeightedSpawnerEntity e : entries)
-			list.add(e.toCompoundTag());
+			list.add(e.save());
 		return this;
 	}
 
@@ -181,10 +181,10 @@ public class SpawnerBuilder {
 	public void build(IWorld world, BlockPos pos) {
 		BlockState blockState = world.getBlockState(pos);
 		if (blockState.getBlock() != Blocks.SPAWNER) {
-			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
+			world.setBlock(pos, Blocks.SPAWNER.defaultBlockState(), 2);
 		}
-		TileEntity s = world.getTileEntity(pos);
-		s.read(blockState, this.tag);
-		s.setPos(pos);
+		TileEntity s = world.getBlockEntity(pos);
+		s.load(blockState, this.tag);
+		s.setPosition(pos);
 	}
 }

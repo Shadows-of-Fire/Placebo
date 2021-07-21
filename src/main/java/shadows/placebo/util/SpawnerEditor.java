@@ -31,12 +31,12 @@ public class SpawnerEditor {
 	protected MobSpawnerTileEntity spawner;
 
 	public SpawnerEditor(IWorld world, BlockPos pos) {
-		TileEntity te = world.getTileEntity(pos);
+		TileEntity te = world.getBlockEntity(pos);
 		if (te instanceof MobSpawnerTileEntity) {
 			this.spawner = (MobSpawnerTileEntity) te;
 		} else {
-			world.setBlockState(pos, Blocks.SPAWNER.getDefaultState(), 2);
-			te = world.getTileEntity(pos);
+			world.setBlock(pos, Blocks.SPAWNER.defaultBlockState(), 2);
+			te = world.getBlockEntity(pos);
 			this.spawner = (MobSpawnerTileEntity) te;
 		}
 	}
@@ -45,7 +45,7 @@ public class SpawnerEditor {
 	 * Sets the mob type of the first spawn (or all spawns if potentials are not set).
 	 */
 	public SpawnerEditor setType(EntityType<? extends Entity> entity) {
-		this.spawner.getSpawnerBaseLogic().setEntityType(entity);
+		this.spawner.getSpawner().setEntityId(entity);
 		return this;
 	}
 
@@ -53,7 +53,7 @@ public class SpawnerEditor {
 	 * Sets the delay before the first spawn. Set to -1 to skip first spawn.
 	 */
 	public SpawnerEditor setDelay(int delay) {
-		this.spawner.getSpawnerBaseLogic().spawnDelay = delay;
+		this.spawner.getSpawner().spawnDelay = delay;
 		return this;
 	}
 
@@ -61,7 +61,7 @@ public class SpawnerEditor {
 	 * Sets min spawn delay.
 	 */
 	public SpawnerEditor setMinDelay(int min) {
-		this.spawner.getSpawnerBaseLogic().minSpawnDelay = min;
+		this.spawner.getSpawner().minSpawnDelay = min;
 		return this;
 	}
 
@@ -69,7 +69,7 @@ public class SpawnerEditor {
 	 * Sets max spawn delay.
 	 */
 	public SpawnerEditor setMaxDelay(int max) {
-		this.spawner.getSpawnerBaseLogic().maxSpawnDelay = max;
+		this.spawner.getSpawner().maxSpawnDelay = max;
 		return this;
 	}
 
@@ -86,7 +86,7 @@ public class SpawnerEditor {
 	 * Sets the number of spawn attempts.
 	 */
 	public SpawnerEditor setSpawnCount(int count) {
-		this.spawner.getSpawnerBaseLogic().spawnCount = count;
+		this.spawner.getSpawner().spawnCount = count;
 		return this;
 	}
 
@@ -94,7 +94,7 @@ public class SpawnerEditor {
 	 * Sets the max nearby entities.
 	 */
 	public SpawnerEditor setMaxNearbyEntities(int max) {
-		this.spawner.getSpawnerBaseLogic().maxNearbyEntities = max;
+		this.spawner.getSpawner().maxNearbyEntities = max;
 		return this;
 	}
 
@@ -102,7 +102,7 @@ public class SpawnerEditor {
 	 * Sets the required player radius (in blocks) to activate.
 	 */
 	public SpawnerEditor setPlayerRange(int range) {
-		this.spawner.getSpawnerBaseLogic().activatingRangeFromPlayer = range;
+		this.spawner.getSpawner().requiredPlayerRange = range;
 		return this;
 	}
 
@@ -110,7 +110,7 @@ public class SpawnerEditor {
 	 * Sets the spawn radius (in blocks).
 	 */
 	public SpawnerEditor setSpawnRange(int range) {
-		this.spawner.getSpawnerBaseLogic().spawnRange = range;
+		this.spawner.getSpawner().spawnRange = range;
 		return this;
 	}
 
@@ -127,8 +127,8 @@ public class SpawnerEditor {
 	 * @param data An entity, written to NBT, in the format read by AnvilChunkLoader.readWorldEntity()
 	 */
 	public SpawnerEditor setSpawnData(@Nullable WeightedSpawnerEntity entity) {
-		if (entity == null) this.spawner.getSpawnerBaseLogic().spawnData = new WeightedSpawnerEntity();
-		else this.spawner.getSpawnerBaseLogic().spawnData = entity;
+		if (entity == null) this.spawner.getSpawner().nextSpawnData = new WeightedSpawnerEntity();
+		else this.spawner.getSpawner().nextSpawnData = entity;
 		return this;
 	}
 
@@ -137,9 +137,9 @@ public class SpawnerEditor {
 	 * Does not change the currently spawned mob.  Should probably be followed up by a call to setSpawnData.
 	 */
 	public SpawnerEditor setPotentials(WeightedSpawnerEntity... entries) {
-		this.spawner.getSpawnerBaseLogic().potentialSpawns.clear();
+		this.spawner.getSpawner().spawnPotentials.clear();
 		for (WeightedSpawnerEntity e : entries)
-			this.spawner.getSpawnerBaseLogic().potentialSpawns.add(e);
+			this.spawner.getSpawner().spawnPotentials.add(e);
 		return this;
 	}
 }
