@@ -30,8 +30,6 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
 import shadows.placebo.util.RunnableReloader;
 
-import net.minecraft.item.crafting.Ingredient.SingleItemList;
-
 public class RecipeHelper {
 
 	private static final List<IRecipe<?>> recipes = new ArrayList<>();

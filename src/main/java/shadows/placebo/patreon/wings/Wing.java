@@ -28,23 +28,23 @@ public class Wing extends EntityModel<AbstractClientPlayerEntity> implements IWi
 	private final ModelRenderer cube_r2;
 
 	public Wing() {
-		texWidth = 32;
-		texHeight = 32;
+		this.texWidth = 32;
+		this.texHeight = 32;
 
-		bb_main = new ModelRenderer(this);
-		bb_main.setPos(0.0F, 24.0F, 0.0F);
+		this.bb_main = new ModelRenderer(this);
+		this.bb_main.setPos(0.0F, 24.0F, 0.0F);
 
-		cube_r1 = new ModelRenderer(this);
-		cube_r1.setPos(0.0F, -8.0F, 0.0F);
-		bb_main.addChild(cube_r1);
-		setRotationAngle(cube_r1, 0.0F, 0.3491F, 0.0F);
-		cube_r1.texOffs(0, 0).addBox(1.0F, -8.0F, 0.0F, 16.0F, 16.0F, 0.0F, 0.001F, false);
+		this.cube_r1 = new ModelRenderer(this);
+		this.cube_r1.setPos(0.0F, -8.0F, 0.0F);
+		this.bb_main.addChild(this.cube_r1);
+		this.setRotationAngle(this.cube_r1, 0.0F, 0.3491F, 0.0F);
+		this.cube_r1.texOffs(0, 0).addBox(1.0F, -8.0F, 0.0F, 16.0F, 16.0F, 0.0F, 0.001F, false);
 
-		cube_r2 = new ModelRenderer(this);
-		cube_r2.setPos(0.0F, -8.0F, 0.0F);
-		bb_main.addChild(cube_r2);
-		setRotationAngle(cube_r2, 0.0F, -0.3491F, 0.0F);
-		cube_r2.texOffs(0, 0).addBox(1.0F, -8.0F, 0.0F, 16.0F, 16.0F, 0.0F, 0.001F, false);
+		this.cube_r2 = new ModelRenderer(this);
+		this.cube_r2.setPos(0.0F, -8.0F, 0.0F);
+		this.bb_main.addChild(this.cube_r2);
+		this.setRotationAngle(this.cube_r2, 0.0F, -0.3491F, 0.0F);
+		this.cube_r2.texOffs(0, 0).addBox(1.0F, -8.0F, 0.0F, 16.0F, 16.0F, 0.0F, 0.001F, false);
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class Wing extends EntityModel<AbstractClientPlayerEntity> implements IWi
 
 	@Override
 	public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-		bb_main.render(matrixStack, buffer, packedLight, packedOverlay);
+		this.bb_main.render(matrixStack, buffer, packedLight, packedOverlay);
 	}
 
 	@Override
