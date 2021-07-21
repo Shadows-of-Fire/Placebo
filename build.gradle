@@ -38,9 +38,6 @@ repositories {
     maven {
         url "https://dvs1.progwml6.com/files/maven"
     }
-	maven { 
-		url 'https://www.dogforce-games.com/maven/'
-	}
 	maven {
         url "https://www.cursemaven.com"
     }
