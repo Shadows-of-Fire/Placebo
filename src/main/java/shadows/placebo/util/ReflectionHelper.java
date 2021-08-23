@@ -19,6 +19,7 @@ import net.minecraftforge.coremod.api.ASMAPI;
  * @author cpw
  *
  */
+@Deprecated
 public class ReflectionHelper {
 	public static class UnableToFindMethodException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
