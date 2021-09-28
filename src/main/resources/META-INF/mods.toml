@@ -2,32 +2,30 @@ modLoader="javafml" #mandatory
 
 loaderVersion="[32,)" #mandatory
 
-authors="Shadows_of_Fire" #optional
+authors="${author}" #optional
 
 license="MIT License" #mandatory
 
 [[mods]] #mandatory
 
-modId="placebo" #mandatory
+modId="${modid}" #mandatory
 
-version="${file.jarVersion}" #mandatory
+version="${version}" #mandatory
 
-displayName="Placebo" #mandatory
+displayName="${displayName}" #mandatory
 
-description='''
-1 (one) library boi
-'''
+description='''${desc}'''
 
-[[dependencies.placebo]] #optional
+[[dependencies.${modid}]] #optional
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[35.1.36,)" #mandatory
+    versionRange="[${forgeVersion},)" #mandatory
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.placebo]]
+[[dependencies.${modid}]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.4,)"
+    versionRange="[${mcVersion},)"
     ordering="NONE"
     side="BOTH"
