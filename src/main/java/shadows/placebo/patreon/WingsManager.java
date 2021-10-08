@@ -30,7 +30,7 @@ import shadows.placebo.patreon.wings.WingLayer;
 @EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID, value = Dist.CLIENT)
 public class WingsManager {
 
-	private static Map<UUID, WingType> WINGS = new HashMap<>();
+	static Map<UUID, WingType> WINGS = new HashMap<>();
 
 	public static final KeyBinding TOGGLE = new KeyBinding("placebo.toggleWings", GLFW.GLFW_KEY_KP_8, "key.categories.placebo");
 

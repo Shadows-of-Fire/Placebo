@@ -34,7 +34,7 @@ import shadows.placebo.patreon.PatreonUtils.PatreonParticleType;
 @EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID, value = Dist.CLIENT)
 public class TrailsManager {
 
-	private static Map<UUID, PatreonParticleType> TRAILS = new HashMap<>();
+	static Map<UUID, PatreonParticleType> TRAILS = new HashMap<>();
 
 	public static final KeyBinding TOGGLE = new KeyBinding("placebo.toggleTrails", GLFW.GLFW_KEY_KP_9, "key.categories.placebo");
 
