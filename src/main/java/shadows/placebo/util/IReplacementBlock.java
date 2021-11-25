@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.StateContainer;
 
-@Deprecated
 public interface IReplacementBlock {
 
 	public void _setDefaultState(BlockState state);
