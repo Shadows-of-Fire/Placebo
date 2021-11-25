@@ -31,8 +31,10 @@ public class LootSystem {
 	 * @param table The table instance.
 	 */
 	public static void registerLootTable(ResourceLocation key, LootTable table) {
-		if (!PLACEBO_TABLES.containsKey(key)) PLACEBO_TABLES.put(key, table);
-		else Placebo.LOGGER.warn("Duplicate loot entry detected, this is not allowed!  Key: " + key);
+		if (!PLACEBO_TABLES.containsKey(key)) {
+			table.setLootTableId(key);
+			PLACEBO_TABLES.put(key, table);
+		} else Placebo.LOGGER.warn("Duplicate loot entry detected, this is not allowed!  Key: " + key);
 	}
 
 	/**
