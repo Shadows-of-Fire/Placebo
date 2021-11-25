@@ -7,6 +7,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 
+/**
+ * The StackPrimer is an ItemStack generator, basically holding all the information to create an ItemStack instance without ever retaining one.
+ */
 public class StackPrimer {
 
 	Item item = null;

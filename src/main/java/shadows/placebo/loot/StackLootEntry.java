@@ -21,6 +21,10 @@ import shadows.placebo.Placebo;
 import shadows.placebo.recipe.RecipeHelper;
 import shadows.placebo.util.json.ItemAdapter;
 
+/**
+ * The StackLootEntry is a combination of the ItemEntry, alongside the SetCount and SetNBT loot functions that makes loot tables a bit easier to read.
+ * The rolling in of SetCount is achieved by having native "min" and "max" fields, and the SetNBT is rolled into the actual item object, which is a full ItemStack that can hold NBT data.
+ */
 public class StackLootEntry extends StandaloneLootEntry {
 	public static final Serializer SERIALIZER = new Serializer();
 	public static final LootPoolEntryType STACKLOOTENTRYTYPE = Registry.register(Registry.LOOT_POOL_ENTRY_TYPE, new ResourceLocation(Placebo.MODID, "stack_entry"), new LootPoolEntryType(SERIALIZER));

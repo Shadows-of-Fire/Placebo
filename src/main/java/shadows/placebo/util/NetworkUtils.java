@@ -15,6 +15,9 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
+/**
+ * Placebo master network utility class.
+ */
 public class NetworkUtils {
 
 	/**

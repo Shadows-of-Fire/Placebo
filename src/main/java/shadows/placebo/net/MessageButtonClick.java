@@ -2,11 +2,19 @@ package shadows.placebo.net;
 
 import java.util.function.Supplier;
 
+import net.minecraft.client.multiplayer.PlayerController;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
 import shadows.placebo.util.NetworkUtils;
 import shadows.placebo.util.NetworkUtils.MessageProvider;
 
+/**
+ * Allows for easy implementations of client->server button presses. Sends an integer that allows for arbitrary data encoding schemes within the integer space.<br>
+ * The Container must implement {@link IButtonContainer}.<br>
+ * Defer to using using {@link PlayerController#handleInventoryButtonClick} and {@link Container#clickMenuButton} when the buttonId can be a byte.
+ * 
+ */
 public class MessageButtonClick extends MessageProvider<MessageButtonClick> {
 
 	int button;

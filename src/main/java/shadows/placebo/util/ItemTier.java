@@ -3,6 +3,10 @@ package shadows.placebo.util;
 import net.minecraft.item.IItemTier;
 import net.minecraft.item.crafting.Ingredient;
 
+/**
+ * Default class implementation of IItemTier.
+ * TODO: Builder and swap repair to Supplier
+ */
 public class ItemTier implements IItemTier {
 
 	protected int durability, level, enchantability;

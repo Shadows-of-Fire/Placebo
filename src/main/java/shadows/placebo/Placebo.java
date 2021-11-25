@@ -5,7 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ExtensionPoint;
@@ -15,6 +17,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import shadows.placebo.commands.PlaceboCommand;
 import shadows.placebo.net.MessageButtonClick;
 import shadows.placebo.net.MessagePatreonDisable;
 import shadows.placebo.recipe.TagIngredient;
@@ -39,6 +42,7 @@ public class Placebo {
 		bus.addListener(this::setup);
 		String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
 		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair.of(() -> version, (remoteVer, isNetwork) -> remoteVer == null || version.equals(remoteVer)));
+		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 	}
 
 	@SubscribeEvent
@@ -46,6 +50,10 @@ public class Placebo {
 		CraftingHelper.register(new ResourceLocation(Placebo.MODID, "tag"), TagIngredient.SERIALIZER);
 		NetworkUtils.registerMessage(CHANNEL, 0, new MessageButtonClick());
 		NetworkUtils.registerMessage(CHANNEL, 1, new MessagePatreonDisable(0));
+	}
+
+	public void registerCommands(RegisterCommandsEvent e) {
+		PlaceboCommand.register(e.getDispatcher());
 	}
 
 }

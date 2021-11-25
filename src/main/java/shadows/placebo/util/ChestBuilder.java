@@ -1,14 +1,13 @@
 package shadows.placebo.util;
 
 import java.util.Random;
-import java.util.function.Consumer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootEntry;
+import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.loot.functions.EnchantRandomly;
 import net.minecraft.loot.functions.ILootFunction;
 import net.minecraft.tileentity.ChestTileEntity;
@@ -79,19 +78,17 @@ public class ChestBuilder {
 		}
 	}
 
+	/**
+	 * StackLootEntry with the EnchantRandomly function pre-applied.
+	 */
 	public static class EnchantedEntry extends StackLootEntry {
 
 		protected final ILootFunction func = EnchantRandomly.randomApplicableEnchantment().build();
 		protected Item i;
 
 		public EnchantedEntry(Item i, int weight) {
-			super(i, 1, 1, weight, 5);
+			super(new ItemStack(i), 1, 1, weight, 5, new ILootCondition[0], new ILootFunction[] { EnchantRandomly.randomApplicableEnchantment().build() });
 			this.i = i;
-		}
-
-		@Override
-		protected void createItemStack(Consumer<ItemStack> list, LootContext ctx) {
-			list.accept(this.func.apply(new ItemStack(this.i), ctx));
 		}
 
 	}

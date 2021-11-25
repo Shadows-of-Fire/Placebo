@@ -63,6 +63,7 @@ public class AttributeHelper {
 	/**
 	 * Forces the base value to equal the given value, overriding previous modifiers.
 	 */
+	@Deprecated
 	public static void setBaseValue(LivingEntity entity, Attribute attribute, String name, double value) {
 		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
 		inst.getModifiers(Operation.ADDITION).clear();
@@ -72,6 +73,7 @@ public class AttributeHelper {
 	/**
 	 * Forces the base value to be (at minimum) the given value, overriding previous modifiers.
 	 */
+	@Deprecated
 	public static void min(LivingEntity entity, Attribute attribute, String name, double value) {
 		if (value < entity.getAttribute(attribute).getBaseValue()) {
 			setBaseValue(entity, attribute, name, value);
@@ -81,6 +83,7 @@ public class AttributeHelper {
 	/**
 	 * Forces the base value to be (at maximum) the given value, overriding previous modifiers.
 	 */
+	@Deprecated
 	public static void max(LivingEntity entity, Attribute attribute, String name, double value) {
 		if (value > entity.getAttribute(attribute).getBaseValue()) {
 			setBaseValue(entity, attribute, name, value);

@@ -57,6 +57,7 @@ public class PlaceboUtil {
 	 * Replaces a block and item and provides the original states to the new block.
 	 * States are updated such that the old state references are still valid.
 	 */
+	@Deprecated
 	public static <B extends Block & IReplacementBlock> void registerOverride(B block, String modid) {
 		Block old = ForgeRegistries.BLOCKS.getValue(block.getRegistryName());
 		ForgeRegistries.BLOCKS.register(block);
@@ -72,6 +73,7 @@ public class PlaceboUtil {
 	/**
 	 * Updates the references for a replaced block such that original BlockState objects are still valid.
 	 */
+	@Deprecated
 	public static <B extends Block & IReplacementBlock> void overrideStates(Block old, B block) {
 		block.setStateContainer(old.getStateDefinition());
 		block._setDefaultState(old.defaultBlockState());
