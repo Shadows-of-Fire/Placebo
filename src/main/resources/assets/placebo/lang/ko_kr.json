@@ -1,5 +1,8 @@
 {
 	"key.categories.placebo": "플라시보",
 	"placebo.toggleTrails": "패트론 잔상 장착",
-	"placebo.toggleWings": "패트론 날개 장착"
+	"placebo.toggleWings": "패트론 날개 장착",
+	"placebo.cmd.serialize_success": "%s을(를) %s에 저장했습니다.",
+	"placebo.cmd.serialize_failure": "직렬화 프로세스 중에 오류가 발생했습니다.",
+	"placebo.cmd.not_found": "%s을(를) 찾을 수 없습니다."
 }
