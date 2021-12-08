@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import shadows.placebo.Placebo;
@@ -22,7 +21,7 @@ public class LootSystem {
 	/**
 	 * All custom tables to be loaded into the game.
 	 */
-	private static final Map<ResourceLocation, LootTable> PLACEBO_TABLES = new HashMap<>();
+	public static final Map<ResourceLocation, LootTable> PLACEBO_TABLES = new HashMap<>();
 
 	/**
 	 * Registers a loot table.  Tables should be registered during the {@link FMLCommonSetupEvent}.
@@ -58,17 +57,6 @@ public class LootSystem {
 		LootTable.Builder builder = tableBuilder();
 		builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(ExplosionCondition.survivesExplosion()));
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
-	}
-
-	/**
-	 * ASM Hook: Called from {@link LootTableManager#apply}
-	 */
-	public static void reload(LootTables mgr) {
-		mgr.tables = new HashMap<>(mgr.tables);
-		PLACEBO_TABLES.forEach((key, val) -> {
-			if (!mgr.tables.containsKey(key)) mgr.tables.put(key, val);
-		});
-		Placebo.LOGGER.info("Registered {} additional loot tables.", PLACEBO_TABLES.keySet().size());
 	}
 
 }

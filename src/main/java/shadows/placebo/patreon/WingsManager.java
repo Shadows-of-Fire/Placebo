@@ -15,13 +15,9 @@ import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import shadows.placebo.Placebo;
@@ -29,15 +25,13 @@ import shadows.placebo.packets.PatreonDisableMessage;
 import shadows.placebo.patreon.PatreonUtils.WingType;
 import shadows.placebo.patreon.wings.Wing;
 
-@EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID, value = Dist.CLIENT)
 public class WingsManager {
 
-	public static Map<UUID, WingType> WINGS = new HashMap<>();
+	static Map<UUID, WingType> WINGS = new HashMap<>();
 	public static final KeyMapping TOGGLE = new KeyMapping("placebo.toggleWings", GLFW.GLFW_KEY_KP_8, "key.categories.placebo");
 	public static final Set<UUID> DISABLED = new HashSet<>();
 	public static final ModelLayerLocation WING_LOC = new ModelLayerLocation(new ResourceLocation(Placebo.MODID, "wings"), "main");
 
-	@SubscribeEvent
 	public static void init(FMLClientSetupEvent e) {
 		ClientRegistry.registerKeyBinding(TOGGLE);
 		e.enqueueWork(() -> {

@@ -9,6 +9,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import shadows.placebo.container.EasyContainerData.IDataAutoRegister;
 import shadows.placebo.container.QuickMoveHandler.IExposedContainer;
 
 public abstract class BlockEntityContainer<T extends BlockEntity> extends AbstractContainerMenu implements IExposedContainer {
@@ -25,6 +26,9 @@ public abstract class BlockEntityContainer<T extends BlockEntity> extends Abstra
 		this.level = pInv.player.level;
 		this.tile = (T) this.level.getBlockEntity(pos);
 		this.addSlots();
+		if (this.tile instanceof IDataAutoRegister) {
+			this.addDataSlots(((IDataAutoRegister) this.tile).getData());
+		}
 	}
 
 	public abstract MenuType<?> getType();

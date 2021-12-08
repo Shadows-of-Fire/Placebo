@@ -18,30 +18,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import shadows.placebo.Placebo;
 import shadows.placebo.packets.PatreonDisableMessage;
 import shadows.placebo.patreon.PatreonUtils.PatreonParticleType;
 
-@EventBusSubscriber(bus = Bus.MOD, modid = Placebo.MODID, value = Dist.CLIENT)
 public class TrailsManager {
 
 	static Map<UUID, PatreonParticleType> TRAILS = new HashMap<>();
-
 	public static final KeyMapping TOGGLE = new KeyMapping("placebo.toggleTrails", GLFW.GLFW_KEY_KP_9, "key.categories.placebo");
-
 	public static final Set<UUID> DISABLED = new HashSet<>();
 
-	@SubscribeEvent
-	public static void init(FMLClientSetupEvent e) {
+	public static void init() {
 		ClientRegistry.registerKeyBinding(TOGGLE);
 		new Thread(() -> {
 			Placebo.LOGGER.info("Loading patreon trails data...");

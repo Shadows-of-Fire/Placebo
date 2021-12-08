@@ -3,14 +3,14 @@ function initializeCoreMod() {
         'recipemanager': {
             'target': {
                 'type': 'METHOD',
-                'class': 'net.minecraft.resources.DataPackRegistries',
+                'class': 'net.minecraft.server.ServerResources',
                 'methodName': '<init>',
-                'methodDesc': '(Lnet/minecraft/command/Commands$EnvironmentType;I)V'
+                'methodDesc': '(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/command/Commands$CommandSelection;I)V'
             },
             'transformer': function(method) {
                 var owner = "shadows/placebo/recipe/RecipeHelper";
                 var name = "reload";
-                var desc = "(Lnet/minecraft/item/crafting/RecipeManager;Lnet/minecraft/resources/IReloadableResourceManager;)V";
+                var desc = "(Lnet/minecraft/world/item/crafting/RecipeManager;Lnet/minecraft/server/packs/resources/ReloadableResourceManager;)V";
                 var instr = method.instructions;
 
                 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
@@ -23,9 +23,9 @@ function initializeCoreMod() {
 				var i = 0;
 				var list = new InsnList();
 				list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-				list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/resources/DataPackRegistries", ASMAPI.mapField("field_240954_d_"), "Lnet/minecraft/item/crafting/RecipeManager;"));
+				list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/server/ServerResources", ASMAPI.mapField("f_136147_"), "Lnet/minecraft/world/item/crafting/RecipeManager;"));
 				list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-				list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/resources/DataPackRegistries", ASMAPI.mapField("field_240952_b_"), "Lnet/minecraft/resources/IReloadableResourceManager;"));
+				list.add(new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/server/ServerResources", ASMAPI.mapField("f_136145_"), "Lnet/minecraft/server/packs/resources/ReloadableResourceManager;"));
                 var methodInsn = ASMAPI.buildMethodCall(owner, name, desc, ASMAPI.MethodType.STATIC);
 				list.add(methodInsn);
                 var node;

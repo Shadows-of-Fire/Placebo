@@ -42,4 +42,8 @@ public class EasyContainerData implements ContainerData {
 		addData(() -> ContainerUtil.getSerializedEnergy(energy, true), v -> ContainerUtil.deserializeEnergy(energy, v, true));
 	}
 
+	public interface IDataAutoRegister {
+		public ContainerData getData();
+	}
+
 }
