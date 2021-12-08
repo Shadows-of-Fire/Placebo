@@ -14,9 +14,10 @@ import shadows.placebo.statemap.ModelMapRegistry;
 @Mixin(BlockModelShaper.class)
 public class BlockModelShaperMixin {
 
-	@Inject(method = "stateToModelLocation", at = @At(value = "RETURN"), cancellable = true)
-	public static void stateToModelLocation(ResourceLocation pLocation, BlockState pState, CallbackInfoReturnable<ModelResourceLocation> ci) {
+	@Inject(method = "stateToModelLocation(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/resources/model/ModelResourceLocation;", at = @At(value = "RETURN"), cancellable = true)
+	private static void stateToModelLocation(ResourceLocation pLocation, BlockState pState, CallbackInfoReturnable<ModelResourceLocation> ci) {
 		ci.setReturnValue(ModelMapRegistry.getMRL(pState, ci.getReturnValue()));
 	}
 
 }
+ 

@@ -5,7 +5,7 @@ function initializeCoreMod() {
                 'type': 'METHOD',
                 'class': 'net.minecraft.server.ServerResources',
                 'methodName': '<init>',
-                'methodDesc': '(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/command/Commands$CommandSelection;I)V'
+                'methodDesc': '(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/commands/Commands$CommandSelection;I)V'
             },
             'transformer': function(method) {
                 var owner = "shadows/placebo/recipe/RecipeHelper";
@@ -18,7 +18,7 @@ function initializeCoreMod() {
                 var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
                 var InsnList = Java.type('org.objectweb.asm.tree.InsnList');
 				var FieldInsnNode = Java.type('org.objectweb.asm.tree.FieldInsnNode');
-				ASMAPI.log('INFO', 'Patching DataPackRegistries#<init>');
+				ASMAPI.log('INFO', 'Patching ServerResources#<init>');
 				
 				var i = 0;
 				var list = new InsnList();

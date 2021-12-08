@@ -12,7 +12,7 @@ import shadows.placebo.statemap.ModelMapRegistry;
 @Mixin(ModelBakery.class)
 public class ModelBakeryMixin {
 
-	@Redirect(method = "processLoading", at = @At(value = "NEW", target = "net/minecraft/client/resources/model/ModelResourceLocation", ordinal = 0))
+	@Redirect(method = "processLoading", at = @At(value = "NEW", target = "net/minecraft/client/resources/model/ModelResourceLocation", ordinal = 0), remap = false)
 	private static ModelResourceLocation mapItem(ResourceLocation id, String variant) {
 		return ModelMapRegistry.getMRL(new ModelResourceLocation(id, variant), id);
 	}

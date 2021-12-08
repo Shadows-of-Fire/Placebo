@@ -16,7 +16,7 @@ public class QuickMoveHandler {
 
 	protected List<QuickMoveRule> rules = new ArrayList<>();
 
-	public <T extends AbstractContainerMenu & IExposedContainer> ItemStack quickMoveStack(T container, Player player, int index) {
+	public ItemStack quickMoveStack(IExposedContainer container, Player player, int index) {
 		ItemStack slotStackCopy = ItemStack.EMPTY;
 		Slot slot = container.getSlot(index);
 		if (slot != null && slot.hasItem()) {
@@ -51,6 +51,8 @@ public class QuickMoveHandler {
 
 	public interface IExposedContainer {
 		public boolean moveItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection);
+
+		public Slot getSlot(int index);
 	}
 
 }

@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.google.gson.JsonElement;
 
@@ -24,8 +25,8 @@ public class LootTablesMixin {
 	@Shadow
 	public Map<ResourceLocation, LootTable> tables;
 
-	@Inject(method = "apply", at = @At(value = "TAIL"))
-	protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+	@Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At(value = "TAIL"))
+	protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler, CallbackInfo ci) {
 		tables = new HashMap<>(tables);
 		LootSystem.PLACEBO_TABLES.forEach((key, val) -> {
 			if (!tables.containsKey(key)) tables.put(key, val);
