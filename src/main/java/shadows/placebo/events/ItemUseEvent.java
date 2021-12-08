@@ -2,17 +2,17 @@ package shadows.placebo.events;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
@@ -27,16 +27,16 @@ import net.minecraftforge.eventbus.api.Cancelable;
 @Cancelable
 public class ItemUseEvent extends PlayerEvent {
 
-	protected final ItemUseContext ctx;
-	protected ActionResultType cancellationResult = null;
+	protected final UseOnContext ctx;
+	protected InteractionResult cancellationResult = null;
 
-	public ItemUseEvent(ItemUseContext ctx) {
+	public ItemUseEvent(UseOnContext ctx) {
 		super(ctx.getPlayer());
 		this.ctx = ctx;
 	}
 
-	public ItemUseEvent(PlayerEntity player, Hand hand, BlockRayTraceResult res) {
-		this(new ItemUseContext(player, hand, res));
+	public ItemUseEvent(Player player, InteractionHand hand, BlockHitResult res) {
+		this(new UseOnContext(player, hand, res));
 	}
 
 	public BlockPos getPos() {
@@ -47,7 +47,7 @@ public class ItemUseEvent extends PlayerEvent {
 		return this.ctx.getClickedFace();
 	}
 
-	public Vector3d getHitVec() {
+	public Vec3 getHitVec() {
 		return this.ctx.getClickLocation();
 	}
 
@@ -55,7 +55,7 @@ public class ItemUseEvent extends PlayerEvent {
 		return this.ctx.isInside();
 	}
 
-	public ItemUseContext getContext() {
+	public UseOnContext getContext() {
 		return this.ctx;
 	}
 
@@ -63,7 +63,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 * @return The hand involved in this interaction. Will never be null.
 	 */
 	@Nonnull
-	public Hand getHand() {
+	public InteractionHand getHand() {
 		return this.ctx.getHand();
 	}
 
@@ -78,7 +78,7 @@ public class ItemUseEvent extends PlayerEvent {
 	/**
 	 * @return Convenience method to get the world of this interaction.
 	 */
-	public World getWorld() {
+	public Level getWorld() {
 		return this.getPlayer().getCommandSenderWorld();
 	}
 
@@ -87,7 +87,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 * method of the event. By default, this is {@link EnumActionResult#PASS}, meaning cancelled events will cause
 	 * the client to keep trying more interactions until something works.
 	 */
-	public ActionResultType getCancellationResult() {
+	public InteractionResult getCancellationResult() {
 		return this.cancellationResult;
 	}
 
@@ -96,7 +96,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 * method of the event.
 	 * Note that this only has an effect on {@link RightClickBlock}, {@link RightClickItem}, {@link EntityInteract}, and {@link EntityInteractSpecific}.
 	 */
-	public void setCancellationResult(ActionResultType result) {
+	public void setCancellationResult(InteractionResult result) {
 		this.cancellationResult = result;
 	}
 }

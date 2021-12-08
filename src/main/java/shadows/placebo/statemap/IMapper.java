@@ -1,6 +1,6 @@
 package shadows.placebo.statemap;
 
-import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public interface IMapper<T> {
 

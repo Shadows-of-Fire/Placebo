@@ -1,7 +1,7 @@
 package shadows.placebo.events;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.entity.EntityEvent;
 
 /**

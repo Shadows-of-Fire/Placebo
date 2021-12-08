@@ -1,10 +1,10 @@
 package shadows.placebo.events;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.common.MinecraftForge;
 
 public class PlaceboEventHooks {
@@ -13,7 +13,7 @@ public class PlaceboEventHooks {
 	 * ASM Hook: Called from {@link ItemStack#onItemUse(ItemUseContext)}
 	 * See coremods/item_use_hook.js
 	 */
-	public static ActionResultType onItemUse(ItemStack stack, ItemUseContext ctx) {
+	public static InteractionResult onItemUse(ItemStack stack, UseOnContext ctx) {
 		ItemUseEvent event = new ItemUseEvent(ctx);
 		MinecraftForge.EVENT_BUS.post(event);
 		if (event.isCanceled()) return event.getCancellationResult();

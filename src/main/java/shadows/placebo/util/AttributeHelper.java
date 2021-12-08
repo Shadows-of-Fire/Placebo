@@ -1,10 +1,10 @@
 package shadows.placebo.util;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import shadows.placebo.Placebo;
 
 /**
@@ -33,7 +33,7 @@ public class AttributeHelper {
 	 * @param operation See above.
 	 */
 	public static void modify(LivingEntity entity, Attribute attribute, String name, double modifier, Operation operation) {
-		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
+		AttributeInstance inst = entity.getAttribute(attribute);
 		if (inst != null) inst.addPermanentModifier(new AttributeModifier(Placebo.MODID + ":" + name, modifier, operation));
 	}
 
@@ -65,7 +65,7 @@ public class AttributeHelper {
 	 */
 	@Deprecated
 	public static void setBaseValue(LivingEntity entity, Attribute attribute, String name, double value) {
-		ModifiableAttributeInstance inst = entity.getAttribute(attribute);
+		AttributeInstance inst = entity.getAttribute(attribute);
 		inst.getModifiers(Operation.ADDITION).clear();
 		modify(entity, attribute, name, value - inst.getBaseValue(), Operation.ADDITION);
 	}

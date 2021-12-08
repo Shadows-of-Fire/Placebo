@@ -2,6 +2,7 @@ package shadows.placebo.collections;
 
 import java.util.ArrayDeque;
 
+@Deprecated
 public abstract class BlockedDeque<T> extends ArrayDeque<T> {
 
 	private static final long serialVersionUID = -8194197029368437188L;

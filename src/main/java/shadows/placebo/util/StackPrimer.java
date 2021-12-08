@@ -2,10 +2,10 @@ package shadows.placebo.util;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * The StackPrimer is an ItemStack generator, basically holding all the information to create an ItemStack instance without ever retaining one.
@@ -15,15 +15,15 @@ public class StackPrimer {
 	Item item = null;
 	Block block;
 	int size;
-	CompoundNBT tag;
+	CompoundTag tag;
 
-	public StackPrimer(Item item, int size, @Nullable CompoundNBT tag) {
+	public StackPrimer(Item item, int size, @Nullable CompoundTag tag) {
 		this.item = item;
 		this.size = size;
 		this.tag = tag;
 	}
 
-	public StackPrimer(Item item, @Nullable CompoundNBT tag) {
+	public StackPrimer(Item item, @Nullable CompoundTag tag) {
 		this(item, 1, tag);
 	}
 
@@ -31,13 +31,13 @@ public class StackPrimer {
 		this(item, 1, null);
 	}
 
-	public StackPrimer(Block block, int size, @Nullable CompoundNBT tag) {
+	public StackPrimer(Block block, int size, @Nullable CompoundTag tag) {
 		this.block = block;
 		this.size = size;
 		this.tag = tag;
 	}
 
-	public StackPrimer(Block item, @Nullable CompoundNBT tag) {
+	public StackPrimer(Block item, @Nullable CompoundTag tag) {
 		this(item, 1, tag);
 	}
 

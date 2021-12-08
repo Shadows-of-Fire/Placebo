@@ -3,6 +3,7 @@ package shadows.placebo.collections;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Deprecated
 public abstract class BlockedList<T> extends ArrayList<T> {
 
 	private static final long serialVersionUID = -7008599240020028661L;

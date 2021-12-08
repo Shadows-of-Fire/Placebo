@@ -1,13 +1,13 @@
 package shadows.placebo.util;
 
-import net.minecraft.client.resources.ReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 /**
  * Simple reload listener that allows for lambda usage.
  */
-public class RunnableReloader extends ReloadListener<Object> {
+public class RunnableReloader extends SimplePreparableReloadListener<Object> {
 
 	protected final Runnable r;
 
@@ -16,12 +16,12 @@ public class RunnableReloader extends ReloadListener<Object> {
 	}
 
 	@Override
-	protected Object prepare(IResourceManager resourceManagerIn, IProfiler profilerIn) {
+	protected Object prepare(ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
 		return null;
 	}
 
 	@Override
-	protected void apply(Object objectIn, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+	protected void apply(Object objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
 		this.r.run();
 	}
 

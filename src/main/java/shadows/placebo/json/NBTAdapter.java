@@ -1,4 +1,4 @@
-package shadows.placebo.util.json;
+package shadows.placebo.json;
 
 import java.lang.reflect.Type;
 
@@ -11,22 +11,22 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
 
-public class NBTAdapter implements JsonDeserializer<CompoundNBT>, JsonSerializer<CompoundNBT> {
+public class NBTAdapter implements JsonDeserializer<CompoundTag>, JsonSerializer<CompoundTag> {
 
 	public static final NBTAdapter INSTANCE = new NBTAdapter();
 
 	@Override
-	public JsonElement serialize(CompoundNBT src, Type typeOfSrc, JsonSerializationContext context) {
+	public JsonElement serialize(CompoundTag src, Type typeOfSrc, JsonSerializationContext context) {
 		return new JsonPrimitive(src.toString());
 	}
 
 	@Override
-	public CompoundNBT deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+	public CompoundTag deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 		try {
-			return JsonToNBT.parseTag(json.getAsString());
+			return TagParser.parseTag(json.getAsString());
 		} catch (CommandSyntaxException e) {
 			throw new JsonParseException(e);
 		}

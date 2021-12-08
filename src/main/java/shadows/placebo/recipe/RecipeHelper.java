@@ -10,19 +10,19 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeItemHelper;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.item.crafting.ShapelessRecipe;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -32,7 +32,7 @@ import shadows.placebo.util.RunnableReloader;
 
 public class RecipeHelper {
 
-	private static final List<IRecipe<?>> recipes = new ArrayList<>();
+	private static final List<Recipe<?>> recipes = new ArrayList<>();
 
 	protected String modid;
 	protected Set<String> names = new HashSet<>();
@@ -41,7 +41,7 @@ public class RecipeHelper {
 		this.modid = modid;
 	}
 
-	public static void addRecipe(IRecipe<?> rec) {
+	public static void addRecipe(Recipe<?> rec) {
 		synchronized (recipes) {
 			if (rec == null) {
 				Placebo.LOGGER.error("Attempted to add null recipe, this is invalid behavior.");
@@ -106,8 +106,8 @@ public class RecipeHelper {
 
 	static void addRecipes(RecipeManager mgr) {
 		recipes.forEach(r -> {
-			Map<ResourceLocation, IRecipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
-			IRecipe<?> old = map.get(r.getId());
+			Map<ResourceLocation, Recipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
+			Recipe<?> old = map.get(r.getId());
 			if (old == null) {
 				r.getIngredients().stream().filter(i -> i instanceof TagIngredient).map(i -> (TagIngredient) i).forEach(TagIngredient::redefine);
 				map.put(r.getId(), r);
@@ -118,7 +118,7 @@ public class RecipeHelper {
 
 	public static void mutableManager(RecipeManager mgr) {
 		mgr.recipes = new HashMap<>(mgr.recipes);
-		for (IRecipeType<?> type : mgr.recipes.keySet()) {
+		for (RecipeType<?> type : mgr.recipes.keySet()) {
 			mgr.recipes.put(type, new HashMap<>(mgr.recipes.get(type)));
 		}
 	}
@@ -128,14 +128,14 @@ public class RecipeHelper {
 		private static Int2ObjectMap<CachedIngredient> ingredients = new Int2ObjectOpenHashMap<>();
 
 		private CachedIngredient(ItemStack... matches) {
-			super(Arrays.stream(matches).map(SingleItemList::new));
-			if (matches.length == 1) ingredients.put(RecipeItemHelper.getStackingIndex(matches[0]), this);
+			super(Arrays.stream(matches).map(ItemValue::new));
+			if (matches.length == 1) ingredients.put(StackedContents.getStackingIndex(matches[0]), this);
 		}
 
 		public static CachedIngredient create(ItemStack... matches) {
 			synchronized (ingredients) {
 				if (matches.length == 1) {
-					CachedIngredient coi = ingredients.get(RecipeItemHelper.getStackingIndex(matches[0]));
+					CachedIngredient coi = ingredients.get(StackedContents.getStackingIndex(matches[0]));
 					return coi != null ? coi : new CachedIngredient(matches);
 				} else return new CachedIngredient(matches);
 			}
@@ -154,7 +154,7 @@ public class RecipeHelper {
 	 * @param mgr The Recipe Manager, accessed from the DPR's constructor.
 	 * @param rel The resource reload manager from the same location.
 	 */
-	public static void reload(RecipeManager mgr, IReloadableResourceManager rel) {
+	public static void reload(RecipeManager mgr, ReloadableResourceManager rel) {
 		rel.registerReloadListener(RunnableReloader.of(() -> {
 			mutableManager(mgr);
 			addRecipes(mgr);

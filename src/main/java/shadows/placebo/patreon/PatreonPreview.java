@@ -5,7 +5,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.text.WordUtils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
@@ -33,18 +33,18 @@ public class PatreonPreview {
 					if (PARTICLES) {
 						PatreonParticleType[] arr = PatreonParticleType.values();
 						PatreonParticleType p = arr[counter++ % arr.length];
-						StringTextComponent type = new StringTextComponent(WordUtils.capitalize(p.name().toLowerCase(Locale.ROOT).replace('_', ' ')));
-						mc.gui.setTitles(null, null, 0, 40, 20);
-						mc.gui.setTitles(null, type, 0, 0, 0);
-						mc.gui.setTitles(new StringTextComponent(""), null, 0, 0, 0);
+						TextComponent type = new TextComponent(WordUtils.capitalize(p.name().toLowerCase(Locale.ROOT).replace('_', ' ')));
+						mc.gui.setTimes(0, 40, 20);
+						mc.gui.setSubtitle(type);
+						mc.gui.setTitle(new TextComponent(""));
 						TrailsManager.TRAILS.put(e.player.getUUID(), p);
 					} else if (WINGS) {
 						WingType[] arr = WingType.values();
 						WingType p = arr[counter++ % arr.length];
-						StringTextComponent type = new StringTextComponent(WordUtils.capitalize(p.name().toLowerCase(Locale.ROOT).replace('_', ' ')));
-						mc.gui.setTitles(null, null, 0, 40, 20);
-						mc.gui.setTitles(null, type, 0, 0, 0);
-						mc.gui.setTitles(new StringTextComponent(""), null, 0, 0, 0);
+						TextComponent type = new TextComponent(WordUtils.capitalize(p.name().toLowerCase(Locale.ROOT).replace('_', ' ')));
+						mc.gui.setTimes(0, 40, 20);
+						mc.gui.setSubtitle(type);
+						mc.gui.setTitle(new TextComponent(""));
 						WingsManager.WINGS.put(e.player.getUUID(), p);
 					}
 				}

@@ -1,14 +1,14 @@
 package shadows.placebo.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.StateContainer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 
 public interface IReplacementBlock {
 
 	public void _setDefaultState(BlockState state);
 
-	public void setStateContainer(StateContainer<Block, BlockState> container);
+	public void setStateContainer(StateDefinition<Block, BlockState> container);
 
 	/** Default Implementation (just copy this onto any implementing class)
 	

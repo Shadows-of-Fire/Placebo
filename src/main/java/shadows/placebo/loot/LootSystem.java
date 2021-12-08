@@ -3,13 +3,13 @@ package shadows.placebo.loot;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.LootTableManager;
-import net.minecraft.loot.conditions.SurvivesExplosion;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootTables;
+import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import shadows.placebo.Placebo;
 
@@ -56,14 +56,14 @@ public class LootSystem {
 	 */
 	public static void defaultBlockTable(Block b) {
 		LootTable.Builder builder = tableBuilder();
-		builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(SurvivesExplosion.survivesExplosion()));
+		builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(ExplosionCondition.survivesExplosion()));
 		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
 	}
 
 	/**
 	 * ASM Hook: Called from {@link LootTableManager#apply}
 	 */
-	public static void reload(LootTableManager mgr) {
+	public static void reload(LootTables mgr) {
 		mgr.tables = new HashMap<>(mgr.tables);
 		PLACEBO_TABLES.forEach((key, val) -> {
 			if (!mgr.tables.containsKey(key)) mgr.tables.put(key, val);

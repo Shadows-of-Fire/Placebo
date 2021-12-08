@@ -3,6 +3,7 @@ package shadows.placebo.collections;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public abstract class BlockedMap<K, V> extends HashMap<K, V> {
 
 	private static final long serialVersionUID = 3265695314048724801L;

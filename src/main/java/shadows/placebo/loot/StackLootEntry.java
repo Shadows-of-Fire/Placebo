@@ -6,26 +6,25 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootPoolEntryType;
-import net.minecraft.loot.StandaloneLootEntry;
-import net.minecraft.loot.conditions.ILootCondition;
-import net.minecraft.loot.functions.ILootFunction;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import shadows.placebo.Placebo;
-import shadows.placebo.recipe.RecipeHelper;
-import shadows.placebo.util.json.ItemAdapter;
+import shadows.placebo.json.ItemAdapter;
 
 /**
  * The StackLootEntry is a combination of the ItemEntry, alongside the SetCount and SetNBT loot functions that makes loot tables a bit easier to read.
  * The rolling in of SetCount is achieved by having native "min" and "max" fields, and the SetNBT is rolled into the actual item object, which is a full ItemStack that can hold NBT data.
  */
-public class StackLootEntry extends StandaloneLootEntry {
+public class StackLootEntry extends LootPoolSingletonContainer {
 	public static final Serializer SERIALIZER = new Serializer();
 	public static final LootPoolEntryType STACKLOOTENTRYTYPE = Registry.register(Registry.LOOT_POOL_ENTRY_TYPE, new ResourceLocation(Placebo.MODID, "stack_entry"), new LootPoolEntryType(SERIALIZER));
 
@@ -33,7 +32,7 @@ public class StackLootEntry extends StandaloneLootEntry {
 	private final int min;
 	private final int max;
 
-	public StackLootEntry(ItemStack stack, int min, int max, int weight, int quality, ILootCondition[] conditions, ILootFunction[] functions) {
+	public StackLootEntry(ItemStack stack, int min, int max, int weight, int quality, LootItemCondition[] conditions, LootItemFunction[] functions) {
 		super(weight, quality, conditions, functions);
 		this.stack = stack;
 		this.min = min;
@@ -41,11 +40,11 @@ public class StackLootEntry extends StandaloneLootEntry {
 	}
 
 	public StackLootEntry(ItemStack stack, int min, int max, int weight, int quality) {
-		this(stack, min, max, weight, quality, new ILootCondition[0], new ILootFunction[0]);
+		this(stack, min, max, weight, quality, new LootItemCondition[0], new LootItemFunction[0]);
 	}
 
-	public StackLootEntry(IForgeRegistryEntry<?> thing, int min, int max, int weight, int quality) {
-		this(RecipeHelper.makeStack(thing), min, max, weight, quality);
+	public StackLootEntry(ItemLike item, int min, int max, int weight, int quality) {
+		this(new ItemStack(item), min, max, weight, quality);
 	}
 
 	public StackLootEntry(ItemStack stack) {
@@ -55,7 +54,7 @@ public class StackLootEntry extends StandaloneLootEntry {
 	@Override
 	protected void createItemStack(Consumer<ItemStack> list, LootContext ctx) {
 		ItemStack s = this.stack.copy();
-		s.setCount(MathHelper.nextInt(ctx.getRandom(), this.min, this.max));
+		s.setCount(Mth.nextInt(ctx.getRandom(), this.min, this.max));
 		list.accept(s);
 	}
 
@@ -64,12 +63,12 @@ public class StackLootEntry extends StandaloneLootEntry {
 		return STACKLOOTENTRYTYPE;
 	}
 
-	public static class Serializer extends StandaloneLootEntry.Serializer<StackLootEntry> {
+	public static class Serializer extends LootPoolSingletonContainer.Serializer<StackLootEntry> {
 
 		@Override
-		protected StackLootEntry deserialize(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, ILootCondition[] lootConditions, ILootFunction[] lootFunctions) {
-			int min = JSONUtils.getAsInt(jsonObject, "min", 1);
-			int max = JSONUtils.getAsInt(jsonObject, "max", 1);
+		protected StackLootEntry deserialize(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, LootItemCondition[] lootConditions, LootItemFunction[] lootFunctions) {
+			int min = GsonHelper.getAsInt(jsonObject, "min", 1);
+			int max = GsonHelper.getAsInt(jsonObject, "max", 1);
 			ItemStack stack = ItemAdapter.ITEM_READER.fromJson(jsonObject.get("stack"), ItemStack.class);
 			return new StackLootEntry(stack, min, max, weight, quality);
 		}

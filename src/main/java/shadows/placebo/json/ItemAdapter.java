@@ -1,4 +1,4 @@
-package shadows.placebo.util.json;
+package shadows.placebo.json;
 
 import java.lang.reflect.Type;
 
@@ -12,18 +12,18 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<ItemStack> {
 
 	public static final ItemAdapter INSTANCE = new ItemAdapter();
 
-	public static final Gson ITEM_READER = new GsonBuilder().registerTypeAdapter(ItemStack.class, INSTANCE).registerTypeAdapter(CompoundNBT.class, NBTAdapter.INSTANCE).create();
+	public static final Gson ITEM_READER = new GsonBuilder().registerTypeAdapter(ItemStack.class, INSTANCE).registerTypeAdapter(CompoundTag.class, NBTAdapter.INSTANCE).create();
 
 	@Override
 	public ItemStack deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) throws JsonParseException {
@@ -32,8 +32,8 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 		Item item = ForgeRegistries.ITEMS.getValue(id);
 		if (item == Items.AIR && !id.equals(Items.AIR.getRegistryName())) throw new JsonParseException("Failed to read item " + id);
 		int count = obj.has("count") ? obj.get("count").getAsInt() : 1;
-		CompoundNBT tag = obj.has("nbt") ? ctx.deserialize(obj.get("nbt"), CompoundNBT.class) : null;
-		CompoundNBT capTag = obj.has("cap_nbt") ? ctx.deserialize(obj.get("cap_nbt"), CompoundNBT.class) : null;
+		CompoundTag tag = obj.has("nbt") ? ctx.deserialize(obj.get("nbt"), CompoundTag.class) : null;
+		CompoundTag capTag = obj.has("cap_nbt") ? ctx.deserialize(obj.get("cap_nbt"), CompoundTag.class) : null;
 		ItemStack stack = new ItemStack(item, count, capTag);
 		stack.setTag(tag);
 		return stack;
@@ -41,7 +41,7 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 
 	@Override
 	public JsonElement serialize(ItemStack stack, Type typeOfSrc, JsonSerializationContext ctx) {
-		CompoundNBT written = stack.save(new CompoundNBT());
+		CompoundTag written = stack.save(new CompoundTag());
 		JsonObject obj = new JsonObject();
 		obj.add("item", ctx.serialize(stack.getItem().getRegistryName().toString()));
 		obj.add("count", ctx.serialize(stack.getCount()));

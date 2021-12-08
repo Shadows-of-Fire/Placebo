@@ -5,19 +5,19 @@ import java.util.function.Supplier;
 
 import org.lwjgl.glfw.GLFW;
 
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
 import shadows.placebo.Placebo;
 import shadows.placebo.patreon.wings.IWingModel;
 import shadows.placebo.patreon.wings.Wing;
 
 public class PatreonUtils {
 
-	public static final KeyBinding TOGGLE_T = new KeyBinding("placebo.toggleTrails", GLFW.GLFW_KEY_KP_8, "key.categories.placebo");
-	public static final KeyBinding TOGGLE_W = new KeyBinding("placebo.toggleWings", GLFW.GLFW_KEY_KP_9, "key.categories.placebo");
+	public static final KeyMapping TOGGLE_T = new KeyMapping("placebo.toggleTrails", GLFW.GLFW_KEY_KP_8, "key.categories.placebo");
+	public static final KeyMapping TOGGLE_W = new KeyMapping("placebo.toggleWings", GLFW.GLFW_KEY_KP_9, "key.categories.placebo");
 
 	public static enum PatreonParticleType {
 		SOUL_FIRE(() -> ParticleTypes.SOUL_FIRE_FLAME),
@@ -35,9 +35,9 @@ public class PatreonUtils {
 		SOUL(() -> ParticleTypes.SOUL),
 		WITCH(() -> ParticleTypes.WITCH);
 
-		public final Supplier<IParticleData> type;
+		public final Supplier<ParticleOptions> type;
 
-		PatreonParticleType(Supplier<IParticleData> type) {
+		PatreonParticleType(Supplier<ParticleOptions> type) {
 			this.type = type;
 		}
 	}
@@ -58,10 +58,10 @@ public class PatreonUtils {
 		SPOOKY(() -> Wing.INSTANCE, p -> SPOOKY_TEX, -0.65),;
 
 		public final Supplier<IWingModel> model;
-		public final Function<PlayerEntity, ResourceLocation> textureGetter;
+		public final Function<Player, ResourceLocation> textureGetter;
 		public final double yOffset;
 
-		WingType(Supplier<IWingModel> model, Function<PlayerEntity, ResourceLocation> textureGetter, double yOffset) {
+		WingType(Supplier<IWingModel> model, Function<Player, ResourceLocation> textureGetter, double yOffset) {
 			this.model = model;
 			this.textureGetter = textureGetter;
 			this.yOffset = yOffset;

@@ -5,16 +5,19 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.recipe.RecipeHelper;
 
+/**
+ * Collection of misc util stuff.
+ */
 public class PlaceboUtil {
 
 	/**
@@ -28,9 +31,9 @@ public class PlaceboUtil {
 		return list;
 	}
 
-	public static CompoundNBT getStackNBT(ItemStack stack) {
-		CompoundNBT tag = stack.getTag();
-		if (tag == null) stack.setTag(tag = new CompoundNBT());
+	public static CompoundTag getStackNBT(ItemStack stack) {
+		CompoundTag tag = stack.getTag();
+		if (tag == null) stack.setTag(tag = new CompoundTag());
 		return tag;
 	}
 
@@ -95,7 +98,7 @@ public class PlaceboUtil {
 	 * @param pos The location of the block to break.
 	 * @return If a block was successfully broken.
 	 */
-	public static boolean tryHarvestBlock(ServerPlayerEntity player, BlockPos pos) {
+	public static boolean tryHarvestBlock(ServerPlayer player, BlockPos pos) {
 		return player.gameMode.destroyBlock(pos);
 	}
 
