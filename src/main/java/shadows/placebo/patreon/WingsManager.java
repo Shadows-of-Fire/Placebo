@@ -14,16 +14,20 @@ import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.EntityRenderersEvent.AddLayers;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import shadows.placebo.Placebo;
 import shadows.placebo.packets.PatreonDisableMessage;
 import shadows.placebo.patreon.PatreonUtils.WingType;
 import shadows.placebo.patreon.wings.Wing;
+import shadows.placebo.patreon.wings.WingLayer;
 
 public class WingsManager {
 
@@ -37,6 +41,7 @@ public class WingsManager {
 		e.enqueueWork(() -> {
 			ForgeHooksClient.registerLayerDefinition(WING_LOC, Wing::createLayer);
 		});
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(WingsManager::addLayers);
 		new Thread(() -> {
 			Placebo.LOGGER.info("Loading patreon wing data...");
 			try {
@@ -66,6 +71,15 @@ public class WingsManager {
 
 	public static void clientTick(ClientTickEvent e) {
 		if (TOGGLE.consumeClick()) Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(1));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void addLayers(AddLayers e) {
+		Wing.INSTANCE = new Wing(e.getEntityModels().bakeLayer(WING_LOC));
+		for (String s : e.getSkins()) {
+			LivingEntityRenderer skin = e.getSkin(s);
+			skin.addLayer(new WingLayer(skin));
+		}
 	}
 
 	public static WingType getType(UUID id) {
