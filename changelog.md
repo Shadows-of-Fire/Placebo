@@ -1,3 +1,13 @@
+## 5.0.1
+* Full port to 1.17.1
+* Added some useful Container, TileEntity, and GUI Utils.
+* Moved most JS Coremods to Mixin where possible.
+* Stripped new events and PR'd to forge.
+* Removed deprecated code.
+
+## 5.0.0
+* Barebones port of what is necessary for PackMenu (The config system).
+
 ## 4.6.1
 * Placebo loot tables will now properly have their ID set.
 * Added a /placebo command
