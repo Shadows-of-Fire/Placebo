@@ -43,6 +43,9 @@ public class EasyContainerData implements ContainerData {
 		addData(() -> getter.getAsBoolean() ? 1 : 0, v -> setter.accept(v == 1));
 	}
 
+	/**
+	 * Registers an energy storage for tracking.  Note that an energy storage uses two slots!
+	 */
 	public void addEnergy(ModifiableEnergyStorage energy) {
 		addData(() -> ContainerUtil.getSerializedEnergy(energy, false), v -> ContainerUtil.deserializeEnergy(energy, v, false));
 		addData(() -> ContainerUtil.getSerializedEnergy(energy, true), v -> ContainerUtil.deserializeEnergy(energy, v, true));
