@@ -1,3 +1,6 @@
+## 5.0.2
+* Added a ton more container util code.
+
 ## 5.0.1
 * Full port to 1.17.1
 * Added some useful Container, TileEntity, and GUI Utils.

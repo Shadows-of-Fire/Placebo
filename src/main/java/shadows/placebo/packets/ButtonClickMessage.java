@@ -2,8 +2,9 @@ package shadows.placebo.packets;
 
 import java.util.function.Supplier;
 
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.network.MessageProvider;
@@ -11,7 +12,7 @@ import shadows.placebo.network.MessageProvider;
 /**
  * Allows for easy implementations of client->server button presses. Sends an integer that allows for arbitrary data encoding schemes within the integer space.<br>
  * The Container must implement {@link IButtonContainer}.<br>
- * Defer to using using {@link PlayerController#handleInventoryButtonClick} and {@link Container#clickMenuButton} when the buttonId can be a byte.
+ * Defer to using using {@link MultiPlayerGameMode#handleInventoryButtonClick} and {@link AbstractContainerMenu#clickMenuButton} when the buttonId can be a byte.
  * 
  */
 public class ButtonClickMessage implements MessageProvider<ButtonClickMessage> {

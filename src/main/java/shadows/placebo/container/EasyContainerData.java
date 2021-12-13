@@ -2,11 +2,13 @@ package shadows.placebo.container;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.world.inventory.ContainerData;
 import shadows.placebo.cap.ModifiableEnergyStorage;
 
@@ -37,6 +39,10 @@ public class EasyContainerData implements ContainerData {
 		data.add(Pair.of(getter, setter));
 	}
 
+	public void addData(BooleanSupplier getter, BooleanConsumer setter) {
+		addData(() -> getter.getAsBoolean() ? 1 : 0, v -> setter.accept(v == 1));
+	}
+
 	public void addEnergy(ModifiableEnergyStorage energy) {
 		addData(() -> ContainerUtil.getSerializedEnergy(energy, false), v -> ContainerUtil.deserializeEnergy(energy, v, false));
 		addData(() -> ContainerUtil.getSerializedEnergy(energy, true), v -> ContainerUtil.deserializeEnergy(energy, v, true));
@@ -45,5 +51,4 @@ public class EasyContainerData implements ContainerData {
 	public interface IDataAutoRegister {
 		public ContainerData getData();
 	}
-
 }

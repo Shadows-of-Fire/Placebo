@@ -25,7 +25,7 @@ public abstract class BlockEntityContainer<T extends BlockEntity> extends Abstra
 		this.pos = pos;
 		this.level = pInv.player.level;
 		this.tile = (T) this.level.getBlockEntity(pos);
-		this.addSlots();
+		this.addSlots(pInv);
 		if (this.tile instanceof IDataAutoRegister) {
 			this.addDataSlots(((IDataAutoRegister) this.tile).getData());
 		}
@@ -33,7 +33,7 @@ public abstract class BlockEntityContainer<T extends BlockEntity> extends Abstra
 
 	public abstract MenuType<?> getType();
 
-	protected abstract void addSlots();
+	protected abstract void addSlots(Inventory pInv);
 
 	/**
 	 * Adds the player slots at a given coordinate location.
