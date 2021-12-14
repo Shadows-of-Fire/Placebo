@@ -1,3 +1,6 @@
+## 5.0.3
+* Added util to add the commonly-used inventory shuffle movement rules.
+
 ## 5.0.2
 * Added a ton more container util code.
 
