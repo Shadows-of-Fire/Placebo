@@ -3,7 +3,7 @@ package shadows.placebo.network;
 import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 /**
  * A Message Provider encapsulates the default components that make up a SimpleChannel message.

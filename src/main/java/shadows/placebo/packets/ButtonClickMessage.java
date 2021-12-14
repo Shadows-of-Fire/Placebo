@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.network.MessageProvider;
 

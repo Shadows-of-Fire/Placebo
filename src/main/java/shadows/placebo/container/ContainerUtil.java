@@ -8,8 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.fmllegacy.network.IContainerFactory;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.IContainerFactory;
+import net.minecraftforge.network.NetworkHooks;
 import shadows.placebo.cap.ModifiableEnergyStorage;
 
 public class ContainerUtil {

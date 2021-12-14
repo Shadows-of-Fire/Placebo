@@ -5,8 +5,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkDirection;
-import net.minecraftforge.fmllegacy.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent.Context;
 import shadows.placebo.Placebo;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.network.MessageProvider;
