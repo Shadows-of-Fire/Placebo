@@ -15,6 +15,8 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 	protected final QuickMoveHandler mover = new QuickMoveHandler();
 	protected IDataUpdateListener updateListener;
 
+	protected int playerInvStart = -1, hotbarStart = -1;
+
 	protected PlaceboContainerMenu(MenuType<?> type, int id, Inventory pInv) {
 		super(type, id);
 		this.level = pInv.player.level;
@@ -24,15 +26,28 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 	 * Adds the player slots at a given coordinate location.
 	 */
 	protected void addPlayerSlots(Inventory pInv, int x, int y) {
+		this.playerInvStart = this.slots.size();
 		for (int row = 0; row < 3; row++) {
 			for (int column = 0; column < 9; column++) {
 				this.addSlot(new Slot(pInv, column + row * 9 + 9, x + column * 18, y + row * 18));
 			}
 		}
 
+		this.hotbarStart = this.slots.size();
 		for (int row = 0; row < 9; row++) {
 			this.addSlot(new Slot(pInv, row, x + row * 18, y + 58));
 		}
+	}
+
+	/**
+	 * Registers default mover rules that allow for items to shuffle between the inventory and the hotbar.
+	 */
+	protected void registerInvShuffleRules() {
+		if (this.hotbarStart == -1 || this.playerInvStart == -1) {
+			throw new UnsupportedOperationException("Attempted to register inv shuffle rules with no player inv slots.");
+		}
+		this.mover.registerRule((stack, slot) -> slot >= this.hotbarStart, this.playerInvStart, this.hotbarStart);
+		this.mover.registerRule((stack, slot) -> slot >= this.playerInvStart, this.hotbarStart, this.slots.size());
 	}
 
 	@Override
