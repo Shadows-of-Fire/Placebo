@@ -1,5 +1,8 @@
+## 6.0.1
+* Fully updated to 1.18.1
+
 ## 6.0.0
-* Updated to 1.18.1
+* Barebones port of what is necessary for PackMenu (The config system).
 
 ## 5.0.3
 * Added util to add the commonly-used inventory shuffle movement rules.
