@@ -1,3 +1,6 @@
+## 6.0.0
+* Updated to 1.18.1
+
 ## 5.0.3
 * Added util to add the commonly-used inventory shuffle movement rules.
 
