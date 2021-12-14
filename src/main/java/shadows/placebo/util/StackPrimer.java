@@ -2,10 +2,10 @@ package shadows.placebo.util;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.world.level.block.Block;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.Block;
 
 /**
  * The StackPrimer is an ItemStack generator, basically holding all the information to create an ItemStack instance without ever retaining one.

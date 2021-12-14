@@ -6,10 +6,10 @@ import java.util.function.Supplier;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import shadows.placebo.Placebo;
 import shadows.placebo.patreon.wings.IWingModel;
 import shadows.placebo.patreon.wings.Wing;

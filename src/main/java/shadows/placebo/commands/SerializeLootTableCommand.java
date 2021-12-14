@@ -11,20 +11,18 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.commands.LootCommand;
 import net.minecraft.world.level.storage.loot.Deserializers;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 public class SerializeLootTableCommand {
 
 	public static final Gson GSON = Deserializers.createLootTableSerializer().setPrettyPrinting().create();
 
-	public static final DynamicCommandExceptionType NOT_FOUND = new DynamicCommandExceptionType(arg -> {
-		return new TranslatableComponent("placebo.cmd.not_found", arg);
-	});
+	public static final DynamicCommandExceptionType NOT_FOUND = new DynamicCommandExceptionType(arg -> new TranslatableComponent("placebo.cmd.not_found", arg));
 
 	public static void register(LiteralArgumentBuilder<CommandSourceStack> builder) {
 		builder.then(Commands.literal("serialize_loot_table").then(Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(LootCommand.SUGGEST_LOOT_TABLE).executes(ctx -> {

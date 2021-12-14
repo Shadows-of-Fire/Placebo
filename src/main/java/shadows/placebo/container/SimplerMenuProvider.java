@@ -20,10 +20,12 @@ public class SimplerMenuProvider<M extends AbstractContainerMenu> implements Men
 		this.title = new TranslatableComponent(level.getBlockState(pos).getBlock().getDescriptionId());
 	}
 
+	@Override
 	public Component getDisplayName() {
 		return this.title;
 	}
 
+	@Override
 	public AbstractContainerMenu createMenu(int pContainerId, Inventory pInventory, Player pPlayer) {
 		return this.menuConstructor.createMenu(pContainerId, pInventory, pPlayer);
 	}

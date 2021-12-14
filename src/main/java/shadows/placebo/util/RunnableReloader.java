@@ -1,8 +1,8 @@
 package shadows.placebo.util;
 
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.server.packs.resources.ResourceManager;
 
 /**
  * Simple reload listener that allows for lambda usage.

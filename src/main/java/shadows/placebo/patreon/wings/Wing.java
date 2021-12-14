@@ -35,9 +35,9 @@ public class Wing extends EntityModel<AbstractClientPlayer> implements IWingMode
 	private final ModelPart cube_r2;
 
 	public Wing(ModelPart baked) {
-		bb_main = baked.getChild("bb_main");
-		cube_r1 = bb_main.getChild("cube_r1");
-		cube_r2 = bb_main.getChild("cube_r2");
+		this.bb_main = baked.getChild("bb_main");
+		this.cube_r1 = this.bb_main.getChild("cube_r1");
+		this.cube_r2 = this.bb_main.getChild("cube_r2");
 	}
 
 	@Override

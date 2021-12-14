@@ -31,7 +31,7 @@ public class FilteredSlot extends SlotItemHandler {
 
 	@Override
 	public boolean mayPickup(Player playerIn) {
-		return !((InternalItemHandler) this.getItemHandler()).extractItemInternal(index, 1, true).isEmpty();
+		return !((InternalItemHandler) this.getItemHandler()).extractItemInternal(this.index, 1, true).isEmpty();
 	}
 
 	@Override

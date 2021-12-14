@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 
 /**
- * Utils for loot chests. Helps with placing and 
+ * Utils for loot chests. Helps with placing and
  * @author Shadows
  *
  */

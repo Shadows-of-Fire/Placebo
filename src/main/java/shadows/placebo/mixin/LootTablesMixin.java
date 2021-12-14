@@ -27,9 +27,9 @@ public class LootTablesMixin {
 
 	@Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At(value = "TAIL"))
 	protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler, CallbackInfo ci) {
-		tables = new HashMap<>(tables);
+		this.tables = new HashMap<>(this.tables);
 		LootSystem.PLACEBO_TABLES.forEach((key, val) -> {
-			if (!tables.containsKey(key)) tables.put(key, val);
+			if (!this.tables.containsKey(key)) this.tables.put(key, val);
 		});
 		Placebo.LOGGER.info("Registered {} additional loot tables.", LootSystem.PLACEBO_TABLES.keySet().size());
 	}

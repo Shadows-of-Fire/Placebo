@@ -22,33 +22,33 @@ public class EasyContainerData implements ContainerData {
 
 	@Override
 	public int get(int pIndex) {
-		return data.get(pIndex).getLeft().getAsInt();
+		return this.data.get(pIndex).getLeft().getAsInt();
 	}
 
 	@Override
 	public void set(int pIndex, int pValue) {
-		data.get(pIndex).getRight().accept(pValue);
+		this.data.get(pIndex).getRight().accept(pValue);
 	}
 
 	@Override
 	public int getCount() {
-		return data.size();
+		return this.data.size();
 	}
 
 	public void addData(IntSupplier getter, IntConsumer setter) {
-		data.add(Pair.of(getter, setter));
+		this.data.add(Pair.of(getter, setter));
 	}
 
 	public void addData(BooleanSupplier getter, BooleanConsumer setter) {
-		addData(() -> getter.getAsBoolean() ? 1 : 0, v -> setter.accept(v == 1));
+		this.addData(() -> getter.getAsBoolean() ? 1 : 0, v -> setter.accept(v == 1));
 	}
 
 	/**
 	 * Registers an energy storage for tracking.  Note that an energy storage uses two slots!
 	 */
 	public void addEnergy(ModifiableEnergyStorage energy) {
-		addData(() -> ContainerUtil.getSerializedEnergy(energy, false), v -> ContainerUtil.deserializeEnergy(energy, v, false));
-		addData(() -> ContainerUtil.getSerializedEnergy(energy, true), v -> ContainerUtil.deserializeEnergy(energy, v, true));
+		this.addData(() -> ContainerUtil.getSerializedEnergy(energy, false), v -> ContainerUtil.deserializeEnergy(energy, v, false));
+		this.addData(() -> ContainerUtil.getSerializedEnergy(energy, true), v -> ContainerUtil.deserializeEnergy(energy, v, true));
 	}
 
 	public interface IDataAutoRegister {

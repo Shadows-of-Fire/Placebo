@@ -2,11 +2,11 @@ package shadows.placebo.patreon.wings;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.model.PlayerModel;
 import shadows.placebo.patreon.PatreonUtils.WingType;
 import shadows.placebo.patreon.WingsManager;
 

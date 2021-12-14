@@ -22,7 +22,7 @@ public class QuickMoveHandler {
 		if (slot != null && slot.hasItem()) {
 			ItemStack slotStack = slot.getItem();
 			slotStackCopy = slotStack.copy();
-			for (QuickMoveRule rule : rules) {
+			for (QuickMoveRule rule : this.rules) {
 				if (rule.req.test(slotStack, index)) {
 					if (!container.moveItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) return ItemStack.EMPTY;
 				}
@@ -42,7 +42,7 @@ public class QuickMoveHandler {
 	}
 
 	public void registerRule(BiPredicate<ItemStack, Integer> req, int startIdx, int endIdx) {
-		registerRule(req, startIdx, endIdx, false);
+		this.registerRule(req, startIdx, endIdx, false);
 	}
 
 	protected record QuickMoveRule(BiPredicate<ItemStack, Integer> req, int startIdx, int endIdx, boolean reversed) {
