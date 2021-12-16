@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import shadows.placebo.mixin.AbstractContainerMenuInvoker;
 
 /**
  * The QuickMoveHandler is a registration helper for setting up {@link AbstractContainerMenu#quickMoveStack(Player, int)}
@@ -24,7 +25,7 @@ public class QuickMoveHandler {
 			slotStackCopy = slotStack.copy();
 			for (QuickMoveRule rule : this.rules) {
 				if (rule.req.test(slotStack, index)) {
-					if (!container.moveItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) return ItemStack.EMPTY;
+					if (!container.moveMenuItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) return ItemStack.EMPTY;
 				}
 			}
 			if (slotStack.isEmpty()) {
@@ -50,7 +51,9 @@ public class QuickMoveHandler {
 	}
 
 	public interface IExposedContainer {
-		public boolean moveItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection);
+		public default boolean moveMenuItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection) {
+			return ((AbstractContainerMenuInvoker) this)._moveItemStackTo(pStack, pStartIndex, pEndIndex, pReverseDirection);
+		}
 
 		public default Slot getMenuSlot(int index) {
 			return ((AbstractContainerMenu) this).getSlot(index);
