@@ -18,7 +18,7 @@ public class QuickMoveHandler {
 
 	public ItemStack quickMoveStack(IExposedContainer container, Player player, int index) {
 		ItemStack slotStackCopy = ItemStack.EMPTY;
-		Slot slot = container.getSlot(index);
+		Slot slot = container.getMenuSlot(index);
 		if (slot != null && slot.hasItem()) {
 			ItemStack slotStack = slot.getItem();
 			slotStackCopy = slotStack.copy();
@@ -52,7 +52,9 @@ public class QuickMoveHandler {
 	public interface IExposedContainer {
 		public boolean moveItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection);
 
-		public Slot getSlot(int index);
+		public default Slot getMenuSlot(int index) {
+			return ((AbstractContainerMenu) this).getSlot(index);
+		}
 	}
 
 }
