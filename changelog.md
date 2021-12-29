@@ -1,3 +1,6 @@
+## 6.0.3
+* Added the ability to handle optional stacks in ItemAdapter.
+
 ## 6.0.2
 * Fixed a bug where mods using QuickMoveHandler were crashing outside of dev.
 

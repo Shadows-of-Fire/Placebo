@@ -30,7 +30,8 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 		JsonObject obj = json.getAsJsonObject();
 		ResourceLocation id = new ResourceLocation(obj.get("item").getAsString());
 		Item item = ForgeRegistries.ITEMS.getValue(id);
-		if (item == Items.AIR && !id.equals(Items.AIR.getRegistryName())) throw new JsonParseException("Failed to read item " + id);
+		boolean optional = obj.has("optional") ? obj.get("optional").getAsBoolean() : false;
+		if (!optional && item == Items.AIR && !id.equals(Items.AIR.getRegistryName())) throw new JsonParseException("Failed to read non-optional item " + id);
 		int count = obj.has("count") ? obj.get("count").getAsInt() : 1;
 		CompoundTag tag = obj.has("nbt") ? ctx.deserialize(obj.get("nbt"), CompoundTag.class) : null;
 		CompoundTag capTag = obj.has("cap_nbt") ? ctx.deserialize(obj.get("cap_nbt"), CompoundTag.class) : null;
