@@ -1,0 +1,8 @@
+{
+	"key.categories.placebo": "Placebo",
+	"placebo.toggleTrails": "Переключить Patreon следы",
+	"placebo.toggleWings": "Переключить Patreon крылья",
+	"placebo.cmd.serialize_success": "Сохранено %s в %s.",
+	"placebo.cmd.serialize_failure": "Произошла ошибка в процессе сериализации.",
+	"placebo.cmd.not_found": "%s не было найдено."
+}
