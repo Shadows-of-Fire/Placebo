@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -100,6 +103,18 @@ public class PlaceboUtil {
 	 */
 	public static boolean tryHarvestBlock(ServerPlayer player, BlockPos pos) {
 		return player.gameMode.destroyBlock(pos);
+	}
+
+	/**
+	 * Adds a component to the lore tag of an itemstack/
+	 * @param stack The ItemStack to append lore to.
+	 * @param lore The actual lore.
+	 */
+	public static void addLore(ItemStack stack, Component lore) {
+		CompoundTag display = stack.getOrCreateTagElement("display");
+		ListTag tag = display.getList("Lore", 8);
+		tag.add(StringTag.valueOf(Component.Serializer.toJson(lore)));
+		display.put("Lore", tag);
 	}
 
 }
