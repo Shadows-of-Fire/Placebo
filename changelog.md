@@ -1,3 +1,9 @@
+## 6.0.4
+* Sushomeister: Added Ukranian and Russian translations.
+* Hav3funDJ: Added Italian translation.
+* Added util to add lore to an itemstack.
+* Added the PlaceboTaskQueue to enqueue tick-based tasks.
+
 ## 6.0.3
 * Added the ability to handle optional stacks in ItemAdapter.
 
