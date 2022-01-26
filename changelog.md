@@ -1,3 +1,6 @@
+## 6.0.5
+* Added util to check if LCTRL or RCTRL is down.
+
 ## 6.0.4
 * Sushomeister: Added Ukranian and Russian translations.
 * Hav3funDJ: Added Italian translation.
