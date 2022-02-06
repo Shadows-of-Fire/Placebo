@@ -20,6 +20,7 @@ import shadows.placebo.commands.PlaceboCommand;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.packets.ButtonClickMessage;
 import shadows.placebo.packets.PatreonDisableMessage;
+import shadows.placebo.packets.ReloadListenerPacket;
 import shadows.placebo.recipe.TagIngredient;
 
 @Mod(Placebo.MODID)
@@ -49,6 +50,9 @@ public class Placebo {
 		CraftingHelper.register(new ResourceLocation(Placebo.MODID, "tag"), TagIngredient.SERIALIZER);
 		MessageHelper.registerMessage(CHANNEL, 0, new ButtonClickMessage());
 		MessageHelper.registerMessage(CHANNEL, 1, new PatreonDisableMessage(0));
+		MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
+		MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
+		MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
 	}
 
 	public void registerCommands(RegisterCommandsEvent e) {
