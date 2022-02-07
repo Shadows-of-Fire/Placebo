@@ -19,7 +19,7 @@ public abstract class BlockEntityContainer<T extends BlockEntity> extends Placeb
 		this.pos = pos;
 		this.tile = (T) this.level.getBlockEntity(pos);
 		if (this.tile instanceof IDataAutoRegister) {
-			this.addDataSlots(((IDataAutoRegister) this.tile).getData());
+			((IDataAutoRegister) this.tile).registerSlots(this::addDataSlot);
 		}
 	}
 

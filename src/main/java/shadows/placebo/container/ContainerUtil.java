@@ -7,22 +7,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkHooks;
 import shadows.placebo.cap.ModifiableEnergyStorage;
 
 public class ContainerUtil {
-
-	/**
-	 * IIntArray can only send shorts, so we need to split the power values in two.
-	 * @param energy Energy Value
-	 * @param upper If sending the upper bits or not.
-	 * @return The appropriate half of the integer.
-	 */
-	public static int getSerializedEnergy(EnergyStorage energy, boolean upper) {
-		return split(energy.getEnergyStored(), upper);
-	}
 
 	public static void deserializeEnergy(ModifiableEnergyStorage energy, int value, boolean upper) {
 		energy.setEnergy(merge(energy.getEnergyStored(), value, upper));

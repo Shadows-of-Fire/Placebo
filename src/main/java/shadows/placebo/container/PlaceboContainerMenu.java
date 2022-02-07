@@ -1,8 +1,13 @@
 package shadows.placebo.container;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +18,7 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 
 	protected final Level level;
 	protected final QuickMoveHandler mover = new QuickMoveHandler();
+	protected final List<Int2IntFunction> syncTransformers = new ArrayList<>();
 	protected IDataUpdateListener updateListener;
 
 	protected int playerInvStart = -1, hotbarStart = -1;
@@ -68,6 +74,28 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 	public void setData(int pId, int pData) {
 		super.setData(pId, pData);
 		if (this.updateListener != null) this.updateListener.dataUpdated(pId, pData);
+	}
+
+	@Override
+	protected DataSlot addDataSlot(DataSlot slot) {
+		if (slot instanceof Int2IntFunction fun) {
+			this.syncTransformers.add(fun);
+		} else this.syncTransformers.add(Int2IntFunction.identity());
+		return super.addDataSlot(slot);
+	}
+
+	@Override
+	public void synchronizeDataSlotToRemote(int slotId, int value) {
+		if (!this.suppressRemoteUpdates) {
+			int i = this.remoteDataSlots.getInt(slotId);
+			if (i != value) {
+				this.remoteDataSlots.set(slotId, value);
+				if (this.synchronizer != null) {
+					this.synchronizer.sendDataChange(this, slotId, this.syncTransformers.get(slotId).applyAsInt(value));
+				}
+			}
+
+		}
 	}
 
 }

@@ -43,12 +43,12 @@ public class SerializerBuilder<V> {
 	}
 
 	public Serializer build(boolean synced) {
-		Preconditions.checkNotNull(jds, "Attempted to build a Serializer for " + name + " but no json deserializer was provided.");
+		Preconditions.checkNotNull(this.jds, "Attempted to build a Serializer for " + this.name + " but no json deserializer was provided.");
 		if (synced) {
-			Preconditions.checkNotNull(nds, "Attempted to build a Synced Serializer for " + name + " but no network deserializer was provided.");
-			Preconditions.checkNotNull(ns, "Attempted to build a Synced Serializer for " + name + " but no network serializer was provided.");
+			Preconditions.checkNotNull(this.nds, "Attempted to build a Synced Serializer for " + this.name + " but no network deserializer was provided.");
+			Preconditions.checkNotNull(this.ns, "Attempted to build a Synced Serializer for " + this.name + " but no network serializer was provided.");
 		}
-		return new Serializer(name, jds, js, nds, ns);
+		return new Serializer(this.name, this.jds, this.js, this.nds, this.ns);
 	}
 
 	public class Serializer implements JsonDeserializer<V>, JsonSerializer<V>, NetDeserializer<V>, NetSerializer<V> {
@@ -69,25 +69,25 @@ public class SerializerBuilder<V> {
 
 		@Override
 		public JsonObject serialize(V src) {
-			if (this.js == null) throw new UnsupportedOperationException("Attempted to serialize a " + name + " to json, but this serializer does not support that operation.");
+			if (this.js == null) throw new UnsupportedOperationException("Attempted to serialize a " + this.name + " to json, but this serializer does not support that operation.");
 			return this.js.serialize(src);
 		}
 
 		@Override
 		public void serialize(V src, FriendlyByteBuf buf) {
-			if (this.ns == null) throw new UnsupportedOperationException("Attempted to serialize a " + name + " to the network, but this serializer does not support that operation.");
+			if (this.ns == null) throw new UnsupportedOperationException("Attempted to serialize a " + this.name + " to the network, but this serializer does not support that operation.");
 			this.ns.serialize(src, buf);
 		}
 
 		@Override
 		public V deserialize(JsonObject json) throws JsonParseException {
-			if (this.jds == null) throw new UnsupportedOperationException("Attempted to deserialize a " + name + " from json, but this serializer does not support that operation.");
+			if (this.jds == null) throw new UnsupportedOperationException("Attempted to deserialize a " + this.name + " from json, but this serializer does not support that operation.");
 			return this.jds.deserialize(json);
 		}
 
 		@Override
 		public V deserialize(FriendlyByteBuf buf) {
-			if (this.nds == null) throw new UnsupportedOperationException("Attempted to deserialize a " + name + " from the network, but this serializer does not support that operation.");
+			if (this.nds == null) throw new UnsupportedOperationException("Attempted to deserialize a " + this.name + " from the network, but this serializer does not support that operation.");
 			return this.nds.deserialize(buf);
 		}
 
