@@ -2,6 +2,7 @@
 * Added the PlaceboJsonReloadListener, which assists in creation of automatically synced data-driven systems.
 * Rewrote EasyContainerData and PlaceboContainerMenu to allow data slots to have separate real and synced values.
   * Breaking Change
+* Added the base code for TOP compat.
 
 ## 6.0.5
 * Added util to check if LCTRL or RCTRL is down.

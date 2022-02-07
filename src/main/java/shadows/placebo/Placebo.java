@@ -10,6 +10,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import shadows.placebo.commands.PlaceboCommand;
+import shadows.placebo.compat.TOPCompat;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.packets.ButtonClickMessage;
 import shadows.placebo.packets.PatreonDisableMessage;
@@ -43,6 +45,7 @@ public class Placebo {
 		String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
 		ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> version, (remoteVer, isNetwork) -> remoteVer == null || version.equals(remoteVer)));
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
+		if (ModList.get().isLoaded("theoneprobe")) TOPCompat.register();
 	}
 
 	@SubscribeEvent
