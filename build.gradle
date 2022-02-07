@@ -19,7 +19,7 @@ apply plugin: 'eclipse'
 
 archivesBaseName = "${fileName}-${mcVersion}"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(project.properties.javaVersion)
 
 minecraft {
     mappings channel: 'parchment', version: project.properties.parchmentVersion
@@ -52,22 +52,33 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    maven {
+    maven { // JEI
         url "https://dvs1.progwml6.com/files/maven"
     }
-	maven {
+	maven { // CurseForge
         url "https://www.cursemaven.com"
     }
-	maven {
-	 	url 'https://maven.theillusivec4.top/'
+	maven { // Curios
+	 	url "https://maven.theillusivec4.top/"
+	}
+	maven { // The One Probe
+		url "https://maven.k-4u.nl/"
+	}
+	maven { // Patchouli
+		url "https://maven.blamejared.com"
 	}
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mcVersion}-${forgeVersion}"
 	if(project.mixin.toBoolean()) annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
-	implementation fg.deobf("mezz.jei:jei-${jeiVersion}")
-	implementation fg.deobf("curse.maven:jade-324717:${jadeFileId}")
+	if(project.hasProperty('jeiVersion')) implementation fg.deobf("mezz.jei:jei-${jeiVersion}")
+	if(project.hasProperty('jadeFileId')) implementation fg.deobf("curse.maven:jade-324717:${jadeFileId}")
+	if(project.hasProperty('curiosVer'))  implementation fg.deobf("top.theillusivec4.curios:curios-forge:${curiosVer}")
+	if(project.hasProperty('topVersion')) implementation fg.deobf(project.dependencies.create("mcjty.theoneprobe:theoneprobe:${topVersion}") {
+		transitive = false
+	})
+	if(project.hasProperty('patchouliVer')) implementation fg.deobf("vazkii.patchouli:Patchouli:${patchouliVer}")
 	implementation fileTree(dir: 'libs', include: '*.jar')
 }
 
@@ -85,7 +96,11 @@ def replaceProperties = [modid: modid,
 						 mcVersion: mcVersion, 
 						 forgeVersion: forgeVersion,
 						 mixins: mixins,
-						 clientMixins: clientMixins
+						 clientMixins: clientMixins,
+						 curiosVer: curiosVer,
+						 placeboDep: placeboDep,
+						 topVersion: topVersion,
+						 patchouliVer: patchouliVer
 						]
 processResources {
     inputs.properties replaceProperties
