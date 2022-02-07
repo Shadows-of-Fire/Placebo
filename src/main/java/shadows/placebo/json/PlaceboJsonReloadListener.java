@@ -69,7 +69,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 				if (checkAndLogEmpty(ele, key, path, logger)) {
 					JsonObject obj = ele.getAsJsonObject();
 					SerializerBuilder<V>.Serializer serializer;
-					if (subtypes) {
+					if (subtypes && obj.has("type")) {
 						ResourceLocation type = new ResourceLocation(obj.get("type").getAsString());
 						serializer = serializers.get(type);
 						if (serializer == null) throw new RuntimeException("Attempted to deserialize a " + path + " with type " + type + " but no serializer exists!");
@@ -115,12 +115,13 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	}
 
 	public final void registerSerializer(ResourceLocation id, SerializerBuilder<V> serializer) {
-		if (!subtypes) {
+		if (subtypes) {
+			if (serializers.containsKey(id)) throw new RuntimeException("Attempted to register a " + path + " serializer with id " + id + " but one already exists!");
+			if (serializers.isEmpty() && id != DEFAULT) serializers.put(DEFAULT, serializer.build(this.synced));
+			serializers.put(id, serializer.build(this.synced));
+		} else {
 			if (!serializers.isEmpty()) throw new RuntimeException("Attempted to register a " + path + " serializer with id " + id + " but subtypes are not supported!");
 			serializers.put(DEFAULT, serializer.build(synced));
-		} else {
-			if (serializers.containsKey(id)) throw new RuntimeException("Attempted to register a " + path + " serializer with id " + id + " but one already exists!");
-			serializers.put(id, serializer.build(this.synced));
 		}
 	}
 
