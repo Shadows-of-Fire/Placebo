@@ -1,3 +1,7 @@
+## 6.1.1
+* Added support for loading conditions on ALL placebo-based json reload listeners.
+  * This includes Hostile Neural Networks, Apotheosis, and any other future projects.
+
 ## 6.1.0
 * Added the PlaceboJsonReloadListener, which assists in creation of automatically synced data-driven systems.
 * Rewrote EasyContainerData and PlaceboContainerMenu to allow data slots to have separate real and synced values.

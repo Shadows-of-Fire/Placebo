@@ -24,6 +24,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import shadows.placebo.Placebo;
 import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
@@ -186,6 +187,14 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		String s = e.toString();
 		if (s.isEmpty() || s.equals("{}")) {
 			logger.debug("Ignoring {} item with id {} as it is empty.", type, id);
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean checkConditions(JsonElement e, ResourceLocation id, String type, Logger logger) {
+		if (e.isJsonObject() && !CraftingHelper.processConditions(e.getAsJsonObject(), "conditions")) {
+			logger.debug("Skipping loading {} item with id {} as it's conditions were not met", type, id);
 			return false;
 		}
 		return true;
