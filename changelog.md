@@ -1,3 +1,7 @@
+## 6.2.0
+* Updated to 1.18.2 - This was a breaking change due to tag updates within MC.
+* Fixed Rainbow Color.
+
 ## 6.1.1
 * Added support for loading conditions on ALL placebo-based json reload listeners.
   * This includes Hostile Neural Networks, Apotheosis, and any other future projects.

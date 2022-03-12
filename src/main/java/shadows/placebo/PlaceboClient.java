@@ -29,6 +29,7 @@ public class PlaceboClient {
 		TrailsManager.init();
 		WingsManager.init(e);
 		TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
+		registerCustomColor("rainbow", new RainbowColor());
 		MinecraftForge.EVENT_BUS.addListener(PlaceboClient::tick);
 	}
 

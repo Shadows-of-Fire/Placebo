@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -70,7 +71,7 @@ public class RecipeHelper {
 		NonNullList<Ingredient> inputL = NonNullList.create();
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
-			if (k instanceof String) inputL.add(i, new TagIngredient((String) k));
+			if (k instanceof String) inputL.add(i, Ingredient.m_204132_(ItemTags.create(new ResourceLocation((String) k))));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, CachedIngredient.create((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, CachedIngredient.create(makeStack(k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);
@@ -109,9 +110,8 @@ public class RecipeHelper {
 			Map<ResourceLocation, Recipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
 			Recipe<?> old = map.get(r.getId());
 			if (old == null) {
-				r.getIngredients().stream().filter(i -> i instanceof TagIngredient).map(i -> (TagIngredient) i).forEach(TagIngredient::redefine);
 				map.put(r.getId(), r);
-			}
+			} else Placebo.LOGGER.debug("Skipping registration for code recipe {} as a json recipe already exists with that ID.", r.getId());
 		});
 		Placebo.LOGGER.info("Registered {} additional recipes.", recipes.size());
 	}
