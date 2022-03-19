@@ -1,0 +1,8 @@
+{
+	"key.categories.placebo": "Placebo",
+	"placebo.toggleTrails": "Basculer les sentiers de Patreon",
+	"placebo.toggleWings": "Basculer les ailes Patreon",
+	"placebo.cmd.serialize_success": "Sauvegarde de %s dans %s.",
+	"placebo.cmd.serialize_failure": "Une erreur s'est produite lors du processus de sérialisation.",
+	"placebo.cmd.not_found": "%s n'a pas été trouvé."
+}
