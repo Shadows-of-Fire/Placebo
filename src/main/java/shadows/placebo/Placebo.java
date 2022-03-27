@@ -4,8 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
@@ -22,6 +24,7 @@ import shadows.placebo.network.MessageHelper;
 import shadows.placebo.packets.ButtonClickMessage;
 import shadows.placebo.packets.PatreonDisableMessage;
 import shadows.placebo.packets.ReloadListenerPacket;
+import shadows.placebo.util.PlaceboUtil;
 
 @Mod(Placebo.MODID)
 public class Placebo {
@@ -53,6 +56,11 @@ public class Placebo {
 		MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
 		MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
 		MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
+	}
+
+	@SubscribeEvent
+	public void registerElse(Register<Item> e) {
+		PlaceboUtil.registerTypes();
 	}
 
 	public void registerCommands(RegisterCommandsEvent e) {

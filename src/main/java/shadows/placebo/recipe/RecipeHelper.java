@@ -71,7 +71,7 @@ public class RecipeHelper {
 		NonNullList<Ingredient> inputL = NonNullList.create();
 		for (int i = 0; i < input.length; i++) {
 			Object k = input[i];
-			if (k instanceof String) inputL.add(i, Ingredient.m_204132_(ItemTags.create(new ResourceLocation((String) k))));
+			if (k instanceof String) inputL.add(i, Ingredient.of(ItemTags.create(new ResourceLocation((String) k))));
 			else if (k instanceof ItemStack && !((ItemStack) k).isEmpty()) inputL.add(i, CachedIngredient.create((ItemStack) k));
 			else if (k instanceof IForgeRegistryEntry) inputL.add(i, CachedIngredient.create(makeStack(k)));
 			else if (k instanceof Ingredient) inputL.add(i, (Ingredient) k);

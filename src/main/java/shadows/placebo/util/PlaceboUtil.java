@@ -1,21 +1,28 @@
 package shadows.placebo.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
+import shadows.placebo.Placebo;
 import shadows.placebo.recipe.RecipeHelper;
 
 /**
@@ -115,6 +122,28 @@ public class PlaceboUtil {
 		ListTag tag = display.getList("Lore", 8);
 		tag.add(StringTag.valueOf(Component.Serializer.toJson(lore)));
 		display.put("Lore", tag);
+	}
+
+	static boolean late = false;
+	static Map<ResourceLocation, RecipeType<?>> unregisteredTypes = new HashMap<>();
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Recipe<?>> RecipeType<T> makeRecipeType(final String pIdentifier) {
+		if (late) throw new RuntimeException("Attempted to register a recipe type after the registration period closed.");
+		RecipeType<T> type = new RecipeType<T>() {
+			public String toString() {
+				return pIdentifier;
+			}
+		};
+		unregisteredTypes.put(new ResourceLocation(pIdentifier), type);
+		return type;
+	}
+
+	public static void registerTypes() {
+		unregisteredTypes.forEach((key, type) -> Registry.register(Registry.RECIPE_TYPE, key, type));
+		Placebo.LOGGER.debug("Registered {} recipe types.", unregisteredTypes.size());
+		unregisteredTypes.clear();
+		late = true;
 	}
 
 }
