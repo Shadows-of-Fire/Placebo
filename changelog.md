@@ -1,3 +1,6 @@
+## 6.2.1
+* Fixed RecipeHelper not being invoked.
+
 ## 6.2.0
 * Updated to 1.18.2 - This was a breaking change due to tag updates within MC.
 * Fixed Rainbow Color.

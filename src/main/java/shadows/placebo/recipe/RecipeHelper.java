@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.Item;
@@ -26,7 +26,6 @@ import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.VanillaIngredientSerializer;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import shadows.placebo.Placebo;
 import shadows.placebo.util.RunnableReloader;
@@ -148,17 +147,11 @@ public class RecipeHelper {
 
 	}
 
-	/**
-	 * ASM Hook: Called from {@link #DataPackRegistries()}<br>
-	 * Called right before {@link ForgeEventFactory#onResourceReload()}
-	 * @param mgr The Recipe Manager, accessed from the DPR's constructor.
-	 * @param rel The resource reload manager from the same location.
-	 */
-	public static void reload(RecipeManager mgr, ReloadableResourceManager rel) {
-		rel.registerReloadListener(RunnableReloader.of(() -> {
+	public static PreparableReloadListener getReloader(RecipeManager mgr) {
+		return RunnableReloader.of(() -> {
 			mutableManager(mgr);
 			addRecipes(mgr);
-		}));
+		});
 	}
 
 }
