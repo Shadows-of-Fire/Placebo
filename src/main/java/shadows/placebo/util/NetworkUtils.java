@@ -37,6 +37,13 @@ public class NetworkUtils {
 	}
 
 	/**
+	 * Helper message to send a packet to all players watching a chunk.
+	 */
+	public static void sendToAll(SimpleChannel channel, Object packet) {
+		channel.send(PacketDistributor.ALL.noArg(), packet);
+	}
+
+	/**
 	 * Registers a message directly using the base FML systems.  Requires providing each method individually.
 	 * @param channel Channel to register for.
 	 * @param id Message id.

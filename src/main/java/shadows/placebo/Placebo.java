@@ -20,6 +20,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 import shadows.placebo.commands.PlaceboCommand;
 import shadows.placebo.net.MessageButtonClick;
 import shadows.placebo.net.MessagePatreonDisable;
+import shadows.placebo.net.ReloadListenerPacket;
 import shadows.placebo.recipe.TagIngredient;
 import shadows.placebo.util.NetworkUtils;
 
@@ -50,6 +51,9 @@ public class Placebo {
 		CraftingHelper.register(new ResourceLocation(Placebo.MODID, "tag"), TagIngredient.SERIALIZER);
 		NetworkUtils.registerMessage(CHANNEL, 0, new MessageButtonClick());
 		NetworkUtils.registerMessage(CHANNEL, 1, new MessagePatreonDisable(0));
+		NetworkUtils.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
+		NetworkUtils.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
+		NetworkUtils.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
 	}
 
 	public void registerCommands(RegisterCommandsEvent e) {

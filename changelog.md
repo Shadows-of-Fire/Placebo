@@ -1,3 +1,7 @@
+## 4.7.0
+* Backport of the PlaceboJsonReloadListener system from 1.18.2
+  * This is required for the Apotheosis backport process.
+
 ## 4.6.1
 * Placebo loot tables will now properly have their ID set.
 * Added a /placebo command
