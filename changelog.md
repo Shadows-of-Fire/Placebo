@@ -1,3 +1,6 @@
+## 6.3.0
+* Fixed PlaceboJsonReloadListeners not checking IConditions.
+
 ## 6.2.1
 * Fixed RecipeHelper not being invoked.
 

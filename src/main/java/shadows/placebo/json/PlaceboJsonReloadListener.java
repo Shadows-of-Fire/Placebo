@@ -67,7 +67,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		this.beginReload();
 		objects.forEach((key, ele) -> {
 			try {
-				if (checkAndLogEmpty(ele, key, this.path, this.logger)) {
+				if (checkAndLogEmpty(ele, key, this.path, this.logger) && checkConditions(ele, key, this.path, this.logger)) {
 					JsonObject obj = ele.getAsJsonObject();
 					SerializerBuilder<V>.Serializer serializer;
 					if (this.subtypes && obj.has("type")) {
