@@ -1,3 +1,13 @@
+## 6.4.0
+* Minimum Forge Version bumped to 40.1.14.
+  * Needed to access IContext from AddReloadListenerEvent
+* Fixed PlaceboJsonReloadListener(s) failing to sync on the first login to a server.
+  * This change is breaking, and mods using PJRL from 6.3.0 will not work with this build.
+  * All impacted mods will have corresponding updates.
+* Added new functionality to Configuration to support top-level comments, as well as a title.
+  * A document detailing the file specification will also be linked to.
+* Made QuickMoveHandler call setChanged on the clicked slot for shift-clicks.
+
 ## 6.3.0
 * Fixed PlaceboJsonReloadListeners not checking IConditions.
 

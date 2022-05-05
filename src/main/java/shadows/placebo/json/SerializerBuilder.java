@@ -42,6 +42,14 @@ public class SerializerBuilder<V> {
 		return this;
 	}
 
+	public SerializerBuilder<V> json(JsonDeserializer<V> jds, JsonSerializer<V> js) {
+		return this.withJsonDeserializer(jds).withJsonSerializer(js);
+	}
+
+	public SerializerBuilder<V> net(NetDeserializer<V> jds, NetSerializer<V> js) {
+		return this.withNetworkDeserializer(jds).withNetworkSerializer(js);
+	}
+
 	public Serializer build(boolean synced) {
 		Preconditions.checkNotNull(this.jds, "Attempted to build a Serializer for " + this.name + " but no json deserializer was provided.");
 		if (synced) {

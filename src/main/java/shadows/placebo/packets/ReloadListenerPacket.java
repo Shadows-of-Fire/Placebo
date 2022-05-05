@@ -68,7 +68,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> im
 
 		@Override
 		public void handle(Content<V> msg, Supplier<Context> ctx) {
-			MessageHelper.handlePacket(() -> () -> PlaceboJsonReloadListener.acceptItem(msg.path, msg.key, msg.item), ctx);
+			MessageHelper.handlePacket(() -> () -> PlaceboJsonReloadListener.acceptItem(msg.path, msg.item), ctx);
 		}
 	}
 

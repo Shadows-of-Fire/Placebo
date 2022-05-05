@@ -52,6 +52,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Floats;
 
@@ -70,30 +71,21 @@ public class Configuration {
 	public static final String ALLOWED_CHARS = "._-";
 	public static final String DEFAULT_ENCODING = "UTF-8";
 	public static final String CATEGORY_SPLITTER = ".";
-	public static final String NEW_LINE;
-	public static final String COMMENT_SEPARATOR = "##########################################################################################################";
-	private static final String CONFIG_VERSION_MARKER = "~CONFIG_VERSION";
 	private static final Pattern CONFIG_START = Pattern.compile("START: \"([^\\\"]+)\"");
 	private static final Pattern CONFIG_END = Pattern.compile("END: \"([^\\\"]+)\"");
 	public static final CharMatcher allowedProperties = CharMatcher.forPredicate(Character::isLetterOrDigit).or(CharMatcher.anyOf(ALLOWED_CHARS));
-	private static Configuration PARENT = null;
 
 	File file;
 
 	private Map<String, ConfigCategory> categories = new TreeMap<String, ConfigCategory>();
-	private Map<String, Configuration> children = new TreeMap<String, Configuration>();
 
 	private boolean caseSensitiveCustomCategories;
 	public String defaultEncoding = DEFAULT_ENCODING;
 	private String fileName = null;
 	public boolean isChild = false;
 	private boolean changed = false;
-	private String definedConfigVersion = null;
-	private String loadedConfigVersion = null;
-
-	static {
-		NEW_LINE = System.getProperty("line.separator");
-	}
+	private String title = "";
+	private String mainComment = null;
 
 	public Configuration(File file) {
 		this.file = file;
@@ -112,17 +104,22 @@ public class Configuration {
 		this(new File(FMLPaths.CONFIGDIR.get().toFile(), modid + ".cfg"));
 	}
 
+	public void setTitle(String title) {
+		this.title = Preconditions.checkNotNull(title);
+	}
+
+	/**
+	 * Sets a comment displayed at the top of the file.
+	 * Supports newlines via \n.
+	 * @param comment The comment to set.
+	 */
+	public void setComment(String comment) {
+		this.mainComment = comment;
+	}
+
 	@Override
 	public String toString() {
 		return this.file.getAbsolutePath();
-	}
-
-	public String getDefinedConfigVersion() {
-		return this.definedConfigVersion;
-	}
-
-	public String getLoadedConfigVersion() {
-		return this.loadedConfigVersion;
 	}
 
 	/******************************************************************************************************************
@@ -700,8 +697,6 @@ public class Configuration {
 	}
 
 	public void load() {
-		if (PARENT != null && PARENT != this) { return; }
-
 		BufferedReader buffer = null;
 		UnicodeInputStreamReader input = null;
 		try {
@@ -712,7 +707,6 @@ public class Configuration {
 			if (!this.file.exists()) {
 				// Either a previous load attempt failed or the file is new; clear maps
 				this.categories.clear();
-				this.children.clear();
 				if (!this.file.createNewFile()) return;
 			}
 
@@ -727,14 +721,12 @@ public class Configuration {
 				ArrayList<String> tmpList = null;
 				int lineNum = 0;
 				String name = null;
-				this.loadedConfigVersion = null;
 
 				while (true) {
 					lineNum++;
 					line = buffer.readLine();
 
 					if (line == null) {
-						if (lineNum == 1) this.loadedConfigVersion = this.definedConfigVersion;
 						break;
 					}
 
@@ -871,12 +863,6 @@ public class Configuration {
 								if (tmpList != null) // allow special characters as part of string lists
 									break;
 
-								if (line.startsWith(CONFIG_VERSION_MARKER)) {
-									int colon = line.indexOf(':');
-									if (colon != -1) this.loadedConfigVersion = line.substring(colon + 1).trim();
-
-									skip = true;
-								}
 								break;
 
 							default:
@@ -906,10 +892,6 @@ public class Configuration {
 	}
 
 	public void save() {
-		if (PARENT != null && PARENT != this) {
-			PARENT.save();
-			return;
-		}
 
 		try {
 			if (this.file.getParentFile() != null) {
@@ -922,25 +904,32 @@ public class Configuration {
 				FileOutputStream fos = new FileOutputStream(this.file);
 				BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, this.defaultEncoding));
 
-				buffer.write("# Configuration file" + NEW_LINE + NEW_LINE);
+				buffer.write("# File Specification: https://gist.github.com/Shadows-of-Fire/88ac714a758636c57a52e32ace5474c1");
+				buffer.newLine();
+				buffer.newLine();
+				buffer.write(String.format("# %s", this.title != null ? this.title : "Configuration File"));
+				buffer.newLine();
+				buffer.newLine();
+				if (this.mainComment != null) writeComment(buffer, this.mainComment);
+				buffer.newLine();
+				buffer.newLine();
 
-				if (this.definedConfigVersion != null) buffer.write(CONFIG_VERSION_MARKER + ": " + this.definedConfigVersion + NEW_LINE + NEW_LINE);
-
-				if (this.children.isEmpty()) {
-					this.save(buffer);
-				} else {
-					for (Entry<String, Configuration> entry : this.children.entrySet()) {
-						buffer.write("START: \"" + entry.getKey() + "\"" + NEW_LINE);
-						entry.getValue().save(buffer);
-						buffer.write("END: \"" + entry.getKey() + "\"" + NEW_LINE + NEW_LINE);
-					}
-				}
+				this.save(buffer);
 
 				buffer.close();
 				fos.close();
 			}
 		} catch (IOException e) {
 			LOGGER.error("Error while saving config {}.", this.fileName, e);
+		}
+	}
+
+	public static void writeComment(BufferedWriter writer, String comment) throws IOException {
+		if (comment == null || comment.isEmpty()) return;
+		String[] split = comment.split("\\n");
+		for (int i = 0; i < split.length; i++) {
+			writer.write("# " + split[i]);
+			writer.newLine();
 		}
 	}
 
@@ -1017,10 +1006,6 @@ public class Configuration {
 		return this;
 	}
 
-	public void addCustomCategoryComment(String category, String comment) {
-		this.setCategoryComment(category, comment);
-	}
-
 	/**
 	 * Adds a language key to the specified ConfigCategory object
 	 *
@@ -1078,11 +1063,6 @@ public class Configuration {
 	public Configuration setCategoryPropertyOrder(String category, List<String> propOrder) {
 		this.getCategory(category).setPropertyOrder(propOrder);
 		return this;
-	}
-
-	public static void enableGlobalConfig() {
-		PARENT = new Configuration(new File(FMLPaths.FMLCONFIG.get().toFile(), "global.cfg"));
-		PARENT.load();
 	}
 
 	public static class UnicodeInputStreamReader extends Reader {
@@ -1147,10 +1127,6 @@ public class Configuration {
 			if (cat.hasChanged()) return true;
 		}
 
-		for (Configuration child : this.children.values()) {
-			if (child.hasChanged()) return true;
-		}
-
 		return false;
 	}
 
@@ -1158,10 +1134,6 @@ public class Configuration {
 		this.changed = false;
 		for (ConfigCategory cat : this.categories.values()) {
 			cat.resetChangedState();
-		}
-
-		for (Configuration child : this.children.values()) {
-			child.resetChangedState();
 		}
 	}
 

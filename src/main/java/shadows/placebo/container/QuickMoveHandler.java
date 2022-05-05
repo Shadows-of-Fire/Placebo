@@ -25,7 +25,10 @@ public class QuickMoveHandler {
 			slotStackCopy = slotStack.copy();
 			for (QuickMoveRule rule : this.rules) {
 				if (rule.req.test(slotStack, index)) {
-					if (!container.moveMenuItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) return ItemStack.EMPTY;
+					if (!container.moveMenuItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) {
+						slot.setChanged();
+						return ItemStack.EMPTY;
+					}
 				}
 			}
 			if (slotStack.isEmpty()) {
