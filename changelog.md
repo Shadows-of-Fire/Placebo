@@ -1,3 +1,6 @@
+## 6.4.1
+* Fixed recipe types not being registered.
+
 ## 6.4.0
 * Minimum Forge Version bumped to 40.1.14.
   * Needed to access IContext from AddReloadListenerEvent
