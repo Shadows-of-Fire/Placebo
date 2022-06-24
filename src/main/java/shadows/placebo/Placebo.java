@@ -42,7 +42,7 @@ public class Placebo {
 
 	public Placebo() {
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		bus.addListener(this::setup);
+		bus.register(this);
 		String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
 		ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> version, (remoteVer, isNetwork) -> remoteVer == null || version.equals(remoteVer)));
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
