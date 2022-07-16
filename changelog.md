@@ -1,3 +1,7 @@
+## 6.4.2
+* Made changes to how energy syncs in Placebo Menus.
+  * This should fix energy values going negative, I hope...
+
 ## 6.4.1
 * Fixed recipe types not being registered.
 

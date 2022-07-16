@@ -38,7 +38,7 @@ public class ContainerUtil {
 		if (upper) {
 			return current & 0x0000FFFF | value << 16;
 		} else {
-			return current & 0xFFFF0000 | value;
+			return current & 0xFFFF0000 | value & 0x0000FFFF;
 		}
 	}
 

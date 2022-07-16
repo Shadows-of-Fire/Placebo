@@ -8,7 +8,6 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.world.inventory.DataSlot;
 import shadows.placebo.cap.ModifiableEnergyStorage;
 
@@ -70,20 +69,11 @@ public class EasyContainerData {
 
 	}
 
-	public class EnergyDataSlot extends LambdaDataSlot implements Int2IntFunction {
-
-		private final boolean upper;
+	public class EnergyDataSlot extends LambdaDataSlot {
 
 		public EnergyDataSlot(ModifiableEnergyStorage energy, boolean upper) {
-			super(() -> energy.getEnergyStored(), v -> ContainerUtil.deserializeEnergy(energy, v, upper));
-			this.upper = upper;
+			super(() -> ContainerUtil.split(energy.getEnergyStored(), upper), v -> ContainerUtil.deserializeEnergy(energy, v, upper));
 		}
-
-		@Override
-		public int get(int key) {
-			return ContainerUtil.split(key, this.upper);
-		}
-
 	}
 
 	public interface IDataAutoRegister {
