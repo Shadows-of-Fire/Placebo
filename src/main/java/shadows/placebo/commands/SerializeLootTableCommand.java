@@ -25,7 +25,7 @@ public class SerializeLootTableCommand {
 	public static final DynamicCommandExceptionType NOT_FOUND = new DynamicCommandExceptionType(arg -> new TranslatableComponent("placebo.cmd.not_found", arg));
 
 	public static void register(LiteralArgumentBuilder<CommandSourceStack> builder) {
-		builder.then(Commands.literal("serialize_loot_table").then(Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(LootCommand.SUGGEST_LOOT_TABLE).executes(ctx -> {
+		builder.then(Commands.literal("serialize_loot_table").requires(s -> s.hasPermission(2)).then(Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(LootCommand.SUGGEST_LOOT_TABLE).executes(ctx -> {
 			ResourceLocation id = ResourceLocationArgument.getId(ctx, "loot_table");
 			LootTable table = ctx.getSource().getServer().getLootTables().get(id);
 			if (table == LootTable.EMPTY) throw NOT_FOUND.create(id);
