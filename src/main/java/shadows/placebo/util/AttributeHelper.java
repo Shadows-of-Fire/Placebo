@@ -1,10 +1,15 @@
 package shadows.placebo.util;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
 import shadows.placebo.Placebo;
 
 /**
@@ -61,32 +66,24 @@ public class AttributeHelper {
 	}
 
 	/**
-	 * Forces the base value to equal the given value, overriding previous modifiers.
+	 * Converts an Attribute Modifier to the standard form tooltip component.
 	 */
-	@Deprecated
-	public static void setBaseValue(LivingEntity entity, Attribute attribute, String name, double value) {
-		AttributeInstance inst = entity.getAttribute(attribute);
-		inst.getModifiers(Operation.ADDITION).clear();
-		modify(entity, attribute, name, value - inst.getBaseValue(), Operation.ADDITION);
-	}
+	public static Component toComponent(Attribute attr, AttributeModifier modif) {
+		double amt = modif.getAmount();
 
-	/**
-	 * Forces the base value to be (at minimum) the given value, overriding previous modifiers.
-	 */
-	@Deprecated
-	public static void min(LivingEntity entity, Attribute attribute, String name, double value) {
-		if (value < entity.getAttribute(attribute).getBaseValue()) {
-			setBaseValue(entity, attribute, name, value);
+		if (modif.getOperation() == Operation.ADDITION) {
+			if (attr == Attributes.KNOCKBACK_RESISTANCE) amt *= 10.0D;
+		} else {
+			amt *= 100.0D;
 		}
-	}
 
-	/**
-	 * Forces the base value to be (at maximum) the given value, overriding previous modifiers.
-	 */
-	@Deprecated
-	public static void max(LivingEntity entity, Attribute attribute, String name, double value) {
-		if (value > entity.getAttribute(attribute).getBaseValue()) {
-			setBaseValue(entity, attribute, name, value);
+		int code = modif.getOperation().ordinal();
+
+		if (amt > 0.0D) {
+			return new TranslatableComponent("attribute.modifier.plus." + code, ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(amt), new TranslatableComponent(attr.getDescriptionId())).withStyle(ChatFormatting.BLUE);
+		} else {
+			amt *= -1.0D;
+			return new TranslatableComponent("attribute.modifier.take." + code, ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(amt), new TranslatableComponent(attr.getDescriptionId())).withStyle(ChatFormatting.RED);
 		}
 	}
 }

@@ -2,6 +2,9 @@
 * Rewrite to RecipeHelper to allow recipes to be regenerated on reload, rather than built once.
   * This means that configs that adjust recipes can work without restarting the game.
   * However, due to timing, it is likely they will need a double-reload to trigger.
+* Added various utilities needed by Gateways to Eternity 2.0.0.
+* Fixed a bug where Placebo-JSON reload listeners were syncing data back to the host on SSP/LAN
+  * This caused data to be lost when only part of the object is sent to the client for any reason.
 
 ## 6.4.2
 * Made changes to how energy syncs in Placebo Menus.

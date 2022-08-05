@@ -1,6 +1,7 @@
 package shadows.placebo.json;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -49,6 +51,15 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 		if (stack.hasTag()) obj.add("nbt", ctx.serialize(stack.getTag()));
 		if (written.contains("ForgeCaps")) obj.add("cap_nbt", ctx.serialize(written.getCompound("ForgeCaps")));
 		return obj;
+	}
+
+	public static ItemStack readStack(JsonElement obj) {
+		return ITEM_READER.fromJson(obj, ItemStack.class);
+	}
+
+	public static List<ItemStack> readStacks(JsonElement obj) {
+		return ITEM_READER.fromJson(obj, new TypeToken<List<ItemStack>>() {
+		}.getType());
 	}
 
 }

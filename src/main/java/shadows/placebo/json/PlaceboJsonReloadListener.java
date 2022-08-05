@@ -30,6 +30,7 @@ import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.ICondition.IContext;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import shadows.placebo.Placebo;
 import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
 import shadows.placebo.network.PacketDistro;
@@ -376,6 +377,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void endSync(String path) {
+		if (ServerLifecycleHooks.getCurrentServer() != null) return; // Do not propgate received changed on the host of a singleplayer world, as they may not be the full data.
 		SYNC_REGISTRY.computeIfPresent(path, (k, v) -> {
 			v.beginReload();
 			v.staged.forEach(((PlaceboJsonReloadListener) v)::register);
