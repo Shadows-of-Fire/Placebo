@@ -19,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraftforge.registries.ForgeRegistries;
+import shadows.placebo.Placebo;
 import shadows.placebo.util.RandomRange;
 
 public class RandomAttributeModifier {
@@ -47,7 +48,10 @@ public class RandomAttributeModifier {
 		if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
 		AttributeModifier modif = genModifier(rand);
 		AttributeInstance inst = entity.getAttribute(this.attribute);
-		if (inst == null) throw new RuntimeException(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", entity.getType().getRegistryName(), this.attribute.getRegistryName()));
+		if (inst == null) {
+			Placebo.LOGGER.trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", entity.getType().getRegistryName(), this.attribute.getRegistryName()));
+			return;
+		}
 		inst.addPermanentModifier(modif);
 	}
 

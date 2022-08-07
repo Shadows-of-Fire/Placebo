@@ -1,3 +1,7 @@
+## 6.5.1
+* Made RandomAttributeModifier not crash on fail due to how it is used in Gateways.
+  * Fixes GatewaysToEternity#3
+
 ## 6.5.0
 * Rewrite to RecipeHelper to allow recipes to be regenerated on reload, rather than built once.
   * This means that configs that adjust recipes can work without restarting the game.
