@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import shadows.placebo.statemap.ModelMapRegistry;
 
 @Mixin(ModelBakery.class)
+@Deprecated
 public class ModelBakeryMixin {
 
 	@Redirect(method = "processLoading", at = @At(value = "NEW", target = "net/minecraft/client/resources/model/ModelResourceLocation", ordinal = 0), remap = false)

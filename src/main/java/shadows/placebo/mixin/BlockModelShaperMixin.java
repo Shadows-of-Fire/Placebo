@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import shadows.placebo.statemap.ModelMapRegistry;
 
 @Mixin(BlockModelShaper.class)
+@Deprecated
 public class BlockModelShaperMixin {
 
 	@Inject(method = "stateToModelLocation(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/resources/model/ModelResourceLocation;", at = @At(value = "RETURN"), cancellable = true)

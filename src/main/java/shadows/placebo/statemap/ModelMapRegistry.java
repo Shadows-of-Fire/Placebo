@@ -16,7 +16,9 @@ import shadows.placebo.mixin.ModelBakeryMixin;
 /**
  * Essentially a hacked in statemapper based on the old system from 1.12.
  * This allows things to provide their own MRL's instead of having them be auto-generated, which is not always useful.
+ * Only used in Attained Drops, which is no longer supported.
  */
+@Deprecated(forRemoval = true)
 public class ModelMapRegistry {
 
 	private static boolean enabled = false;
