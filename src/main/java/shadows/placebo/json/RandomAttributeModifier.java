@@ -10,6 +10,8 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -59,6 +61,10 @@ public class RandomAttributeModifier {
 		return new AttributeModifier(this.id, "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.getDouble(rand), this.op);
 	}
 
+	public AttributeModifier genModifier(String name, Random rand) {
+		return new AttributeModifier(name, this.value.getDouble(rand), this.op);
+	}
+
 	public Attribute getAttribute() {
 		return this.attribute;
 	}
@@ -71,7 +77,7 @@ public class RandomAttributeModifier {
 		return this.value;
 	}
 
-	public static class Deserializer implements JsonDeserializer<RandomAttributeModifier> {
+	public static class Deserializer implements JsonDeserializer<RandomAttributeModifier>, JsonSerializer<RandomAttributeModifier> {
 
 		@Override
 		public RandomAttributeModifier deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) throws JsonParseException {
@@ -89,6 +95,23 @@ public class RandomAttributeModifier {
 			Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(_attribute));
 			if (attribute == null || value == null || op == null) throw new JsonParseException("Attempted to deserialize invalid RandomAttributeModifier: " + json.toString());
 			return new RandomAttributeModifier(attribute, op, value);
+		}
+
+		@Override
+		public JsonElement serialize(RandomAttributeModifier src, Type typeOfSrc, JsonSerializationContext context) {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("attribute", src.attribute.getRegistryName().toString());
+			obj.addProperty("operation", src.op.name());
+			RandomRange range = src.value;
+			if (range.min() == range.max()) {
+				obj.addProperty("value", range.min());
+			} else {
+				JsonObject value = new JsonObject();
+				value.addProperty("min", range.min());
+				value.addProperty("max", range.max());
+				obj.add("value", value);
+			}
+			return obj;
 		}
 	}
 }

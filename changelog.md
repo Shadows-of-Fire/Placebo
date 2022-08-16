@@ -1,3 +1,7 @@
+## 6.5.2
+* Re-added the ItemUseEvent needed by Apotheosis.
+  * Forge declined to add this event, so here it will stay.
+
 ## 6.5.1
 * Made RandomAttributeModifier not crash on fail due to how it is used in Gateways.
   * Fixes GatewaysToEternity#3
