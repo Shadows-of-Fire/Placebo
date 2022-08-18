@@ -1,3 +1,6 @@
+## 6.5.3
+* Added WeightedJsonReloadListener to better handle weighted entries.
+
 ## 6.5.2
 * Re-added the ItemUseEvent needed by Apotheosis.
   * Forge declined to add this event, so here it will stay.
