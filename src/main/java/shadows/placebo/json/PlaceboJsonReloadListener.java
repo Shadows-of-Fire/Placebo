@@ -95,7 +95,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 					} else {
 						serializer = this.serializers.get(DEFAULT);
 					}
-					V deserialized = serializer.deserialize(obj);
+					V deserialized = serializer.read(obj);
 					deserialized.setId(key);
 					deserialized.setSerializer(serializer);
 					Preconditions.checkNotNull(deserialized.getId(), "A " + this.path + " with id " + key + " failed to set ID.");
@@ -332,7 +332,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		SYNC_REGISTRY.computeIfPresent(path, (k, v) -> {
 			ResourceLocation serId = v.serializers.inverse().get(value.getSerializer());
 			buf.writeResourceLocation(serId);
-			value.getSerializer().serialize(value, buf);
+			value.getSerializer().write(value, buf);
 			return v;
 		});
 	}
@@ -350,7 +350,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		var listener = SYNC_REGISTRY.get(path);
 		if (listener == null) throw new RuntimeException("Received sync packet for unknown registry!");
 		var serializer = listener.serializers.get(buf.readResourceLocation());
-		V v = (V) serializer.deserialize(buf);
+		V v = (V) serializer.read(buf);
 		v.setId(key);
 		v.setSerializer((SerializerBuilder<V>.Serializer) serializer);
 		return v;

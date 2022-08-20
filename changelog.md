@@ -1,3 +1,7 @@
+## 6.6.0
+* Added a sketchy reflection-based auto-registration method for SerializerBuilder.
+  * It coerces read(FriendlyByteBuf), read(JsonObject), write(FriendlyByteBuf) and JsonObject write() from the source class as a serializer.
+
 ## 6.5.3
 * Added WeightedJsonReloadListener to better handle weighted entries.
 

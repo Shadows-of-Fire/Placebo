@@ -1,5 +1,11 @@
 package shadows.placebo.json;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.function.BiFunction;
+
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -50,6 +56,54 @@ public class SerializerBuilder<V> {
 		return this.withNetworkDeserializer(jds).withNetworkSerializer(js);
 	}
 
+	@SuppressWarnings("unchecked")
+	private BiFunction<Object, Object, V> coerce(Method m) {
+		MethodHandle k;
+		try {
+			k = MethodHandles.lookup().unreflect(m);
+		} catch (IllegalAccessException e1) {
+			throw new RuntimeException(e1);
+		}
+		return (p1, p2) -> {
+			try {
+				return (V) (p1 == null ? k.invoke(p2) : k.invoke(p1, p2));
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		};
+	}
+
+	public SerializerBuilder<V> autoRegister(Class<? extends V> clazz) {
+		Method[] methods = clazz.getDeclaredMethods();
+		for (Method m : methods) {
+			if (Modifier.isStatic(m.getModifiers())) {
+				if (m.getName().equals("read")) {
+					Class<?>[] p = m.getParameterTypes();
+					if (p.length == 1) {
+						if (p[0] == FriendlyByteBuf.class) {
+							this.withNetworkDeserializer(buf -> coerce(m).apply(null, buf));
+						} else if (p[0] == JsonObject.class) {
+							this.withJsonDeserializer(obj -> coerce(m).apply(null, obj));
+						}
+					}
+				}
+			} else {
+				if (m.getName().equals("write")) {
+					Class<?>[] p = m.getParameterTypes();
+					if (p.length == 1) {
+						if (p[0] == FriendlyByteBuf.class) {
+							this.withNetworkSerializer((inst, buf) -> coerce(m).apply(inst, buf));
+						}
+					} else if (p.length == 0 && m.getReturnType() == JsonObject.class) {
+						this.withJsonDeserializer((inst) -> coerce(m).apply(null, inst));
+					}
+				}
+			}
+		}
+
+		return this;
+	}
+
 	public Serializer build(boolean synced) {
 		Preconditions.checkNotNull(this.jds, "Attempted to build a Serializer for " + this.name + " but no json deserializer was provided.");
 		if (synced) {
@@ -76,45 +130,45 @@ public class SerializerBuilder<V> {
 		}
 
 		@Override
-		public JsonObject serialize(V src) {
+		public JsonObject write(V src) {
 			if (this.js == null) throw new UnsupportedOperationException("Attempted to serialize a " + this.name + " to json, but this serializer does not support that operation.");
-			return this.js.serialize(src);
+			return this.js.write(src);
 		}
 
 		@Override
-		public void serialize(V src, FriendlyByteBuf buf) {
+		public void write(V src, FriendlyByteBuf buf) {
 			if (this.ns == null) throw new UnsupportedOperationException("Attempted to serialize a " + this.name + " to the network, but this serializer does not support that operation.");
-			this.ns.serialize(src, buf);
+			this.ns.write(src, buf);
 		}
 
 		@Override
-		public V deserialize(JsonObject json) throws JsonParseException {
+		public V read(JsonObject json) throws JsonParseException {
 			if (this.jds == null) throw new UnsupportedOperationException("Attempted to deserialize a " + this.name + " from json, but this serializer does not support that operation.");
-			return this.jds.deserialize(json);
+			return this.jds.read(json);
 		}
 
 		@Override
-		public V deserialize(FriendlyByteBuf buf) {
+		public V read(FriendlyByteBuf buf) {
 			if (this.nds == null) throw new UnsupportedOperationException("Attempted to deserialize a " + this.name + " from the network, but this serializer does not support that operation.");
-			return this.nds.deserialize(buf);
+			return this.nds.read(buf);
 		}
 
 	}
 
 	public static interface JsonSerializer<V> {
-		public JsonObject serialize(V src);
+		public JsonObject write(V src);
 	}
 
 	public static interface JsonDeserializer<V> {
-		public V deserialize(JsonObject json);
+		public V read(JsonObject json);
 	}
 
 	public static interface NetSerializer<V> {
-		public void serialize(V src, FriendlyByteBuf buf);
+		public void write(V src, FriendlyByteBuf buf);
 	}
 
 	public static interface NetDeserializer<V> {
-		public V deserialize(FriendlyByteBuf buf);
+		public V read(FriendlyByteBuf buf);
 	}
 
 }
