@@ -1,3 +1,6 @@
+## 6.6.1
+* Fixed deserialized StackLootEntries not passing in conditions or functions.
+
 ## 6.6.0
 * Added a sketchy reflection-based auto-registration method for SerializerBuilder.
   * It coerces read(FriendlyByteBuf), read(JsonObject), write(FriendlyByteBuf) and JsonObject write() from the source class as a serializer.

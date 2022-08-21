@@ -70,7 +70,7 @@ public class StackLootEntry extends LootPoolSingletonContainer {
 			int min = GsonHelper.getAsInt(jsonObject, "min", 1);
 			int max = GsonHelper.getAsInt(jsonObject, "max", 1);
 			ItemStack stack = ItemAdapter.ITEM_READER.fromJson(jsonObject.get("stack"), ItemStack.class);
-			return new StackLootEntry(stack, min, max, weight, quality);
+			return new StackLootEntry(stack, min, max, weight, quality, lootConditions, lootFunctions);
 		}
 
 		@Override
