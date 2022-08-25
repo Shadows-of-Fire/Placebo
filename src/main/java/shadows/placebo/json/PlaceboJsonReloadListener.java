@@ -167,11 +167,16 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		}
 	}
 
+	protected <T extends V> void validateItem(T item) {
+		Preconditions.checkNotNull(item);
+	}
+
 	/**
 	 * Registers a single item of this type to the registry during reload.
 	 * You can override this method to process things a bit differently.
 	 */
 	protected <T extends V> void register(ResourceLocation key, T item) {
+		validateItem(item);
 		this.registry.put(key, item);
 	}
 

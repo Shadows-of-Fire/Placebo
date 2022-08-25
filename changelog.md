@@ -1,3 +1,7 @@
+## 6.6.2
+* Added DimWeightedJsonReloadListener for dimension-restricted weighted items.
+* Pulled in StepFunction from Apotheosis.
+
 ## 6.6.1
 * Fixed deserialized StackLootEntries not passing in conditions or functions.
 

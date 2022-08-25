@@ -22,13 +22,13 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
-import shadows.placebo.util.RandomRange;
+import shadows.placebo.util.StepFunction;
 
 public class RandomAttributeModifier {
 
 	protected final Attribute attribute;
 	protected final Operation op;
-	protected final RandomRange value;
+	protected final StepFunction value;
 	protected final UUID id;
 
 	/**
@@ -37,7 +37,7 @@ public class RandomAttributeModifier {
 	 * @param effect The effect.
 	 * @param amp A random range of possible amplifiers.
 	 */
-	public RandomAttributeModifier(Attribute attribute, Operation op, RandomRange value) {
+	public RandomAttributeModifier(Attribute attribute, Operation op, StepFunction value) {
 		this.attribute = attribute;
 		this.op = op;
 		this.value = value;
@@ -58,11 +58,11 @@ public class RandomAttributeModifier {
 	}
 
 	public AttributeModifier genModifier(Random rand) {
-		return new AttributeModifier(this.id, "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.getDouble(rand), this.op);
+		return new AttributeModifier(this.id, "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.get(rand.nextFloat()), this.op);
 	}
 
 	public AttributeModifier genModifier(String name, Random rand) {
-		return new AttributeModifier(name, this.value.getDouble(rand), this.op);
+		return new AttributeModifier(name, this.value.get(rand.nextFloat()), this.op);
 	}
 
 	public Attribute getAttribute() {
@@ -73,7 +73,7 @@ public class RandomAttributeModifier {
 		return this.op;
 	}
 
-	public RandomRange getValue() {
+	public StepFunction getValue() {
 		return this.value;
 	}
 
@@ -84,13 +84,13 @@ public class RandomAttributeModifier {
 			JsonObject obj = json.getAsJsonObject();
 			String _attribute = obj.get("attribute").getAsString();
 			Operation op = ctx.deserialize(obj.get("operation"), Operation.class);
-			RandomRange value;
+			StepFunction value;
 			if (obj.get("value").isJsonObject()) {
 				JsonObject valueObj = GsonHelper.getAsJsonObject(obj, "value");
-				value = new RandomRange(GsonHelper.getAsDouble(valueObj, "min"), GsonHelper.getAsDouble(valueObj, "max"));
+				value = ctx.deserialize(valueObj, StepFunction.class);
 			} else {
-				double v = GsonHelper.getAsDouble(obj, "value");
-				value = new RandomRange(v, v);
+				float v = GsonHelper.getAsFloat(obj, "value");
+				value = new StepFunction(v, 1, 0);
 			}
 			Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(_attribute));
 			if (attribute == null || value == null || op == null) throw new JsonParseException("Attempted to deserialize invalid RandomAttributeModifier: " + json.toString());
@@ -102,14 +102,11 @@ public class RandomAttributeModifier {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("attribute", src.attribute.getRegistryName().toString());
 			obj.addProperty("operation", src.op.name());
-			RandomRange range = src.value;
+			StepFunction range = src.value;
 			if (range.min() == range.max()) {
 				obj.addProperty("value", range.min());
 			} else {
-				JsonObject value = new JsonObject();
-				value.addProperty("min", range.min());
-				value.addProperty("max", range.max());
-				obj.add("value", value);
+				obj.add("value", context.serialize(src.value));
 			}
 			return obj;
 		}
