@@ -1,3 +1,6 @@
+## 6.6.3
+* Fixed a crash when a dimensional reload listener has no items for that dimension.
+
 ## 6.6.2
 * Added DimWeightedJsonReloadListener for dimension-restricted weighted items.
 * Pulled in StepFunction from Apotheosis.

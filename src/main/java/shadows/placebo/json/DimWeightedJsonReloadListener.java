@@ -26,6 +26,7 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	/**
 	 * Gets a random item from this manager that is valid for the dimension, while ignoring luck.
 	 */
+	@Nullable
 	public V getRandomItem(Random rand, ServerLevelAccessor level) {
 		return getRandomItem(rand, level.getLevel().dimension().location());
 	}
@@ -33,6 +34,7 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	/**
 	 * Gets a random item from this manager that is valid for the dimension, while ignoring luck.
 	 */
+	@Nullable
 	public V getRandomItem(Random rand, ResourceLocation dimId) {
 		return getRandomItem(rand, 0);
 	}
@@ -40,6 +42,7 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	/**
 	 * Gets a random item from this manager that is valid for the dimension, recomputing weights based on luck.
 	 */
+	@Nullable
 	public V getRandomItem(Random rand, float luck, ServerLevelAccessor level) {
 		return getRandomItem(rand, luck, level.getLevel().dimension().location());
 	}
@@ -47,10 +50,11 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	/**
 	 * Gets a random item from this manager that is valid for the dimension, recomputing weights based on luck.
 	 */
+	@Nullable
 	public V getRandomItem(Random rand, float luck, ResourceLocation dimId) {
 		List<Wrapper<V>> list = new ArrayList<>(zeroLuckList.size());
 		this.registry.values().stream().filter(IDimWeighted.matches(dimId)).map(l -> l.<V>wrap(luck)).forEach(list::add);
-		return WeightedRandom.getRandomItem(rand, list).get().getData();
+		return WeightedRandom.getRandomItem(rand, list).map(Wrapper::getData).orElse(null);
 	}
 
 	/**
