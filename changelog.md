@@ -1,3 +1,7 @@
+## 6.6.4
+* Added the AnvilLandEvent.
+* Added a very angry logging message if a TickingEntityBlock has the wrong entity type class.
+
 ## 6.6.3
 * Fixed a crash when a dimensional reload listener has no items for that dimension.
 
