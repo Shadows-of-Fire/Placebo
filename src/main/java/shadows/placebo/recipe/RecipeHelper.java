@@ -2,10 +2,8 @@ package shadows.placebo.recipe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.ApiStatus;
@@ -26,6 +24,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
 import shadows.placebo.util.RunnableReloader;
 
@@ -37,15 +36,9 @@ import shadows.placebo.util.RunnableReloader;
  */
 public final class RecipeHelper {
 
-	@Deprecated
-	private static final List<Recipe<?>> recipes = new ArrayList<>();
-
 	private static final Multimap<String, Consumer<RecipeFactory>> PROVIDERS = HashMultimap.create();
 
 	protected String modid;
-
-	@Deprecated
-	protected Set<String> names = new HashSet<>();
 
 	public RecipeHelper(String modid) {
 		this.modid = modid;
@@ -63,54 +56,6 @@ public final class RecipeHelper {
 				Thread.dumpStack();
 			}
 			PROVIDERS.put(modid, provider);
-		}
-	}
-
-	@Deprecated
-	public void addShapeless(Object output, Object... inputs) {
-		ItemStack out = makeStack(output);
-		addRecipe(new ShapelessRecipe(this.name(out), this.modid, out, this.createInput(false, inputs)));
-	}
-
-	@Deprecated
-	public void addShaped(Object output, int width, int height, Object... input) {
-		addRecipe(this.genShaped(makeStack(output), width, height, input));
-	}
-
-	@Deprecated
-	public ShapedRecipe genShaped(ItemStack output, int l, int w, Object... input) {
-		if (l * w != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + this.modid);
-		return new ShapedRecipe(this.name(output), this.modid, l, w, this.createInput(true, input), output);
-	}
-
-	@Deprecated
-	public NonNullList<Ingredient> createInput(boolean allowEmpty, Object... input) {
-		return createInput(this.modid, allowEmpty, input);
-	}
-
-	@Deprecated
-	public void addSimpleShapeless(Object output, Object input, int numInputs) {
-		this.addShapeless(output, NonNullList.withSize(numInputs, makeStack(input)).toArray(new Object[0]));
-	}
-
-	@Deprecated
-	private ResourceLocation name(ItemStack out) {
-		String name = out.getItem().getRegistryName().getPath();
-		while (this.names.contains(name)) {
-			name += "_";
-		}
-		this.names.add(name);
-		return new ResourceLocation(this.modid, name);
-	}
-
-	@Deprecated
-	public static void addRecipe(Recipe<?> rec) {
-		synchronized (recipes) {
-			if (rec == null || rec.getId() == null || rec.getSerializer() == null || rec.getSerializer().getRegistryName() == null) {
-				Placebo.LOGGER.error("Attempted to add an invalid recipe {}.", rec);
-				Thread.dumpStack();
-			}
-			recipes.add(rec);
 		}
 	}
 
@@ -173,15 +118,7 @@ public final class RecipeHelper {
 			provider.accept(factory);
 			factory.registerAll(mgr);
 		});
-		recipes.forEach(r -> {
-			Recipe<?> old = mgr.byName.get(r.getId());
-			if (old == null) {
-				Map<ResourceLocation, Recipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
-				map.put(r.getId(), r);
-				mgr.byName.put(r.getId(), r);
-			} else Placebo.LOGGER.debug("Skipping registration for code recipe {} as a json recipe already exists with that ID.", r.getId());
-		});
-		Placebo.LOGGER.info("Registered {} additional recipes.", recipes.size() + RecipeFactory.totalRecipes);
+		Placebo.LOGGER.info("Registered {} additional recipes.", RecipeFactory.totalRecipes);
 		RecipeFactory.resetCaches();
 	}
 
@@ -209,7 +146,7 @@ public final class RecipeHelper {
 		 * @param rec The recipe to add.
 		 */
 		public void addRecipe(Recipe<?> rec) {
-			if (rec == null || rec.getId() == null || rec.getSerializer() == null || rec.getSerializer().getRegistryName() == null) {
+			if (rec == null || rec.getId() == null || rec.getSerializer() == null || ForgeRegistries.RECIPE_SERIALIZERS.getKey(rec.getSerializer()) == null) {
 				Placebo.LOGGER.error("Attempted to add an invalid recipe {}.", rec);
 				Thread.dumpStack();
 			}
@@ -250,7 +187,7 @@ public final class RecipeHelper {
 		}
 
 		private ResourceLocation name(ItemStack out) {
-			String name = out.getItem().getRegistryName().getPath();
+			String name = ForgeRegistries.ITEMS.getKey(out.getItem()).getPath();
 			while (MODID_TO_NAMES.get(this.modid).contains(name)) {
 				name += "_";
 			}

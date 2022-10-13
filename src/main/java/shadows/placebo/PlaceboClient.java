@@ -3,6 +3,7 @@ package shadows.placebo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TextColor;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -23,6 +24,12 @@ public class PlaceboClient {
 		TrailsManager.init();
 		WingsManager.init(e);
 		MinecraftForge.EVENT_BUS.addListener(PlaceboClient::tick);
+	}
+
+	@SubscribeEvent
+	public static void keys(RegisterKeyMappingsEvent e) {
+		e.register(TrailsManager.TOGGLE);
+		e.register(WingsManager.TOGGLE);
 	}
 
 	/**

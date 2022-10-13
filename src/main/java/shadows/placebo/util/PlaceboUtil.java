@@ -8,7 +8,6 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -55,30 +54,20 @@ public class PlaceboUtil {
 		return out;
 	}
 
-	public static void registerOverrideBlock(Block b, String modid) {
-		Block old = ForgeRegistries.BLOCKS.getValue(b.getRegistryName());
-		ForgeRegistries.BLOCKS.register(b);
-		ForgeRegistries.ITEMS.register(new BlockItem(b, new Item.Properties().tab(old.asItem().getItemCategory())) {
-			@Override
-			public String getCreatorModId(ItemStack itemStack) {
-				return modid;
-			}
-		}.setRegistryName(b.getRegistryName()));
-	}
-
 	/**
 	 * Replaces a block and item and provides the original states to the new block.
 	 * States are updated such that the old state references are still valid.
 	 */
 	public static <B extends Block & IReplacementBlock> void registerOverride(B block, String modid) {
-		Block old = ForgeRegistries.BLOCKS.getValue(block.getRegistryName());
-		ForgeRegistries.BLOCKS.register(block);
-		ForgeRegistries.ITEMS.register(new BlockItem(block, new Item.Properties().tab(old.asItem().getItemCategory())) {
+		ResourceLocation key = ForgeRegistries.BLOCKS.getKey(block);
+		Block old = ForgeRegistries.BLOCKS.getValue(key);
+		ForgeRegistries.BLOCKS.register(key, block);
+		ForgeRegistries.ITEMS.register(key, new BlockItem(block, new Item.Properties().tab(old.asItem().getItemCategory())) {
 			@Override
 			public String getCreatorModId(ItemStack itemStack) {
 				return modid;
 			}
-		}.setRegistryName(block.getRegistryName()));
+		});
 		overrideStates(old, block);
 	}
 
@@ -141,7 +130,7 @@ public class PlaceboUtil {
 	}
 
 	public static void registerTypes() {
-		unregisteredTypes.forEach((key, type) -> Registry.register(Registry.RECIPE_TYPE, key, type));
+		unregisteredTypes.forEach((key, type) -> ForgeRegistries.RECIPE_TYPES.register(key, type));
 		Placebo.LOGGER.debug("Registered {} recipe types.", unregisteredTypes.size());
 		unregisteredTypes.clear();
 		late = true;

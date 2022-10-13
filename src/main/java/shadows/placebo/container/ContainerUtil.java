@@ -52,7 +52,7 @@ public class ContainerUtil {
 
 	public static <M extends AbstractContainerMenu> InteractionResult openGui(Player player, BlockPos pos, PosFactory<M> factory) {
 		if (player.level.isClientSide) return InteractionResult.SUCCESS;
-		NetworkHooks.openGui((ServerPlayer) player, new SimplerMenuProvider<>(player.level, pos, factory), pos);
+		NetworkHooks.openScreen((ServerPlayer) player, new SimplerMenuProvider<>(player.level, pos, factory), pos);
 		return InteractionResult.CONSUME;
 	}
 

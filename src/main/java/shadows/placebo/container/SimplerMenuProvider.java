@@ -2,7 +2,6 @@ package shadows.placebo.container;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +16,7 @@ public class SimplerMenuProvider<M extends AbstractContainerMenu> implements Men
 
 	public SimplerMenuProvider(Level level, BlockPos pos, PosFactory<M> factory) {
 		this.menuConstructor = (id, inv, player) -> factory.create(id, inv, pos);
-		this.title = new TranslatableComponent(level.getBlockState(pos).getBlock().getDescriptionId());
+		this.title = Component.translatable(level.getBlockState(pos).getBlock().getDescriptionId());
 	}
 
 	@Override

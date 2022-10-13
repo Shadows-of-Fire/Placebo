@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
 
 public interface TickingEntityBlock extends EntityBlock {
@@ -17,7 +18,7 @@ public interface TickingEntityBlock extends EntityBlock {
 		Placebo.LOGGER.error("##############################");
 		Placebo.LOGGER.error("##############################");
 		Placebo.LOGGER.error("##############################");
-		Placebo.LOGGER.error("A Block {} with BlockEntityType {} has subscribed as a TickingEntityBlock but is not using TickingBlockEntityType!", pState.getBlock().getRegistryName(), type.getRegistryName());
+		Placebo.LOGGER.error("A Block {} with BlockEntityType {} has subscribed as a TickingEntityBlock but is not using TickingBlockEntityType!", ForgeRegistries.BLOCKS.getKey(pState.getBlock()), BlockEntityType.getKey(type));
 		Placebo.LOGGER.error("##############################");
 		Placebo.LOGGER.error("##############################");
 		Placebo.LOGGER.error("##############################");

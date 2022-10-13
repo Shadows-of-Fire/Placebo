@@ -1,8 +1,5 @@
 package shadows.placebo.util;
 
-import org.lwjgl.glfw.GLFW;
-
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -12,30 +9,10 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 public class ClientUtil {
-
-	/**
-	 * See {@link Screen#hasShiftDown()}
-	 * @return
-	 */
-	@Deprecated
-	public static boolean isHoldingShift() {
-		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT) || InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_SHIFT);
-	}
-
-	/**
-	 * See {@link Screen#hasControlDown()}
-	 * @return
-	 */
-	@Deprecated
-	public static boolean isHoldingCtrl() {
-		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL) || InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL);
-	}
 
 	public static void colorBlit(PoseStack pMatrixStack, float pX, float pY, float pUOffset, float pVOffset, float pUWidth, float pVHeight, int color) {
 		innerBlit(pMatrixStack, pX, pX + pUWidth, pY, pY + pVHeight, 0, pUWidth, pVHeight, pUOffset, pVOffset, 256, 256, color);
@@ -60,8 +37,7 @@ public class ClientUtil {
 		bufferbuilder.vertex(pMatrix, pX2, pY2, pBlitOffset).color(r, g, b, a).uv(pMaxU, pMaxV).endVertex();
 		bufferbuilder.vertex(pMatrix, pX2, pY1, pBlitOffset).color(r, g, b, a).uv(pMaxU, pMinV).endVertex();
 		bufferbuilder.vertex(pMatrix, pX1, pY1, pBlitOffset).color(r, g, b, a).uv(pMinU, pMinV).endVertex();
-		bufferbuilder.end();
-		BufferUploader.end(bufferbuilder);
+		BufferUploader.draw(bufferbuilder.end());
 	}
 
 }

@@ -2,13 +2,13 @@ package shadows.placebo.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Preconditions;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedEntry.Wrapper;
 import net.minecraft.util.random.WeightedRandom;
@@ -53,14 +53,14 @@ public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILucky
 	/**
 	 * Gets a random item from this manager, ignoring luck.
 	 */
-	public V getRandomItem(Random rand) {
+	public V getRandomItem(RandomSource rand) {
 		return getRandomItem(rand, 0);
 	}
 
 	/**
 	 * Gets a random item from this manager, re-calculating the weights based on luck.
 	 */
-	public V getRandomItem(Random rand, float luck) {
+	public V getRandomItem(RandomSource rand, float luck) {
 		if (luck == 0) return WeightedRandom.getRandomItem(rand, zeroLuckList, zeroLuckTotalWeight).get().getData();
 		else {
 			List<Wrapper<V>> list = new ArrayList<>(zeroLuckList.size());

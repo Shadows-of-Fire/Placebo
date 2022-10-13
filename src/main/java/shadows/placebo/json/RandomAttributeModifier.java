@@ -15,6 +15,7 @@ import com.google.gson.JsonSerializer;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -51,7 +52,7 @@ public class RandomAttributeModifier {
 		AttributeModifier modif = genModifier(rand);
 		AttributeInstance inst = entity.getAttribute(this.attribute);
 		if (inst == null) {
-			Placebo.LOGGER.trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", entity.getType().getRegistryName(), this.attribute.getRegistryName()));
+			Placebo.LOGGER.trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", EntityType.getKey(entity.getType()), ForgeRegistries.ATTRIBUTES.getKey(this.attribute)));
 			return;
 		}
 		inst.addPermanentModifier(modif);
@@ -100,7 +101,7 @@ public class RandomAttributeModifier {
 		@Override
 		public JsonElement serialize(RandomAttributeModifier src, Type typeOfSrc, JsonSerializationContext context) {
 			JsonObject obj = new JsonObject();
-			obj.addProperty("attribute", src.attribute.getRegistryName().toString());
+			obj.addProperty("attribute", ForgeRegistries.ATTRIBUTES.getKey(src.attribute).toString());
 			obj.addProperty("operation", src.op.name());
 			StepFunction range = src.value;
 			if (range.min() == range.max()) {

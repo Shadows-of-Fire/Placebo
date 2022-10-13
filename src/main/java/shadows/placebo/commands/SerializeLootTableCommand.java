@@ -11,7 +11,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.commands.LootCommand;
 import net.minecraft.world.level.storage.loot.Deserializers;
@@ -22,7 +22,7 @@ public class SerializeLootTableCommand {
 
 	public static final Gson GSON = Deserializers.createLootTableSerializer().setPrettyPrinting().create();
 
-	public static final DynamicCommandExceptionType NOT_FOUND = new DynamicCommandExceptionType(arg -> new TranslatableComponent("placebo.cmd.not_found", arg));
+	public static final DynamicCommandExceptionType NOT_FOUND = new DynamicCommandExceptionType(arg -> Component.translatable("placebo.cmd.not_found", arg));
 
 	public static void register(LiteralArgumentBuilder<CommandSourceStack> builder) {
 		builder.then(Commands.literal("serialize_loot_table").requires(s -> s.hasPermission(2)).then(Commands.argument("loot_table", ResourceLocationArgument.id()).suggests(LootCommand.SUGGEST_LOOT_TABLE).executes(ctx -> {
@@ -33,8 +33,8 @@ public class SerializeLootTableCommand {
 			File file = new File(FMLPaths.GAMEDIR.get().toFile(), path);
 			file.getParentFile().mkdirs();
 			if (attemptSerialize(table, file)) {
-				ctx.getSource().sendSuccess(new TranslatableComponent("placebo.cmd.serialize_success", id, path), true);
-			} else ctx.getSource().sendFailure(new TranslatableComponent("placebo.cmd.serialize_failure"));
+				ctx.getSource().sendSuccess(Component.translatable("placebo.cmd.serialize_success", id, path), true);
+			} else ctx.getSource().sendFailure(Component.translatable("placebo.cmd.serialize_failure"));
 			return 0;
 		})));
 	}

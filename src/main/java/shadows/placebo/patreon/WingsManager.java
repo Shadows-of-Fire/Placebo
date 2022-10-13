@@ -16,7 +16,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.EntityRenderersEvent.AddLayers;
 import net.minecraftforge.common.MinecraftForge;
@@ -37,7 +36,6 @@ public class WingsManager {
 	public static final ModelLayerLocation WING_LOC = new ModelLayerLocation(new ResourceLocation(Placebo.MODID, "wings"), "main");
 
 	public static void init(FMLClientSetupEvent e) {
-		ClientRegistry.registerKeyBinding(TOGGLE);
 		e.enqueueWork(() -> {
 			ForgeHooksClient.registerLayerDefinition(WING_LOC, Wing::createLayer);
 		});

@@ -2,7 +2,6 @@ package shadows.placebo.json;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -11,6 +10,7 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry.Wrapper;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -27,7 +27,7 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	 * Gets a random item from this manager that is valid for the dimension, while ignoring luck.
 	 */
 	@Nullable
-	public V getRandomItem(Random rand, ServerLevelAccessor level) {
+	public V getRandomItem(RandomSource rand, ServerLevelAccessor level) {
 		return getRandomItem(rand, level.getLevel().dimension().location());
 	}
 
@@ -35,7 +35,7 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	 * Gets a random item from this manager that is valid for the dimension, while ignoring luck.
 	 */
 	@Nullable
-	public V getRandomItem(Random rand, ResourceLocation dimId) {
+	public V getRandomItem(RandomSource rand, ResourceLocation dimId) {
 		return getRandomItem(rand, 0);
 	}
 
@@ -43,7 +43,7 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	 * Gets a random item from this manager that is valid for the dimension, recomputing weights based on luck.
 	 */
 	@Nullable
-	public V getRandomItem(Random rand, float luck, ServerLevelAccessor level) {
+	public V getRandomItem(RandomSource rand, float luck, ServerLevelAccessor level) {
 		return getRandomItem(rand, luck, level.getLevel().dimension().location());
 	}
 
@@ -51,7 +51,7 @@ public abstract class DimWeightedJsonReloadListener<V extends TypeKeyed<V> & IDi
 	 * Gets a random item from this manager that is valid for the dimension, recomputing weights based on luck.
 	 */
 	@Nullable
-	public V getRandomItem(Random rand, float luck, ResourceLocation dimId) {
+	public V getRandomItem(RandomSource rand, float luck, ResourceLocation dimId) {
 		List<Wrapper<V>> list = new ArrayList<>(zeroLuckList.size());
 		this.registry.values().stream().filter(IDimWeighted.matches(dimId)).map(l -> l.<V>wrap(luck)).forEach(list::add);
 		return WeightedRandom.getRandomItem(rand, list).map(Wrapper::getData).orElse(null);

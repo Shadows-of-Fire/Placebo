@@ -10,6 +10,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
 
 /**
@@ -56,7 +57,7 @@ public class LootSystem {
 	public static void defaultBlockTable(Block b) {
 		LootTable.Builder builder = tableBuilder();
 		builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(ExplosionCondition.survivesExplosion()));
-		registerLootTable(new ResourceLocation(b.getRegistryName().getNamespace(), "blocks/" + b.getRegistryName().getPath()), builder.build());
+		registerLootTable(new ResourceLocation(ForgeRegistries.BLOCKS.getKey(b).getNamespace(), "blocks/" + ForgeRegistries.BLOCKS.getKey(b).getPath()), builder.build());
 	}
 
 }

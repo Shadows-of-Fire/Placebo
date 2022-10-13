@@ -7,7 +7,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,8 +16,8 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
@@ -33,7 +32,6 @@ public class TrailsManager {
 	public static final Set<UUID> DISABLED = new HashSet<>();
 
 	public static void init() {
-		ClientRegistry.registerKeyBinding(TOGGLE);
 		new Thread(() -> {
 			Placebo.LOGGER.info("Loading patreon trails data...");
 			try {
@@ -68,7 +66,7 @@ public class TrailsManager {
 			for (Player player : Minecraft.getInstance().level.players()) {
 				if (!player.isInvisible() && player.tickCount * 3 % 2 == 0 && !DISABLED.contains(player.getUUID()) && (t = TRAILS.get(player.getUUID())) != null) {
 					ClientLevel world = (ClientLevel) player.level;
-					Random rand = world.random;
+					RandomSource rand = world.random;
 					ParticleOptions type = t.type.get();
 					world.addParticle(type, player.getX() + rand.nextDouble() * 0.4 - 0.2, player.getY() + 0.1, player.getZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);
 				}

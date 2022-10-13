@@ -15,25 +15,24 @@ import com.google.gson.JsonSyntaxException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public class JsonUtil {
 
-	public static <T extends IForgeRegistryEntry<T>> T getRegistryObject(JsonObject parent, String name, IForgeRegistry<T> registry) {
+	public static <T> T getRegistryObject(JsonObject parent, String name, IForgeRegistry<T> registry) {
 		String key = GsonHelper.getAsString(parent, name);
 		T regObj = registry.getValue(new ResourceLocation(key));
 		if (regObj == null) throw new JsonSyntaxException("Failed to parse " + registry.getRegistryName() + " object with key " + key);
 		return regObj;
 	}
 
-	public static <T extends IForgeRegistryEntry<T>> Object makeSerializer(IForgeRegistry<T> reg) {
+	public static <T> Object makeSerializer(IForgeRegistry<T> reg) {
 		return new SDS<>(reg);
 	}
 
 	/**
 	 * Short for Serializer/Deserializer
 	 */
-	private static class SDS<T extends IForgeRegistryEntry<T>> implements JsonDeserializer<T>, JsonSerializer<T> {
+	private static class SDS<T> implements JsonDeserializer<T>, JsonSerializer<T> {
 
 		private final IForgeRegistry<T> reg;
 
@@ -43,7 +42,7 @@ public class JsonUtil {
 
 		@Override
 		public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
-			return new JsonPrimitive(src.getRegistryName().toString());
+			return new JsonPrimitive(reg.getKey(src).toString());
 		}
 
 		@Override

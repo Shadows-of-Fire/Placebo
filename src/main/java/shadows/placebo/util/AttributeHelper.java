@@ -2,7 +2,6 @@ package shadows.placebo.util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -80,10 +79,10 @@ public class AttributeHelper {
 		int code = modif.getOperation().ordinal();
 
 		if (amt > 0.0D) {
-			return new TranslatableComponent("attribute.modifier.plus." + code, ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(amt), new TranslatableComponent(attr.getDescriptionId())).withStyle(ChatFormatting.BLUE);
+			return Component.translatable("attribute.modifier.plus." + code, ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(amt), Component.translatable(attr.getDescriptionId())).withStyle(ChatFormatting.BLUE);
 		} else {
 			amt *= -1.0D;
-			return new TranslatableComponent("attribute.modifier.take." + code, ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(amt), new TranslatableComponent(attr.getDescriptionId())).withStyle(ChatFormatting.RED);
+			return Component.translatable("attribute.modifier.take." + code, ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(amt), Component.translatable(attr.getDescriptionId())).withStyle(ChatFormatting.RED);
 		}
 	}
 }

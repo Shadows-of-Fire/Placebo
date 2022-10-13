@@ -7,10 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
@@ -21,6 +19,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import shadows.placebo.color.GradientColor;
 import shadows.placebo.commands.PlaceboCommand;
 import shadows.placebo.compat.TOPCompat;
@@ -67,8 +67,8 @@ public class Placebo {
 	}
 
 	@SubscribeEvent
-	public void registerElse(Register<Item> e) {
-		PlaceboUtil.registerTypes();
+	public void registerElse(RegisterEvent e) {
+		if (e.getForgeRegistry() == (Object) ForgeRegistries.RECIPE_TYPES) PlaceboUtil.registerTypes();
 	}
 
 	public void registerCommands(RegisterCommandsEvent e) {

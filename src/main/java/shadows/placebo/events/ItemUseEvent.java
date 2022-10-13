@@ -61,7 +61,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	@Nonnull
 	public ItemStack getItemStack() {
-		return getPlayer().getItemInHand(hand);
+		return getEntity().getItemInHand(hand);
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 * @return Convenience method to get the world of this interaction.
 	 */
 	public Level getWorld() {
-		return getPlayer().getCommandSenderWorld();
+		return getEntity().getCommandSenderWorld();
 	}
 
 	/**
