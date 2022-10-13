@@ -1,3 +1,6 @@
+## 7.0.0
+* Updated to 1.19.2
+
 ## 6.6.5
 * Added a variant of blit() that takes a color arg to ClientUtil.
 * Fixed the rainbow color breaking on servers.
