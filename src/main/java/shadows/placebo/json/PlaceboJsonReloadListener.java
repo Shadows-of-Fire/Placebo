@@ -104,7 +104,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 				}
 			} catch (Exception e) {
 				this.logger.error("Failed parsing {} file {}.", this.path, key);
-				e.printStackTrace();
+				this.logger.error("Underlying Exception: ", e);
 			}
 		});
 		this.onReload();

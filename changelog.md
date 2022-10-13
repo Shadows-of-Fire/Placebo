@@ -1,3 +1,11 @@
+## 6.6.5
+* Added a variant of blit() that takes a color arg to ClientUtil.
+* Fixed the rainbow color breaking on servers.
+* Added boilerplate for TOP entity additions.
+* Added strict error logging to RecipeHelper.
+* Made RecipeHelper accept TagKey as an input type.
+* Added more setters to ModifiableEnergyStorage.
+
 ## 6.6.4
 * Added the AnvilLandEvent.
 * Added a very angry logging message if a TickingEntityBlock has the wrong entity type class.

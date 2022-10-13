@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
@@ -144,6 +145,15 @@ public class PlaceboUtil {
 		Placebo.LOGGER.debug("Registered {} recipe types.", unregisteredTypes.size());
 		unregisteredTypes.clear();
 		late = true;
+	}
+
+	/**
+	 * Used to register a custom named color that extends TextColor.
+	 * Should be called during common setup from within an enqueue work call.
+	 * This is not required for any static color values, because they can be represented as a hex int.
+	 */
+	public static <T extends TextColor> void registerCustomColor(T color) {
+		TextColor.NAMED_COLORS.put(color.serialize(), color);
 	}
 
 }

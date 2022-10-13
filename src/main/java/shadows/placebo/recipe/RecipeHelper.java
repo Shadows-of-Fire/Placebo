@@ -17,6 +17,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -105,8 +106,8 @@ public final class RecipeHelper {
 	@Deprecated
 	public static void addRecipe(Recipe<?> rec) {
 		synchronized (recipes) {
-			if (rec == null) {
-				Placebo.LOGGER.error("Attempted to add null recipe, this is invalid behavior.");
+			if (rec == null || rec.getId() == null || rec.getSerializer() == null || rec.getSerializer().getRegistryName() == null) {
+				Placebo.LOGGER.error("Attempted to add an invalid recipe {}.", rec);
 				Thread.dumpStack();
 			}
 			recipes.add(rec);
@@ -139,11 +140,13 @@ public final class RecipeHelper {
 	 * @param inputArr An array of potential input objects that are in-order.
 	 * @return A list of ingredients for a recipe.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static NonNullList<Ingredient> createInput(String modid, boolean allowEmpty, Object... inputArr) {
 		NonNullList<Ingredient> inputL = NonNullList.create();
 		for (int i = 0; i < inputArr.length; i++) {
 			Object input = inputArr[i];
-			if (input instanceof String str) inputL.add(i, Ingredient.of(ItemTags.create(new ResourceLocation(str))));
+			if (input instanceof TagKey tag) inputL.add(i, Ingredient.of(tag));
+			else if (input instanceof String str) inputL.add(i, Ingredient.of(ItemTags.create(new ResourceLocation(str))));
 			else if (input instanceof ItemStack stack && !stack.isEmpty()) inputL.add(i, Ingredient.of(stack));
 			else if (input instanceof ItemLike) inputL.add(i, Ingredient.of(makeStack(input)));
 			else if (input instanceof Ingredient ing) inputL.add(i, ing);
@@ -171,10 +174,11 @@ public final class RecipeHelper {
 			factory.registerAll(mgr);
 		});
 		recipes.forEach(r -> {
-			Map<ResourceLocation, Recipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
-			Recipe<?> old = map.get(r.getId());
+			Recipe<?> old = mgr.byName.get(r.getId());
 			if (old == null) {
+				Map<ResourceLocation, Recipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
 				map.put(r.getId(), r);
+				mgr.byName.put(r.getId(), r);
 			} else Placebo.LOGGER.debug("Skipping registration for code recipe {} as a json recipe already exists with that ID.", r.getId());
 		});
 		Placebo.LOGGER.info("Registered {} additional recipes.", recipes.size() + RecipeFactory.totalRecipes);
@@ -182,6 +186,7 @@ public final class RecipeHelper {
 	}
 
 	private static void mutableManager(RecipeManager mgr) {
+		mgr.byName = new HashMap<>(mgr.byName);
 		mgr.recipes = new HashMap<>(mgr.recipes);
 		for (RecipeType<?> type : mgr.recipes.keySet()) {
 			mgr.recipes.put(type, new HashMap<>(mgr.recipes.get(type)));
@@ -204,8 +209,8 @@ public final class RecipeHelper {
 		 * @param rec The recipe to add.
 		 */
 		public void addRecipe(Recipe<?> rec) {
-			if (rec == null) {
-				Placebo.LOGGER.error("Attempted to add null recipe, this is invalid behavior.");
+			if (rec == null || rec.getId() == null || rec.getSerializer() == null || rec.getSerializer().getRegistryName() == null) {
+				Placebo.LOGGER.error("Attempted to add an invalid recipe {}.", rec);
 				Thread.dumpStack();
 			}
 			recipes.add(rec);

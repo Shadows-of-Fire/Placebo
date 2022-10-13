@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.function.Function;
 
 import mcjty.theoneprobe.api.IProbeHitData;
+import mcjty.theoneprobe.api.IProbeHitEntityData;
 import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.IProbeInfoEntityProvider;
 import mcjty.theoneprobe.api.IProbeInfoProvider;
 import mcjty.theoneprobe.api.ITheOneProbe;
 import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,6 +42,17 @@ public class TOPCompat {
 					providers.forEach(p -> p.addProbeInfo(mode, info, player, level, state, hitData));
 				}
 			});
+			probe.registerEntityProvider(new IProbeInfoEntityProvider() {
+				@Override
+				public String getID() {
+					return Placebo.MODID + ":plugin";
+				}
+
+				@Override
+				public void addProbeEntityInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, Entity entity, IProbeHitEntityData hitData) {
+					providers.forEach(p -> p.addProbeEntityInfo(mode, info, player, level, entity, hitData));
+				}
+			});
 			return null;
 		}
 
@@ -49,7 +63,11 @@ public class TOPCompat {
 	}
 
 	public static interface Provider {
-		public void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, BlockState state, IProbeHitData hitData);
+		default void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, BlockState state, IProbeHitData hitData) {
+		}
+
+		default void addProbeEntityInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, Entity entity, IProbeHitEntityData hitData) {
+		}
 	}
 
 }

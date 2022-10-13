@@ -1,8 +1,11 @@
 package shadows.placebo;
 
+import java.util.HashMap;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,6 +21,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+import shadows.placebo.color.GradientColor;
 import shadows.placebo.commands.PlaceboCommand;
 import shadows.placebo.compat.TOPCompat;
 import shadows.placebo.network.MessageHelper;
@@ -47,6 +51,7 @@ public class Placebo {
 		ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> version, (remoteVer, isNetwork) -> remoteVer == null || version.equals(remoteVer)));
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 		if (ModList.get().isLoaded("theoneprobe")) TOPCompat.register();
+		TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
 	}
 
 	@SubscribeEvent
@@ -56,6 +61,9 @@ public class Placebo {
 		MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
 		MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
 		MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
+		e.enqueueWork(() -> {
+			PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
+		});
 	}
 
 	@SubscribeEvent

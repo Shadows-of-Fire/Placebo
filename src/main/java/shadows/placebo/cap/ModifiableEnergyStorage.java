@@ -24,4 +24,20 @@ public class ModifiableEnergyStorage extends EnergyStorage {
 		this.energy = energy;
 	}
 
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
+	}
+
+	public void setTransferRate(int transfer) {
+		this.maxExtract = this.maxReceive = transfer;
+	}
+
+	public void setMaxExtract(int extract) {
+		this.maxExtract = extract;
+	}
+
+	public void setMaxReceive(int receive) {
+		this.maxReceive = receive;
+	}
+
 }
