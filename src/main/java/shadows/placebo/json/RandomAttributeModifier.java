@@ -15,6 +15,7 @@ import com.google.gson.JsonSerializer;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -47,7 +48,7 @@ public class RandomAttributeModifier {
 		this.id = new UUID(rand.nextLong(), rand.nextLong());
 	}
 
-	public void apply(Random rand, LivingEntity entity) {
+	public void apply(RandomSource rand, LivingEntity entity) {
 		if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
 		AttributeModifier modif = genModifier(rand);
 		AttributeInstance inst = entity.getAttribute(this.attribute);
@@ -58,11 +59,11 @@ public class RandomAttributeModifier {
 		inst.addPermanentModifier(modif);
 	}
 
-	public AttributeModifier genModifier(Random rand) {
+	public AttributeModifier genModifier(RandomSource rand) {
 		return new AttributeModifier(this.id, "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.get(rand.nextFloat()), this.op);
 	}
 
-	public AttributeModifier genModifier(String name, Random rand) {
+	public AttributeModifier genModifier(String name, RandomSource rand) {
 		return new AttributeModifier(name, this.value.get(rand.nextFloat()), this.op);
 	}
 

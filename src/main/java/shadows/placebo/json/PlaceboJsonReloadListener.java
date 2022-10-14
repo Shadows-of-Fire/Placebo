@@ -56,7 +56,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	protected final String path;
 	protected final boolean synced;
 	protected final boolean subtypes;
-	protected final BiMap<ResourceLocation, SerializerBuilder<V>.Serializer> serializers = HashBiMap.create();
+	protected final BiMap<ResourceLocation, PSerializer<V>> serializers = HashBiMap.create();
 	private WeakReference<ICondition.IContext> context;
 
 	protected Map<ResourceLocation, V> registry = ImmutableMap.of();
@@ -87,7 +87,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 			try {
 				if (checkAndLogEmpty(ele, key, this.path, this.logger) && checkConditions(ele, key, this.path, this.logger, this.getContext())) {
 					JsonObject obj = ele.getAsJsonObject();
-					SerializerBuilder<V>.Serializer serializer;
+					PSerializer<V> serializer;
 					if (this.subtypes && obj.has("type")) {
 						ResourceLocation type = new ResourceLocation(obj.get("type").getAsString());
 						serializer = this.serializers.get(type);
@@ -139,7 +139,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 * @param id The ID of the serializer.  If you do not support subtypes, use {@link PlaceboJsonReloadListener#DEFAULT}.
 	 * @param serializer The serializer being registered.
 	 */
-	public final void registerSerializer(ResourceLocation id, SerializerBuilder<V> serializer) {
+	public final void registerSerializer(ResourceLocation id, PSerializer.Builder<V> serializer) {
 		if (this.subtypes) {
 			if (this.serializers.containsKey(id)) throw new RuntimeException("Attempted to register a " + this.path + " serializer with id " + id + " but one already exists!");
 			if (this.serializers.isEmpty() && id != DEFAULT) this.serializers.put(DEFAULT, serializer.build(this.synced));
@@ -276,11 +276,11 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	public static interface TypeKeyed<V extends TypeKeyed<V>> {
 		void setId(ResourceLocation id);
 
-		void setSerializer(SerializerBuilder<V>.Serializer serializer);
+		void setSerializer(PSerializer<V> serializer);
 
 		ResourceLocation getId();
 
-		SerializerBuilder<V>.Serializer getSerializer();
+		PSerializer<V> getSerializer();
 	}
 
 	/**
@@ -290,7 +290,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 */
 	public static abstract class TypeKeyedBase<V extends TypeKeyed<V>> implements TypeKeyed<V> {
 		protected ResourceLocation id;
-		protected SerializerBuilder<V>.Serializer serializer;
+		protected PSerializer<V> serializer;
 
 		@Override
 		public void setId(ResourceLocation id) {
@@ -299,7 +299,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		}
 
 		@Override
-		public void setSerializer(SerializerBuilder<V>.Serializer serializer) {
+		public void setSerializer(PSerializer<V> serializer) {
 			if (this.serializer != null) throw new UnsupportedOperationException();
 			this.serializer = serializer;
 		}
@@ -310,7 +310,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		}
 
 		@Override
-		public SerializerBuilder<V>.Serializer getSerializer() {
+		public PSerializer<V> getSerializer() {
 			return this.serializer;
 		}
 	}
@@ -357,7 +357,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		var serializer = listener.serializers.get(buf.readResourceLocation());
 		V v = (V) serializer.read(buf);
 		v.setId(key);
-		v.setSerializer((SerializerBuilder<V>.Serializer) serializer);
+		v.setSerializer((PSerializer<V>) serializer);
 		return v;
 	}
 

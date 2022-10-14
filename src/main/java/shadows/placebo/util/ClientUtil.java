@@ -22,11 +22,14 @@ public class ClientUtil {
 		innerBlit(pMatrixStack.last().pose(), pX, pX + pWidth, pY, pY + pHeight, pBlitOffset, pSprite.getU0(), pSprite.getU1(), pSprite.getV0(), pSprite.getV1(), color);
 	}
 
+	public static void colorBlit(PoseStack pPoseStack, int pX, int pY, int pWidth, int pHeight, float pUOffset, float pVOffset, int pUWidth, int pVHeight, int pTextureWidth, int pTextureHeight, int color) {
+		innerBlit(pPoseStack, pX, pX + pWidth, pY, pY + pHeight, 0, pUWidth, pVHeight, pUOffset, pVOffset, pTextureWidth, pTextureHeight, color);
+	}
+
 	public static void innerBlit(PoseStack pMatrixStack, float pX1, float pX2, float pY1, float pY2, int pBlitOffset, float pUWidth, float pVHeight, float pUOffset, float pVOffset, int pTextureWidth, int pTextureHeight, int color) {
 		innerBlit(pMatrixStack.last().pose(), pX1, pX2, pY1, pY2, pBlitOffset, (pUOffset + 0.0F) / pTextureWidth, (pUOffset + pUWidth) / pTextureWidth, (pVOffset + 0.0F) / pTextureHeight, (pVOffset + pVHeight) / pTextureHeight, color);
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void innerBlit(Matrix4f pMatrix, float pX1, float pX2, float pY1, float pY2, int pBlitOffset, float pMinU, float pMaxU, float pMinV, float pMaxV, int color) {
 		RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
 		BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
@@ -37,7 +40,7 @@ public class ClientUtil {
 		bufferbuilder.vertex(pMatrix, pX2, pY2, pBlitOffset).color(r, g, b, a).uv(pMaxU, pMaxV).endVertex();
 		bufferbuilder.vertex(pMatrix, pX2, pY1, pBlitOffset).color(r, g, b, a).uv(pMaxU, pMinV).endVertex();
 		bufferbuilder.vertex(pMatrix, pX1, pY1, pBlitOffset).color(r, g, b, a).uv(pMinU, pMinV).endVertex();
-		BufferUploader.draw(bufferbuilder.end());
+		BufferUploader.drawWithShader(bufferbuilder.end());
 	}
 
 }

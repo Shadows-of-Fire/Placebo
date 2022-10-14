@@ -3,15 +3,14 @@ package shadows.placebo.json;
 import java.lang.reflect.Type;
 
 import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.JsonSyntaxException;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -32,7 +31,7 @@ public class JsonUtil {
 	/**
 	 * Short for Serializer/Deserializer
 	 */
-	private static class SDS<T> implements JsonDeserializer<T>, JsonSerializer<T> {
+	private static class SDS<T> implements com.google.gson.JsonDeserializer<T>, com.google.gson.JsonSerializer<T> {
 
 		private final IForgeRegistry<T> reg;
 
@@ -52,6 +51,22 @@ public class JsonUtil {
 			return regObj;
 		}
 
+	}
+
+	public static interface JsonSerializer<V> {
+		public JsonElement write(V src);
+	}
+
+	public static interface JsonDeserializer<V> {
+		public V read(JsonElement json);
+	}
+
+	public static interface NetSerializer<V> {
+		public void write(V src, FriendlyByteBuf buf);
+	}
+
+	public static interface NetDeserializer<V> {
+		public V read(FriendlyByteBuf buf);
 	}
 
 }
