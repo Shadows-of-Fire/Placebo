@@ -1,3 +1,6 @@
+## 6.6.6
+* Added some additional json utility code.
+
 ## 6.6.5
 * Added a variant of blit() that takes a color arg to ClientUtil.
 * Fixed the rainbow color breaking on servers.

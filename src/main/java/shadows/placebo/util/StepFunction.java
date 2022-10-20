@@ -3,6 +3,7 @@ package shadows.placebo.util;
 import com.google.common.base.Preconditions;
 
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
+import net.minecraft.network.FriendlyByteBuf;
 
 /**
  * Level Function that allows for only returning "nice" stepped numbers.
@@ -41,6 +42,20 @@ public class StepFunction implements Float2FloatFunction {
 
 	public float max() {
 		return this.min + this.steps * step;
+	}
+
+	public void write(FriendlyByteBuf buf) {
+		buf.writeFloat(this.min);
+		buf.writeInt(this.steps);
+		buf.writeFloat(this.step);
+	}
+
+	public static StepFunction read(FriendlyByteBuf buf) {
+		return new StepFunction(buf.readFloat(), buf.readInt(), buf.readFloat());
+	}
+
+	public static StepFunction constant(float val) {
+		return new StepFunction(val, 1, 0);
 	}
 
 }

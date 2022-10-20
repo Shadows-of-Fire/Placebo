@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
@@ -57,7 +58,7 @@ public class SerializerBuilder<V> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private BiFunction<Object, Object, V> coerce(Method m) {
+	private static <V> BiFunction<Object, Object, V> coerce(Method m) {
 		MethodHandle k;
 		try {
 			k = MethodHandles.lookup().unreflect(m);
@@ -81,9 +82,9 @@ public class SerializerBuilder<V> {
 					Class<?>[] p = m.getParameterTypes();
 					if (p.length == 1) {
 						if (p[0] == FriendlyByteBuf.class) {
-							this.withNetworkDeserializer(buf -> coerce(m).apply(null, buf));
+							this.withNetworkDeserializer(buf -> SerializerBuilder.<V>coerce(m).apply(null, buf));
 						} else if (p[0] == JsonObject.class) {
-							this.withJsonDeserializer(obj -> coerce(m).apply(null, obj));
+							this.withJsonDeserializer(obj -> SerializerBuilder.<V>coerce(m).apply(null, obj));
 						}
 					}
 				}
@@ -95,12 +96,19 @@ public class SerializerBuilder<V> {
 							this.withNetworkSerializer((inst, buf) -> coerce(m).apply(inst, buf));
 						}
 					} else if (p.length == 0 && m.getReturnType() == JsonObject.class) {
-						this.withJsonDeserializer((inst) -> coerce(m).apply(null, inst));
+						this.withJsonSerializer((inst) -> SerializerBuilder.<JsonObject>coerce(m).apply(null, inst));
 					}
 				}
 			}
 		}
 
+		return this;
+	}
+
+	public SerializerBuilder<V> builtin(Supplier<V> factory) {
+		this.withJsonDeserializer(json -> factory.get()).withJsonSerializer(o -> new JsonObject());
+		this.withNetworkDeserializer(net -> factory.get()).withNetworkSerializer((obj, buf) -> {
+		});
 		return this;
 	}
 

@@ -55,4 +55,22 @@ public class JsonUtil {
 
 	}
 
+	private static record SDS2<T> (JsonDeserializer<T> jds, JsonSerializer<T> js) implements JsonDeserializer<T>, JsonSerializer<T> {
+
+		@Override
+		public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
+			return js.serialize(src, typeOfSrc, context);
+		}
+
+		@Override
+		public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			return jds.deserialize(json, typeOfT, context);
+		}
+
+	}
+
+	public static <T> Object makeSerializer(JsonDeserializer<T> jds, JsonSerializer<T> js) {
+		return new SDS2<>(jds, js);
+	}
+
 }
