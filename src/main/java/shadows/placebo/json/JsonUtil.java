@@ -69,4 +69,22 @@ public class JsonUtil {
 		public V read(FriendlyByteBuf buf);
 	}
 
+	private static record SDS2<T> (com.google.gson.JsonDeserializer<T> jds, com.google.gson.JsonSerializer<T> js) implements com.google.gson.JsonDeserializer<T>, com.google.gson.JsonSerializer<T> {
+
+		@Override
+		public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
+			return js.serialize(src, typeOfSrc, context);
+		}
+
+		@Override
+		public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			return jds.deserialize(json, typeOfT, context);
+		}
+
+	}
+
+	public static <T> Object makeSerializer(com.google.gson.JsonDeserializer<T> jds, com.google.gson.JsonSerializer<T> js) {
+		return new SDS2<>(jds, js);
+	}
+
 }

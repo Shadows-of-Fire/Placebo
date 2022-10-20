@@ -3,6 +3,7 @@ package shadows.placebo.json;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,11 +58,13 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	protected final boolean synced;
 	protected final boolean subtypes;
 	protected final BiMap<ResourceLocation, PSerializer<V>> serializers = HashBiMap.create();
-	private WeakReference<ICondition.IContext> context;
 
 	protected Map<ResourceLocation, V> registry = ImmutableMap.of();
 
 	private final Map<ResourceLocation, V> staged = new HashMap<>();
+	private final Set<DynamicRegistryObject<? extends V>> regObjs = new HashSet<>();
+
+	private WeakReference<ICondition.IContext> context;
 
 	/**
 	 * Constructs a new JSON reload listener.  All parameters will be saved finally in the object.
@@ -122,6 +125,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 */
 	protected void beginReload() {
 		this.registry = new HashMap<>();
+		this.regObjs.forEach(DynamicRegistryObject::invalidate);
 	}
 
 	/**
@@ -176,6 +180,8 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 * You can override this method to process things a bit differently.
 	 */
 	protected <T extends V> void register(ResourceLocation key, T item) {
+		if (item.getId() == null) item.setId(key);
+		if (!item.getId().equals(key)) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a mismatched registry ID! Expected: " + item.getId() + " Provided: " + key);
 		validateItem(item);
 		this.registry.put(key, item);
 	}
@@ -252,6 +258,12 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	public void registerToBus() {
 		if (this.synced) registerForSync(this);
 		MinecraftForge.EVENT_BUS.addListener(this::addReloader);
+	}
+
+	public final <T extends V> DynamicRegistryObject<T> makeObj(ResourceLocation id) {
+		DynamicRegistryObject<T> obj = new DynamicRegistryObject<>(id, this);
+		this.regObjs.add(obj);
+		return obj;
 	}
 
 	private final void registerForSync(PlaceboJsonReloadListener<?> listener) {

@@ -5,9 +5,11 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import net.minecraft.network.FriendlyByteBuf;
@@ -123,6 +125,14 @@ public class PSerializer<V> implements JsonDeserializer<V>, JsonSerializer<V>, N
 			}
 		}
 
+		return builder;
+	}
+
+	public PSerializer.Builder<V> builtin(String name, Supplier<V> factory) {
+		Builder<V> builder = new Builder<>(name);
+		builder.withJsonDeserializer(json -> factory.get()).withJsonSerializer(o -> new JsonObject());
+		builder.withNetworkDeserializer(net -> factory.get()).withNetworkSerializer((obj, buf) -> {
+		});
 		return builder;
 	}
 
