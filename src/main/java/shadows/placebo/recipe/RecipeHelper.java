@@ -25,6 +25,7 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import shadows.placebo.Placebo;
 import shadows.placebo.util.RunnableReloader;
 
@@ -70,6 +71,7 @@ public final class RecipeHelper {
 	public static ItemStack makeStack(Object thing) {
 		if (thing instanceof ItemStack stack) return stack;
 		if (thing instanceof ItemLike il) return new ItemStack(il);
+		if (thing instanceof RegistryObject<?> ro) return new ItemStack((ItemLike) ro.get());
 		throw new IllegalArgumentException("Attempted to create an ItemStack from something that cannot be converted: " + thing);
 	}
 
@@ -93,7 +95,7 @@ public final class RecipeHelper {
 			if (input instanceof TagKey tag) inputL.add(i, Ingredient.of(tag));
 			else if (input instanceof String str) inputL.add(i, Ingredient.of(ItemTags.create(new ResourceLocation(str))));
 			else if (input instanceof ItemStack stack && !stack.isEmpty()) inputL.add(i, Ingredient.of(stack));
-			else if (input instanceof ItemLike) inputL.add(i, Ingredient.of(makeStack(input)));
+			else if (input instanceof ItemLike || input instanceof RegistryObject) inputL.add(i, Ingredient.of(makeStack(input)));
 			else if (input instanceof Ingredient ing) inputL.add(i, ing);
 			else if (allowEmpty) inputL.add(i, Ingredient.EMPTY);
 			else throw new UnsupportedOperationException("Attempted to add invalid recipe.  Complain to the author of " + modid + ". (Input " + input + " not allowed.)");

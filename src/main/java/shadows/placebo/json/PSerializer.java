@@ -128,7 +128,7 @@ public class PSerializer<V> implements JsonDeserializer<V>, JsonSerializer<V>, N
 		return builder;
 	}
 
-	public PSerializer.Builder<V> builtin(String name, Supplier<V> factory) {
+	public static <V> PSerializer.Builder<V> builtin(String name, Supplier<V> factory) {
 		Builder<V> builder = new Builder<>(name);
 		builder.withJsonDeserializer(json -> factory.get()).withJsonSerializer(o -> new JsonObject());
 		builder.withNetworkDeserializer(net -> factory.get()).withNetworkSerializer((obj, buf) -> {

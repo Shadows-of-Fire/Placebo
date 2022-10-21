@@ -5,14 +5,32 @@ import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.StatType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.decoration.PaintingVariant;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -20,6 +38,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegisterEvent;
 import shadows.placebo.color.GradientColor;
 import shadows.placebo.commands.PlaceboCommand;
@@ -29,6 +48,8 @@ import shadows.placebo.packets.ButtonClickMessage;
 import shadows.placebo.packets.PatreonDisableMessage;
 import shadows.placebo.packets.ReloadListenerPacket;
 import shadows.placebo.util.PlaceboUtil;
+import shadows.placebo.util.RegistryEvent;
+import shadows.placebo.util.RegistryEvent.Register;
 
 @Mod(Placebo.MODID)
 public class Placebo {
@@ -67,8 +88,38 @@ public class Placebo {
 	}
 
 	@SubscribeEvent
-	public void registerElse(RegisterEvent e) {
-		if (e.getForgeRegistry() == (Object) ForgeRegistries.RECIPE_TYPES) PlaceboUtil.registerTypes();
+	public void postRegistryEvents(RegisterEvent e) {
+		checkAndPost(e, Block.class, ForgeRegistries.BLOCKS);
+		checkAndPost(e, Fluid.class, ForgeRegistries.FLUIDS);
+		checkAndPost(e, Item.class, ForgeRegistries.ITEMS);
+		checkAndPost(e, MobEffect.class, ForgeRegistries.MOB_EFFECTS);
+		checkAndPost(e, SoundEvent.class, ForgeRegistries.SOUND_EVENTS);
+		checkAndPost(e, Potion.class, ForgeRegistries.POTIONS);
+		checkAndPost(e, Enchantment.class, ForgeRegistries.ENCHANTMENTS);
+		checkAndPost(e, EntityType.class, ForgeRegistries.ENTITY_TYPES);
+		checkAndPost(e, BlockEntityType.class, ForgeRegistries.BLOCK_ENTITY_TYPES);
+		checkAndPost(e, ParticleType.class, ForgeRegistries.PARTICLE_TYPES);
+		checkAndPost(e, MenuType.class, ForgeRegistries.MENU_TYPES);
+		checkAndPost(e, PaintingVariant.class, ForgeRegistries.PAINTING_VARIANTS);
+		checkAndPost(e, RecipeType.class, ForgeRegistries.RECIPE_TYPES);
+		checkAndPost(e, RecipeSerializer.class, ForgeRegistries.RECIPE_SERIALIZERS);
+		checkAndPost(e, Attribute.class, ForgeRegistries.ATTRIBUTES);
+		checkAndPost(e, StatType.class, ForgeRegistries.STAT_TYPES);
+		checkAndPost(e, Feature.class, ForgeRegistries.FEATURES);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" }) // Stupid generics...
+	private <T> void checkAndPost(RegisterEvent e, Class<T> clazz, IForgeRegistry<? extends T> reg) {
+		if (e.getForgeRegistry() == reg) {
+			var ctr = ModLoadingContext.get().getActiveContainer();
+			ModLoader.get().postEventWithWrapInModOrder(new RegistryEvent.Register<>(clazz, (IForgeRegistry) reg), (mc, ev) -> ModLoadingContext.get().setActiveContainer(mc), (mc, ev) -> ModLoadingContext.get().setActiveContainer(null));
+			ModLoadingContext.get().setActiveContainer(ctr);
+		}
+	}
+
+	@SubscribeEvent
+	public void registerElse(Register<RecipeType<?>> e) {
+		PlaceboUtil.registerTypes();
 	}
 
 	public void registerCommands(RegisterCommandsEvent e) {
