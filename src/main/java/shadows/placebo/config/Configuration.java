@@ -38,6 +38,7 @@ import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -77,7 +78,7 @@ public class Configuration {
 
 	File file;
 
-	private Map<String, ConfigCategory> categories = new TreeMap<String, ConfigCategory>();
+	private Map<String, ConfigCategory> categories = new LinkedHashMap<String, ConfigCategory>();
 
 	private boolean caseSensitiveCustomCategories;
 	public String defaultEncoding = DEFAULT_ENCODING;
@@ -910,10 +911,11 @@ public class Configuration {
 				buffer.write(String.format("# %s", this.title != null ? this.title : "Configuration File"));
 				buffer.newLine();
 				buffer.newLine();
-				if (this.mainComment != null) writeComment(buffer, this.mainComment);
-				buffer.newLine();
-				buffer.newLine();
-
+				if (this.mainComment != null) {
+					writeComment(buffer, this.mainComment);
+					buffer.newLine();
+					buffer.newLine();
+				}
 				this.save(buffer);
 
 				buffer.close();

@@ -62,7 +62,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	protected Map<ResourceLocation, V> registry = ImmutableMap.of();
 
 	private final Map<ResourceLocation, V> staged = new HashMap<>();
-	private final Set<DynamicRegistryObject<? extends V>> regObjs = new HashSet<>();
+	private final Set<ListenerCallback<V>> callbacks = new HashSet<>();
 
 	private WeakReference<ICondition.IContext> context;
 
@@ -125,7 +125,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 */
 	protected void beginReload() {
 		this.registry = new HashMap<>();
-		this.regObjs.forEach(DynamicRegistryObject::invalidate);
+		this.callbacks.forEach(l -> l.beginReload(this));
 	}
 
 	/**
@@ -135,6 +135,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	protected void onReload() {
 		this.registry = ImmutableMap.copyOf(this.registry);
 		this.logger.info("Registered {} {}.", this.registry.size(), this.path);
+		this.callbacks.forEach(l -> l.onReload(this));
 	}
 
 	/**
@@ -260,10 +261,26 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		MinecraftForge.EVENT_BUS.addListener(this::addReloader);
 	}
 
+	@SuppressWarnings("unchecked")
 	public final <T extends V> DynamicRegistryObject<T> makeObj(ResourceLocation id) {
 		DynamicRegistryObject<T> obj = new DynamicRegistryObject<>(id, this);
-		this.regObjs.add(obj);
+		this.registerCallback(obj);
 		return obj;
+	}
+
+	/**
+	 * Registers a ListenerCallback to this reload listener.
+	 */
+	public final boolean registerCallback(ListenerCallback<V> callback) {
+		return this.callbacks.add(callback);
+	}
+
+	/**
+	 * Removes a ListenerCallback from this reload listener.
+	 * Must be the same instance as one that was previously registered, or an object that implements equals/hashcode.
+	 */
+	public final boolean removeCallback(ListenerCallback<V> callback) {
+		return this.callbacks.remove(callback);
 	}
 
 	private final void registerForSync(PlaceboJsonReloadListener<?> listener) {

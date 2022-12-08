@@ -1,11 +1,14 @@
 package shadows.placebo.json;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.minecraft.resources.ResourceLocation;
+import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
 
-public class DynamicRegistryObject<T> implements Supplier<T> {
+@SuppressWarnings("rawtypes")
+public class DynamicRegistryObject<T extends TypeKeyed<? super T>> implements Supplier<T>, ListenerCallback {
 
 	protected final ResourceLocation id;
 	protected final PlaceboJsonReloadListener<? super T> manager;
@@ -53,6 +56,25 @@ public class DynamicRegistryObject<T> implements Supplier<T> {
 	 */
 	public void ifPresent(Consumer<? super T> consumer) {
 		if (isPresent()) consumer.accept(get());
+	}
+
+	@Override
+	public void beginReload(PlaceboJsonReloadListener manager) {
+		this.invalidate();
+	}
+
+	@Override
+	public void onReload(PlaceboJsonReloadListener manager) {
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof DynamicRegistryObject dObj && dObj.manager == this.manager && dObj.id.equals(this.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.id, this.manager);
 	}
 
 }

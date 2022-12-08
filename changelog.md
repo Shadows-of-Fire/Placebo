@@ -1,3 +1,7 @@
+## 7.1.0
+* Removed DimWeightedJsonReloadListener in favor of better logic in WeightedJsonReloadListener.
+* Changed .cfg files such that they preserve insertion order for entries.
+
 ## 7.0.1
 * Added everything needed to port Apotheosis.
 

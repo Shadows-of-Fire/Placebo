@@ -23,10 +23,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
@@ -44,7 +44,7 @@ public class ConfigCategory implements Map<String, Property> {
 	private String comment;
 	private String languagekey;
 	private ArrayList<ConfigCategory> children = new ArrayList<ConfigCategory>();
-	private Map<String, Property> properties = new TreeMap<String, Property>();
+	private Map<String, Property> properties = new LinkedHashMap<String, Property>();
 	public final ConfigCategory parent;
 	private boolean changed = false;
 	private boolean requiresWorldRestart = false;
