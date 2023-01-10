@@ -8,7 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 /**
  * Level Function that allows for only returning "nice" stepped numbers.
  */
-public class StepFunction implements Float2FloatFunction {
+public final class StepFunction implements Float2FloatFunction {
 
 	protected final float min;
 	protected final int steps;
@@ -42,6 +42,26 @@ public class StepFunction implements Float2FloatFunction {
 
 	public float max() {
 		return this.min + this.steps * step;
+	}
+
+	public int steps() {
+		return this.steps;
+	}
+
+	/**
+	 * Returns the step number that the current level value corresponds to.<br>
+	 * Does not return a value higher than {@link steps()}, which is the max number of steps.
+	 */
+	public int getStep(float level) {
+		return (int) (steps * (level + 0.5F / steps));
+	}
+
+	public float getForStep(int step) {
+		return this.min + this.step * step;
+	}
+
+	public float getIntForStep(int step) {
+		return (int) getForStep(step);
 	}
 
 	public void write(FriendlyByteBuf buf) {

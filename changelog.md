@@ -1,3 +1,7 @@
+## 7.1.1
+* Added the ability to access the max and current steps of a StepFunction.
+* StepFunction is now a final class.
+
 ## 7.1.0
 * Removed DimWeightedJsonReloadListener in favor of better logic in WeightedJsonReloadListener.
 * Changed .cfg files such that they preserve insertion order for entries.
