@@ -59,6 +59,7 @@ public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILucky
 	/**
 	 * Gets a random item from this manager, ignoring luck.
 	 */
+	@Nullable
 	public V getRandomItem(RandomSource rand) {
 		return getRandomItem(rand, 0);
 	}
@@ -66,22 +67,24 @@ public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILucky
 	/**
 	 * Gets a random item from this manager, re-calculating the weights based on luck.
 	 */
+	@Nullable
 	public V getRandomItem(RandomSource rand, float luck) {
-		if (luck == 0) return WeightedRandom.getRandomItem(rand, zeroLuckList, zeroLuckTotalWeight).get().getData();
+		if (luck == 0) return WeightedRandom.getRandomItem(rand, zeroLuckList, zeroLuckTotalWeight).map(Wrapper::getData).orElse(null);
 		else {
 			List<Wrapper<V>> list = new ArrayList<>(zeroLuckList.size());
 			this.registry.values().stream().map(l -> l.<V>wrap(luck)).forEach(list::add);
-			return WeightedRandom.getRandomItem(rand, list).get().getData();
+			return WeightedRandom.getRandomItem(rand, list).map(Wrapper::getData).orElse(null);
 		}
 	}
 
 	/**
 	 * Gets a random item from this manager, re-calculating the weights based on luck and omitting items based on a filter.
 	 */
+	@Nullable
 	public V getRandomItem(RandomSource rand, float luck, Predicate<V> filter) {
 		List<Wrapper<V>> list = new ArrayList<>(zeroLuckList.size());
 		this.registry.values().stream().filter(filter).map(l -> l.<V>wrap(luck)).forEach(list::add);
-		return WeightedRandom.getRandomItem(rand, list).get().getData();
+		return WeightedRandom.getRandomItem(rand, list).map(Wrapper::getData).orElse(null);
 	}
 
 	/**
