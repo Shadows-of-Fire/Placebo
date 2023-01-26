@@ -5,18 +5,27 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.BiMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import shadows.placebo.Placebo;
 import shadows.placebo.json.JsonUtil.JsonDeserializer;
 import shadows.placebo.json.JsonUtil.JsonSerializer;
 import shadows.placebo.json.JsonUtil.NetDeserializer;
 import shadows.placebo.json.JsonUtil.NetSerializer;
+import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
 
 public class PSerializer<V> implements JsonDeserializer<V>, JsonSerializer<V>, NetDeserializer<V>, NetSerializer<V> {
 
@@ -128,12 +137,32 @@ public class PSerializer<V> implements JsonDeserializer<V>, JsonSerializer<V>, N
 		return builder;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <V> PSerializer.Builder<V> fromCodec(String name, Codec<? extends V> codec) {
+		Builder<V> builder = new Builder<>(name);
+		Codec<V> rawCodec = (Codec) codec;
+		Consumer<String> onErr = msg -> logCodecError(name, msg);
+		builder.withJsonSerializer(obj -> rawCodec.encodeStart(JsonOps.INSTANCE, obj).getOrThrow(false, onErr));
+		builder.withJsonDeserializer(json -> rawCodec.decode(JsonOps.INSTANCE, json).getOrThrow(false, onErr).getFirst());
+		builder.withNetworkSerializer((obj, buf) -> buf.writeNbt((CompoundTag) rawCodec.encodeStart(NbtOps.INSTANCE, obj).getOrThrow(false, onErr)));
+		builder.withNetworkDeserializer(buf -> rawCodec.decode(NbtOps.INSTANCE, buf.readNbt()).getOrThrow(false, onErr).getFirst());
+		return builder;
+	}
+
+	private static void logCodecError(String name, String msg) {
+		Placebo.LOGGER.error("Codec failure for type {}, message: {}", name, msg);
+	}
+
 	public static <V> PSerializer.Builder<V> builtin(String name, Supplier<V> factory) {
 		Builder<V> builder = new Builder<>(name);
 		builder.withJsonDeserializer(json -> factory.get()).withJsonSerializer(o -> new JsonObject());
 		builder.withNetworkDeserializer(net -> factory.get()).withNetworkSerializer((obj, buf) -> {
 		});
 		return builder;
+	}
+
+	public static <V extends TypeKeyed<V>> PSerializerTypeAdapter<V> makeTypeAdapter(BiMap<ResourceLocation, PSerializer<V>> serializers) {
+		return new PSerializerTypeAdapter<>(serializers);
 	}
 
 	public static class Builder<V> {

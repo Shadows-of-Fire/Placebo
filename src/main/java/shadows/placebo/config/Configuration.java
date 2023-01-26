@@ -1250,7 +1250,7 @@ public class Configuration {
 		Property prop = this.get(category, name, defaultValue);
 		prop.setLanguageKey(langKey);
 		prop.setValidationPattern(pattern);
-		prop.setComment(comment + " [default: " + defaultValue + "]");
+		prop.setComment(comment + "\nDefault: " + defaultValue);
 		return prop.getString();
 	}
 
@@ -1283,7 +1283,7 @@ public class Configuration {
 		Property prop = this.get(category, name, defaultValue);
 		prop.setValidValues(validValues);
 		prop.setLanguageKey(langKey);
-		prop.setComment(comment + " [default: " + defaultValue + "]");
+		prop.setComment(comment + "\nDefault: " + defaultValue);
 		return prop.getString();
 	}
 
@@ -1326,8 +1326,21 @@ public class Configuration {
 		Property prop = this.get(category, name, defaultValue);
 		prop.setLanguageKey(langKey);
 		prop.setValidValues(validValues);
-		prop.setComment(comment + " [default: " + prop.getDefault() + "]");
+		prop.setComment(comment + "\nDefault: " + toComment(prop.getDefaults()));
 		return prop.getStringList();
+	}
+
+	private static String toComment(String[] values) {
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < values.length; i++) {
+			sb.append(values[i].toString());
+			if (i != values.length - 1) {
+				sb.append("], [");
+			} else {
+				sb.append("]");
+			}
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -1356,7 +1369,7 @@ public class Configuration {
 	public boolean getBoolean(String name, String category, boolean defaultValue, String comment, String langKey) {
 		Property prop = this.get(category, name, defaultValue);
 		prop.setLanguageKey(langKey);
-		prop.setComment(comment + " [default: " + defaultValue + "]");
+		prop.setComment(comment + "\nDefault: " + defaultValue);
 		return prop.getBoolean(defaultValue);
 	}
 
@@ -1390,7 +1403,7 @@ public class Configuration {
 	public int getInt(String name, String category, int defaultValue, int minValue, int maxValue, String comment, String langKey) {
 		Property prop = this.get(category, name, defaultValue);
 		prop.setLanguageKey(langKey);
-		prop.setComment(comment + " [range: " + minValue + " ~ " + maxValue + ", default: " + defaultValue + "]");
+		prop.setComment(comment + "\nDefault: " + defaultValue + "; " + "Range: [" + minValue + " ~ " + maxValue + "]");
 		prop.setMinValue(minValue);
 		prop.setMaxValue(maxValue);
 		return prop.getInt(defaultValue) < minValue ? minValue : prop.getInt(defaultValue) > maxValue ? maxValue : prop.getInt(defaultValue);
@@ -1426,7 +1439,7 @@ public class Configuration {
 	public float getFloat(String name, String category, float defaultValue, float minValue, float maxValue, String comment, String langKey) {
 		Property prop = this.get(category, name, Float.toString(defaultValue), name);
 		prop.setLanguageKey(langKey);
-		prop.setComment(comment + " [range: " + minValue + " ~ " + maxValue + ", default: " + defaultValue + "]");
+		prop.setComment(comment + "\nDefault: " + defaultValue + "; " + "Range: [" + minValue + " ~ " + maxValue + "]");
 		prop.setMinValue(minValue);
 		prop.setMaxValue(maxValue);
 		try {

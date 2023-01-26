@@ -1,3 +1,6 @@
+## 7.1.3
+* Added Codec support to PSerializer.
+
 ## 7.1.2
 * Fixed Optional-related crashes.
 

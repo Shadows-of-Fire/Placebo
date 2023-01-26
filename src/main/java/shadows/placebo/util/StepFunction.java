@@ -1,6 +1,8 @@
 package shadows.placebo.util;
 
 import com.google.common.base.Preconditions;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,6 +11,16 @@ import net.minecraft.network.FriendlyByteBuf;
  * Level Function that allows for only returning "nice" stepped numbers.
  */
 public final class StepFunction implements Float2FloatFunction {
+
+	//Formatter::off
+	public static final Codec<StepFunction> CODEC = RecordCodecBuilder.create(inst -> 
+		inst.group(
+			Codec.FLOAT.fieldOf("min").forGetter(StepFunction::min),
+			Codec.INT.fieldOf("steps").forGetter(StepFunction::steps),
+			Codec.FLOAT.fieldOf("step").forGetter(StepFunction::step))
+			.apply(inst, StepFunction::new)
+		);
+	//Formatter::on
 
 	protected final float min;
 	protected final int steps;
@@ -40,12 +52,16 @@ public final class StepFunction implements Float2FloatFunction {
 		return this.min;
 	}
 
-	public float max() {
-		return this.min + this.steps * step;
-	}
-
 	public int steps() {
 		return this.steps;
+	}
+
+	public float step() {
+		return this.step;
+	}
+
+	public float max() {
+		return this.min + this.steps * step;
 	}
 
 	/**
