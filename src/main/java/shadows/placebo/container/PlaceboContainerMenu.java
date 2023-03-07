@@ -50,6 +50,11 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 		this.mover.registerRule((stack, slot) -> slot >= this.playerInvStart, this.hotbarStart, this.slots.size());
 	}
 
+	/**
+	 * This method is called when a click of type QUICK_MOVE (a shift click) is received.<br>
+	 * It will be called repeatedly until the returned item is empty or it differs from the item in the specified slot.
+	 * @apiNote this method is free to mutate all state about the container, which means the stack in the specified slot may change.
+	 */
 	@Override
 	public ItemStack quickMoveStack(Player pPlayer, int pIndex) {
 		return this.mover.quickMoveStack(this, pPlayer, pIndex);

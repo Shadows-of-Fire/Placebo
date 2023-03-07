@@ -1,3 +1,6 @@
+## 7.1.4
+* Added a hook for Placebo Container Menus to react to successful shift-click operations.
+
 ## 7.1.3
 * Added Codec support to PSerializer.
 

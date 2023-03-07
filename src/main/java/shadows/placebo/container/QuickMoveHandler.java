@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import shadows.placebo.Placebo;
 import shadows.placebo.mixin.AbstractContainerMenuInvoker;
 
 /**
@@ -17,19 +18,35 @@ public class QuickMoveHandler {
 
 	protected List<QuickMoveRule> rules = new ArrayList<>();
 
+	/**
+	 * Moves the stack in the specified slot index according to the quick move rules.
+	 * @param container The parent container
+	 * @param player The player who initiated the move
+	 * @param index The index of the slot to move
+	 * @return An empty itemstack, indicating the move is completed (or impossible), or a copy of the original slot stack, indicating the move is partially incomplete.
+	 */
 	public ItemStack quickMoveStack(IExposedContainer container, Player player, int index) {
+		if (this.rules.isEmpty()) throw new RuntimeException("Quick Move requires at least one rule to be registered");
 		ItemStack slotStackCopy = ItemStack.EMPTY;
 		Slot slot = container.getMenuSlot(index);
 		if (slot != null && slot.hasItem()) {
 			ItemStack slotStack = slot.getItem();
 			slotStackCopy = slotStack.copy();
+			boolean matched = false;
 			for (QuickMoveRule rule : this.rules) {
 				if (rule.req.test(slotStack, index)) {
+					// moveMenuItemStackTo returns true if it successfully moved any amount of the item.
 					if (!container.moveMenuItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) {
-						slot.setChanged();
-						return ItemStack.EMPTY;
+						return ItemStack.EMPTY; // Aborting here means the move is impossible, as no transfer was accomplished with the matched rule.
 					}
+					container.onQuickMove(slotStackCopy, slotStack, slot);
+					matched = true;
+					break;
 				}
+			}
+			if (!matched) {
+				Placebo.LOGGER.error("Failed to perform a quick move for container {}, which would have resulted in an infinite loop!", container);
+				return ItemStack.EMPTY;
 			}
 			if (slotStack.isEmpty()) {
 				slot.set(ItemStack.EMPTY);
@@ -60,6 +77,10 @@ public class QuickMoveHandler {
 
 		public default Slot getMenuSlot(int index) {
 			return ((AbstractContainerMenu) this).getSlot(index);
+		}
+
+		public default void onQuickMove(ItemStack original, ItemStack remaining, Slot slot) {
+			slot.setChanged();
 		}
 	}
 
