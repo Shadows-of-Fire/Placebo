@@ -99,7 +99,10 @@ public class PSerializer<V> implements JsonDeserializer<V>, JsonSerializer<V>, N
 	 * @param name Name of the object being serialized, for error logging
 	 * @param synced If this serialized will be used for networked data
 	 * @param clazz The class containing the read/write methods
+	 * 
+	 * @deprecated Prefer using {@link #fromCodec(String, Codec)} as it gives better error reporting even when buried in lambda soup.
 	 */
+	@Deprecated(forRemoval = true)
 	public static <V> PSerializer.Builder<V> autoRegister(String name, Class<? extends V> clazz) {
 		Builder<V> builder = new Builder<>(name);
 		Method[] methods = clazz.getDeclaredMethods();

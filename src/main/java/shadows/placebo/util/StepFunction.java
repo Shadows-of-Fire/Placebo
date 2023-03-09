@@ -1,6 +1,9 @@
 package shadows.placebo.util;
 
+import java.util.function.Function;
+
 import com.google.common.base.Preconditions;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -13,7 +16,7 @@ import net.minecraft.network.FriendlyByteBuf;
 public final class StepFunction implements Float2FloatFunction {
 
 	//Formatter::off
-	public static final Codec<StepFunction> CODEC = RecordCodecBuilder.create(inst -> 
+	public static final Codec<StepFunction> STRICT_CODEC = RecordCodecBuilder.create(inst -> 
 		inst.group(
 			Codec.FLOAT.fieldOf("min").forGetter(StepFunction::min),
 			Codec.INT.fieldOf("steps").forGetter(StepFunction::steps),
@@ -21,6 +24,11 @@ public final class StepFunction implements Float2FloatFunction {
 			.apply(inst, StepFunction::new)
 		);
 	//Formatter::on
+
+	/**
+	 * Accepts a float value, creating a constant step function, or a proper step function.
+	 */
+	public static final Codec<StepFunction> CODEC = Codec.either(Codec.FLOAT, STRICT_CODEC).xmap(e -> e.map(StepFunction::constant, Function.identity()), e -> Either.right(e));
 
 	protected final float min;
 	protected final int steps;

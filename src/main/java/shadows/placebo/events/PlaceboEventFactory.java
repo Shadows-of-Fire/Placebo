@@ -3,7 +3,9 @@ package shadows.placebo.events;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.extensions.IForgeItemStack;
 
 public class PlaceboEventFactory {
 
@@ -14,4 +16,14 @@ public class PlaceboEventFactory {
 		return null;
 	}
 
+	/**
+	 * Called from {@link IForgeItemStack#getEnchantmentLevel(Enchantment)}
+	 * 
+	 * Injected via coremods/get_ench_level_event.js
+	 */
+	public static int getEnchantmentLevel(int level, IForgeItemStack stack, Enchantment ench) {
+		var event = new GetEnchantmentLevelEvent((ItemStack) stack, ench, level);
+		MinecraftForge.EVENT_BUS.post(event);
+		return event.getLevel();
+	}
 }
