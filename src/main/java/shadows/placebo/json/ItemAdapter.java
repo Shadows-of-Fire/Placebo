@@ -2,6 +2,7 @@ package shadows.placebo.json;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,6 +14,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +29,17 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 	public static final ItemAdapter INSTANCE = new ItemAdapter();
 
 	public static final Gson ITEM_READER = new GsonBuilder().registerTypeAdapter(ItemStack.class, INSTANCE).registerTypeAdapter(CompoundTag.class, NBTAdapter.INSTANCE).registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer()).create();
+
+	//Formatter::off
+	public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(inst -> inst
+		.group(
+			ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ItemStack::getItem),
+			Codec.intRange(0, 64).optionalFieldOf("count", 1).forGetter(ItemStack::getCount),
+			CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(stack -> Optional.of(stack.getTag())),
+			CompoundTag.CODEC.optionalFieldOf("cap_nbt").forGetter(stack -> Optional.of(stack.getTag())))
+			.apply(inst, (item, count, nbt, capNbt) -> {var stack = new ItemStack(item, count, capNbt.orElse(null)); stack.setTag(nbt.orElse(null)); return stack;})
+		);
+	//Formatter::on
 
 	@Override
 	public ItemStack deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) throws JsonParseException {

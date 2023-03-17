@@ -1,6 +1,7 @@
 ## 7.1.5
 * Changed StepFunction.CODEC to accept constant float values as well as the usual definition.
 * Added the GetEnchantmentLevelEvent, which allows changing enchantment levels for gameplay purposes.
+* Fixed ItemUseEvent not accepting null players as specified by UseOnContext.
 
 ## 7.1.4
 * Added a hook for Placebo Container Menus to react to successful shift-click operations.

@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -19,7 +20,6 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.fml.LogicalSide;
 
 /**
  * This event is fired when an item would be used via {@link Item#useOn}<br>
@@ -37,15 +37,21 @@ public class ItemUseEvent extends PlayerEvent {
 	private final UseOnContext ctx;
 
 	public ItemUseEvent(UseOnContext ctx) {
-		super(Preconditions.checkNotNull(ctx.getPlayer(), "Null player in PlayerInteractEvent!"));
-		this.hand = Preconditions.checkNotNull(ctx.getHand(), "Null hand in PlayerInteractEvent!");
-		this.pos = Preconditions.checkNotNull(ctx.getClickedPos(), "Null position in PlayerInteractEvent!");
+		super(ctx.getPlayer());
+		this.hand = Preconditions.checkNotNull(ctx.getHand(), "Null hand in ItemUseEvent!");
+		this.pos = Preconditions.checkNotNull(ctx.getClickedPos(), "Null position in ItemUseEvent!");
 		this.face = ctx.getClickedFace();
 		this.ctx = ctx;
 	}
 
 	public UseOnContext getContext() {
 		return this.ctx;
+	}
+
+	@Override
+	@Nullable
+	public Player getEntity() {
+		return super.getEntity();
 	}
 
 	/**
@@ -61,7 +67,7 @@ public class ItemUseEvent extends PlayerEvent {
 	 */
 	@Nonnull
 	public ItemStack getItemStack() {
-		return getEntity().getItemInHand(hand);
+		return ctx.getItemInHand();
 	}
 
 	/**
@@ -87,15 +93,8 @@ public class ItemUseEvent extends PlayerEvent {
 	/**
 	 * @return Convenience method to get the world of this interaction.
 	 */
-	public Level getWorld() {
-		return getEntity().getCommandSenderWorld();
-	}
-
-	/**
-	 * @return The effective, i.e. logical, side of this interaction. This will be {@link LogicalSide#CLIENT} on the client thread, and {@link LogicalSide#SERVER} on the server thread.
-	 */
-	public LogicalSide getSide() {
-		return getWorld().isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER;
+	public Level getLevel() {
+		return ctx.getLevel();
 	}
 
 	/**

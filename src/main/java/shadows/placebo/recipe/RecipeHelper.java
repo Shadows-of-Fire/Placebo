@@ -203,6 +203,7 @@ public final class RecipeHelper {
 				Recipe<?> old = map.get(r.getId());
 				if (old == null) {
 					map.put(r.getId(), r);
+					mgr.byName.put(r.getId(), r);
 					totalRecipes++;
 				} else Placebo.LOGGER.debug("Skipping registration for code recipe {} as a json recipe already exists with that ID.", r.getId());
 			});

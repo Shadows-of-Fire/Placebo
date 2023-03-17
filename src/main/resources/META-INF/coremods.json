@@ -1,3 +1,4 @@
 {
+	"get_ench_level_event_specific": "coremods/get_ench_level_event_specific.js",
 	"get_ench_level_event": "coremods/get_ench_level_event.js"
 }
