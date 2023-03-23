@@ -1,7 +1,6 @@
 package shadows.placebo.json;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -11,6 +10,7 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -70,20 +70,21 @@ public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILucky
 	@Nullable
 	public V getRandomItem(RandomSource rand, float luck) {
 		if (luck == 0) return WeightedRandom.getRandomItem(rand, zeroLuckList, zeroLuckTotalWeight).map(Wrapper::getData).orElse(null);
-		else {
-			List<Wrapper<V>> list = new ArrayList<>(zeroLuckList.size());
-			this.registry.values().stream().map(l -> l.<V>wrap(luck)).forEach(list::add);
-			return WeightedRandom.getRandomItem(rand, list).map(Wrapper::getData).orElse(null);
-		}
+		return getRandomItem(rand, luck, Predicates.alwaysTrue());
 	}
 
 	/**
 	 * Gets a random item from this manager, re-calculating the weights based on luck and omitting items based on a filter.
 	 */
 	@Nullable
-	public V getRandomItem(RandomSource rand, float luck, Predicate<V> filter) {
+	@SafeVarargs
+	public final V getRandomItem(RandomSource rand, float luck, Predicate<V>... filters) {
 		List<Wrapper<V>> list = new ArrayList<>(zeroLuckList.size());
-		this.registry.values().stream().filter(filter).map(l -> l.<V>wrap(luck)).forEach(list::add);
+		var stream = this.registry.values().stream();
+		for (Predicate<V> filter : filters) {
+			stream = stream.filter(filter);
+		}
+		stream.map(l -> l.<V>wrap(luck)).forEach(list::add);
 		return WeightedRandom.getRandomItem(rand, list).map(Wrapper::getData).orElse(null);
 	}
 
@@ -141,34 +142,6 @@ public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILucky
 		public static <T extends IDimensional> Predicate<T> matches(Level level) {
 			return matches(level.dimension().location());
 		}
-	}
-
-	/**
-	 * An item that is restricted by a particular game stage (or other string).
-	 */
-	public static interface IStaged {
-
-		/**
-		 * Null means "all stages", empty means "never available".
-		 * @return A set of all the game stages this item is available in.
-		 */
-		@Nullable
-		Set<String> getStages();
-
-		public static <T extends IStaged> Predicate<T> matches(String stage) {
-			return obj -> {
-				Set<String> stages = obj.getStages();
-				return stages == null || stages.contains(stage);
-			};
-		}
-
-		public static <T extends IStaged> Predicate<T> matchesAny(Collection<String> stages) {
-			return obj -> {
-				Set<String> ourStages = obj.getStages();
-				return ourStages == null || stages.stream().anyMatch(ourStages::contains);
-			};
-		}
-
 	}
 
 }

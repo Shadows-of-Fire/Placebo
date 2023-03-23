@@ -1,3 +1,6 @@
+## 7.1.6
+* More codec things.
+
 ## 7.1.5
 * Changed StepFunction.CODEC to accept constant float values as well as the usual definition.
 * Added the GetEnchantmentLevelEvent, which allows changing enchantment levels for gameplay purposes.

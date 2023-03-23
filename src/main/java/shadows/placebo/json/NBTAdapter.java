@@ -1,6 +1,7 @@
 package shadows.placebo.json;
 
 import java.lang.reflect.Type;
+import java.util.function.Function;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -10,6 +11,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -17,6 +20,17 @@ import net.minecraft.nbt.TagParser;
 public class NBTAdapter implements JsonDeserializer<CompoundTag>, JsonSerializer<CompoundTag> {
 
 	public static final NBTAdapter INSTANCE = new NBTAdapter();
+
+	//Formatter::off
+	public static final Codec<CompoundTag> EITHER_CODEC = 
+			Codec.either(Codec.STRING, CompoundTag.CODEC).xmap(either -> either.map(t -> {
+				try {
+					return TagParser.parseTag(t);
+				} catch (CommandSyntaxException e) {
+					throw new RuntimeException(e);
+				}
+			}, Function.identity()), Either::right);
+	//Formatter::on
 
 	@Override
 	public JsonElement serialize(CompoundTag src, Type typeOfSrc, JsonSerializationContext context) {

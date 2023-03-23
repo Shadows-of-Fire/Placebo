@@ -12,6 +12,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -24,9 +26,20 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
+import shadows.placebo.codec.EnumCodec;
 import shadows.placebo.util.StepFunction;
 
 public class RandomAttributeModifier {
+
+	//Formatter::off
+	public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
+		.group(
+			ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
+			new EnumCodec<>(Operation.class).fieldOf("operation").forGetter(a -> a.op),
+			StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
+			.apply(inst, RandomAttributeModifier::new)
+		);
+	//Formatter::on
 
 	protected final Attribute attribute;
 	protected final Operation op;

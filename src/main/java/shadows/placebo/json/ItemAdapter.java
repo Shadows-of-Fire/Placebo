@@ -15,6 +15,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.nbt.CompoundTag;
@@ -49,7 +50,15 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 		boolean optional = obj.has("optional") ? obj.get("optional").getAsBoolean() : false;
 		if (!optional && item == Items.AIR && !id.equals(ForgeRegistries.ITEMS.getKey(Items.AIR))) throw new JsonParseException("Failed to read non-optional item " + id);
 		int count = obj.has("count") ? obj.get("count").getAsInt() : 1;
-		CompoundTag tag = obj.has("nbt") ? ctx.deserialize(obj.get("nbt"), CompoundTag.class) : null;
+		CompoundTag tag = null;
+		if (obj.has("nbt")) {
+			var nbt = obj.get("nbt");
+			if (nbt.isJsonObject()) {
+				tag = CompoundTag.CODEC.decode(JsonOps.INSTANCE, nbt).get().orThrow().getFirst();
+			} else {
+				tag = ctx.deserialize(obj.get("nbt"), CompoundTag.class);
+			}
+		}
 		CompoundTag capTag = obj.has("cap_nbt") ? ctx.deserialize(obj.get("cap_nbt"), CompoundTag.class) : null;
 		ItemStack stack = new ItemStack(item, count, capTag);
 		stack.setTag(tag);
