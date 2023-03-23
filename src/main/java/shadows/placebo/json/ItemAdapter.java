@@ -36,11 +36,17 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 		.group(
 			ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ItemStack::getItem),
 			Codec.intRange(0, 64).optionalFieldOf("count", 1).forGetter(ItemStack::getCount),
-			CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(stack -> Optional.of(stack.getTag())),
-			CompoundTag.CODEC.optionalFieldOf("cap_nbt").forGetter(stack -> Optional.of(stack.getTag())))
+			CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(stack -> Optional.ofNullable(stack.getTag())),
+			CompoundTag.CODEC.optionalFieldOf("cap_nbt").forGetter(ItemAdapter::getCapNBT))
 			.apply(inst, (item, count, nbt, capNbt) -> {var stack = new ItemStack(item, count, capNbt.orElse(null)); stack.setTag(nbt.orElse(null)); return stack;})
 		);
 	//Formatter::on
+
+	private static Optional<CompoundTag> getCapNBT(ItemStack stack) {
+		CompoundTag written = stack.save(new CompoundTag());
+		if (written.contains("ForgeCaps")) return Optional.of(written.getCompound("ForgeCaps"));
+		return Optional.empty();
+	}
 
 	@Override
 	public ItemStack deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) throws JsonParseException {

@@ -1,3 +1,6 @@
+## 7.1.7
+* Fixed a network encode error in ItemAdapter.CODEC.
+
 ## 7.1.6
 * More codec things.
 
