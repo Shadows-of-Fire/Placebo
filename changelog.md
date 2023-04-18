@@ -1,3 +1,8 @@
+## 7.1.8
+* Made the TagParser accept codec-form CompoundTag (NBT) Objects.
+* Fixed a crash that could happen if negative luck was encountered.
+* Added new Supporter Wings (Armored, Blaze, Bone, Cloud, Fairy, Mechanical, and Monarch).
+
 ## 7.1.7
 * Fixed a network encode error in ItemAdapter.CODEC.
 

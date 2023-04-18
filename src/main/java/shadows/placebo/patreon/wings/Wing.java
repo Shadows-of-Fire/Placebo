@@ -21,6 +21,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
+import shadows.placebo.patreon.PatreonUtils.WingType;
+import shadows.placebo.patreon.WingsManager;
 
 //Made with Blockbench 3.8.4
 //Exported for Minecraft version 1.15 - 1.16
@@ -52,12 +54,13 @@ public class Wing extends EntityModel<AbstractClientPlayer> implements IWingMode
 	@Override
 	public void render(PoseStack stack, MultiBufferSource buf, int packedLightIn, AbstractClientPlayer player, float partialTicks, ResourceLocation texture, PlayerModel<AbstractClientPlayer> model) {
 		if (player.isInvisible()) return;
+		WingType type = WingsManager.getType(player.getUUID());
 		stack.translate(0, 0, 0.065);
 		if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ArmorItem) stack.translate(0, 0, 0.075);
 		stack.mulPose(Vector3f.YN.rotationDegrees(90));
 		float rotationTime = player.tickCount % 40 + partialTicks;
-		this.setRotationAngle(this.cube_r1, 0, 0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(Math.PI * rotationTime / 20), 0);
-		this.setRotationAngle(this.cube_r2, 0, -(0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(Math.PI * rotationTime / 20)), 0);
+		this.setRotationAngle(this.cube_r1, 0, 0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(type.flapSpeed * Math.PI * rotationTime / 20), 0);
+		this.setRotationAngle(this.cube_r2, 0, -(0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(type.flapSpeed * Math.PI * rotationTime / 20)), 0);
 		this.renderToBuffer(stack, buf.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 	}
 
