@@ -1,3 +1,45 @@
+## 7.1.8
+* Made the TagParser accept codec-form CompoundTag (NBT) Objects.
+* Fixed a crash that could happen if negative luck was encountered.
+* Added new Supporter Wings (Armored, Blaze, Bone, Cloud, Fairy, Mechanical, and Monarch).
+
+## 7.1.7
+* Fixed a network encode error in ItemAdapter.CODEC.
+
+## 7.1.6
+* More codec things.
+
+## 7.1.5
+* Changed StepFunction.CODEC to accept constant float values as well as the usual definition.
+* Added the GetEnchantmentLevelEvent, which allows changing enchantment levels for gameplay purposes.
+* Fixed ItemUseEvent not accepting null players as specified by UseOnContext.
+
+## 7.1.4
+* Added a hook for Placebo Container Menus to react to successful shift-click operations.
+
+## 7.1.3
+* Added Codec support to PSerializer.
+
+## 7.1.2
+* Fixed Optional-related crashes.
+
+## 7.1.1
+* Added the ability to access the max and current steps of a StepFunction.
+* StepFunction is now a final class.
+
+## 7.1.0
+* Removed DimWeightedJsonReloadListener in favor of better logic in WeightedJsonReloadListener.
+* Changed .cfg files such that they preserve insertion order for entries.
+
+## 7.0.1
+* Added everything needed to port Apotheosis.
+
+## 7.0.0
+* Updated to 1.19.2
+
+## 6.6.7
+* Backported new supporter wings from 7.1.8.
+
 ## 6.6.6
 * Added some additional json utility code.
 
