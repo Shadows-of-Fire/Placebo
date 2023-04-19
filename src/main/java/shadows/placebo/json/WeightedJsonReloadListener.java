@@ -116,7 +116,7 @@ public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILucky
 		 * Static (and more generic-safe) variant of {@link ILuckyWeighted#wrap(float)}
 		 */
 		static <T extends ILuckyWeighted> Wrapper<T> wrap(T item, float luck) {
-			return WeightedEntry.wrap(item, item.getWeight() + (int) (luck * item.getQuality()));
+			return WeightedEntry.wrap(item, Math.max(0, item.getWeight() + (int) (luck * item.getQuality())));
 		}
 	}
 

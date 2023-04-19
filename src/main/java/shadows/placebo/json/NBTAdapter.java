@@ -13,9 +13,11 @@ import com.google.gson.JsonSerializer;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
+import shadows.placebo.Placebo;
 
 public class NBTAdapter implements JsonDeserializer<CompoundTag>, JsonSerializer<CompoundTag> {
 
@@ -39,11 +41,7 @@ public class NBTAdapter implements JsonDeserializer<CompoundTag>, JsonSerializer
 
 	@Override
 	public CompoundTag deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-		try {
-			return TagParser.parseTag(json.getAsString());
-		} catch (CommandSyntaxException e) {
-			throw new JsonParseException(e);
-		}
+		return EITHER_CODEC.parse(JsonOps.INSTANCE, json).getOrThrow(false, Placebo.LOGGER::error);
 	}
 
 }
