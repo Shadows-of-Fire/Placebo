@@ -34,7 +34,6 @@ public class PatreonUtils {
 		GLOW(() -> ParticleTypes.GLOW),
 		GROWTH(() -> ParticleTypes.HAPPY_VILLAGER),
 		HEART(() -> ParticleTypes.HEART),
-		SCULK_SOUL(() -> ParticleTypes.SCULK_SOUL),
 		SLIME(() -> ParticleTypes.ITEM_SLIME),
 		SNOW(() -> ParticleTypes.ITEM_SNOWBALL),
 		SOUL(() -> ParticleTypes.SOUL),
