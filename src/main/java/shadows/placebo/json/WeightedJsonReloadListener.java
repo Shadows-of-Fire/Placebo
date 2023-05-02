@@ -18,7 +18,6 @@ import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedEntry.Wrapper;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.level.Level;
-import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
 import shadows.placebo.json.WeightedJsonReloadListener.ILuckyWeighted;
 
 public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILuckyWeighted> extends PlaceboJsonReloadListener<V> {

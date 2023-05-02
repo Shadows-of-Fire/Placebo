@@ -12,8 +12,6 @@ import javax.annotation.Nullable;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -33,15 +31,14 @@ import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import shadows.placebo.Placebo;
-import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
 import shadows.placebo.network.PacketDistro;
 import shadows.placebo.packets.ReloadListenerPacket;
 
 /**
  * A Placebo JSON Reload Listener is a big pile of boilerplate for registering reload listeners efficiently.<br>
  * To utilize this class, subclass it, and provide the appropriate constructor parameters.<br>
- * You will provide your serializers via {@link PlaceboJsonReloadListener#registerBuiltinSerializers()}.<br>
- * You will then need to register it via {@link PlaceboJsonReloadListener#registerToBus()}.<br>
+ * You will provide your serializers via {@link #registerBuiltinSerializers()}.<br>
+ * You will then need to register it via {@link #registerToBus()}.<br>
  * 
  * From then on, loading of files, condition checks, network sync, and everything else is automatically handled.
  *
@@ -49,15 +46,18 @@ import shadows.placebo.packets.ReloadListenerPacket;
  */
 public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends SimpleJsonResourceReloadListener {
 
-	private static final Map<String, PlaceboJsonReloadListener<?>> SYNC_REGISTRY = new HashMap<>();
-
+	/**
+	 * The Default key is used when subtypes are not enabled.
+	 */
 	public static final ResourceLocation DEFAULT = new ResourceLocation("default");
+
+	private static final Map<String, PlaceboJsonReloadListener<?>> SYNC_REGISTRY = new HashMap<>();
 
 	protected final Logger logger;
 	protected final String path;
 	protected final boolean synced;
 	protected final boolean subtypes;
-	protected final BiMap<ResourceLocation, PSerializer<V>> serializers = HashBiMap.create();
+	protected final SerializerMap<V> serializers;
 
 	protected Map<ResourceLocation, V> registry = ImmutableMap.of();
 
@@ -79,30 +79,29 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 		this.path = path;
 		this.synced = synced;
 		this.subtypes = subtypes;
+		this.serializers = new SerializerMap<>(path);
 		this.registerBuiltinSerializers();
-		if (this.serializers.isEmpty()) throw new RuntimeException("Attempted to create a json reload listener for " + path + " with no top-level serializers!");
+		if (this.serializers.isEmpty()) throw new RuntimeException("Attempted to create a json reload listener for " + path + " with no built-in serializers!");
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected final void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
 		this.beginReload();
 		objects.forEach((key, ele) -> {
 			try {
 				if (checkAndLogEmpty(ele, key, this.path, this.logger) && checkConditions(ele, key, this.path, this.logger, this.getContext())) {
 					JsonObject obj = ele.getAsJsonObject();
-					PSerializer<V> serializer;
-					if (this.subtypes && obj.has("type")) {
-						ResourceLocation type = new ResourceLocation(obj.get("type").getAsString());
-						serializer = this.serializers.get(type);
-						if (serializer == null) throw new RuntimeException("Attempted to deserialize a " + this.path + " with type " + type + " but no serializer exists!");
+					V deserialized;
+					if (this.subtypes) {
+						deserialized = this.serializers.read(obj);
 					} else {
-						serializer = this.serializers.get(DEFAULT);
+						deserialized = this.serializers.get(DEFAULT).read(obj);
 					}
-					V deserialized = serializer.read(obj);
 					deserialized.setId(key);
-					deserialized.setSerializer(serializer);
 					Preconditions.checkNotNull(deserialized.getId(), "A " + this.path + " with id " + key + " failed to set ID.");
-					Preconditions.checkNotNull(deserialized.getSerializer(), "A " + this.path + " with id " + key + " failed to set serializer.");
+					Preconditions.checkNotNull(deserialized.getSerializer(), "A " + this.path + " with id " + key + " is not declaring a serializer.");
+					Preconditions.checkNotNull(this.serializers.get(deserialized.getSerializer()), "A " + this.path + " with id " + key + " is declaring an unregistered serializer.");
 					this.register(key, deserialized);
 				}
 			} catch (Exception e) {
@@ -139,19 +138,18 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	}
 
 	/**
-	 * Register a serializer to this listener.  Does not permit duplicates.
-	 * If this is a subtyped serializer, the first serializer registered will also be registered with key {@link PlaceboJsonReloadListener#DEFAULT}.
-	 * @param id The ID of the serializer.  If you do not support subtypes, use {@link PlaceboJsonReloadListener#DEFAULT}.
+	 * Register a serializer to this listener. Does not permit duplicates, and does not permit multiple registration.
+	 * @param id The ID of the serializer. If subtypes are not supported, this is ignored, and {@link #DEFAULT} is used.
 	 * @param serializer The serializer being registered.
 	 */
-	public final void registerSerializer(ResourceLocation id, PSerializer.Builder<V> serializer) {
+	public final void registerSerializer(ResourceLocation id, PSerializer<? extends V> serializer) {
+		serializer.validate(false, synced);
 		if (this.subtypes) {
-			if (this.serializers.containsKey(id)) throw new RuntimeException("Attempted to register a " + this.path + " serializer with id " + id + " but one already exists!");
-			if (this.serializers.isEmpty() && id != DEFAULT) this.serializers.put(DEFAULT, serializer.build(this.synced));
-			this.serializers.put(id, serializer.build(this.synced));
+			if (this.serializers.contains(id)) throw new RuntimeException("Attempted to register a " + this.path + " serializer with id " + id + " but one already exists!");
+			this.serializers.register(id, serializer);
 		} else {
 			if (!this.serializers.isEmpty()) throw new RuntimeException("Attempted to register a " + this.path + " serializer with id " + id + " but subtypes are not supported!");
-			this.serializers.put(DEFAULT, serializer.build(this.synced));
+			this.serializers.register(DEFAULT, serializer);
 		}
 	}
 
@@ -298,53 +296,6 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	}
 
 	/**
-	 * An interface supporting ID's and Serializers with generic types.
-	 *
-	 * @param <V> This
-	 */
-	public static interface TypeKeyed<V extends TypeKeyed<V>> {
-		void setId(ResourceLocation id);
-
-		void setSerializer(PSerializer<V> serializer);
-
-		ResourceLocation getId();
-
-		PSerializer<V> getSerializer();
-	}
-
-	/**
-	 * Intrusive base implementation of {@link TypeKeyed}
-	 *
-	 * @param <V> This
-	 */
-	public static abstract class TypeKeyedBase<V extends TypeKeyed<V>> implements TypeKeyed<V> {
-		protected ResourceLocation id;
-		protected PSerializer<V> serializer;
-
-		@Override
-		public void setId(ResourceLocation id) {
-			if (this.id != null) throw new UnsupportedOperationException();
-			this.id = id;
-		}
-
-		@Override
-		public void setSerializer(PSerializer<V> serializer) {
-			if (this.serializer != null) throw new UnsupportedOperationException();
-			this.serializer = serializer;
-		}
-
-		@Override
-		public ResourceLocation getId() {
-			return this.id;
-		}
-
-		@Override
-		public PSerializer<V> getSerializer() {
-			return this.serializer;
-		}
-	}
-
-	/**
 	 * Begins the sync for a specific listener.
 	 * @param path The path of the listener being synced.
 	 */
@@ -362,11 +313,10 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 * @param value The value being written.
 	 * @param buf The buffer being written to.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <V extends TypeKeyed<V>> void writeItem(String path, V value, FriendlyByteBuf buf) {
 		SYNC_REGISTRY.computeIfPresent(path, (k, v) -> {
-			ResourceLocation serId = v.serializers.inverse().get(value.getSerializer());
-			buf.writeResourceLocation(serId);
-			value.getSerializer().write(value, buf);
+			((SerializerMap<V>) v.serializers).write(value, buf);
 			return v;
 		});
 	}
@@ -379,14 +329,12 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 * @param buf The buffer being read from.
 	 * @return An object of type V as deserialized from the network.
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	public static <V extends TypeKeyed<V>> V readItem(String path, ResourceLocation key, FriendlyByteBuf buf) {
 		var listener = SYNC_REGISTRY.get(path);
 		if (listener == null) throw new RuntimeException("Received sync packet for unknown registry!");
-		var serializer = listener.serializers.get(buf.readResourceLocation());
-		V v = (V) serializer.read(buf);
+		V v = (V) listener.serializers.read(buf);
 		v.setId(key);
-		v.setSerializer((PSerializer<V>) serializer);
 		return v;
 	}
 

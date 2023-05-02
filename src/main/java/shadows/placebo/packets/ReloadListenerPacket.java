@@ -6,7 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent.Context;
 import shadows.placebo.json.PlaceboJsonReloadListener;
-import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
+import shadows.placebo.json.TypeKeyed;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.network.MessageProvider;
 

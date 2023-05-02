@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.minecraft.resources.ResourceLocation;
-import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
 
 @SuppressWarnings("rawtypes")
 public class DynamicRegistryObject<T extends TypeKeyed<? super T>> implements Supplier<T>, ListenerCallback {

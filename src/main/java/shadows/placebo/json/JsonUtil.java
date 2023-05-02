@@ -54,11 +54,11 @@ public class JsonUtil {
 	}
 
 	public static interface JsonSerializer<V> {
-		public JsonElement write(V src);
+		public JsonObject write(V src);
 	}
 
 	public static interface JsonDeserializer<V> {
-		public V read(JsonElement json);
+		public V read(JsonObject json);
 	}
 
 	public static interface NetSerializer<V> {
@@ -69,7 +69,7 @@ public class JsonUtil {
 		public V read(FriendlyByteBuf buf);
 	}
 
-	private static record SDS2<T> (com.google.gson.JsonDeserializer<T> jds, com.google.gson.JsonSerializer<T> js) implements com.google.gson.JsonDeserializer<T>, com.google.gson.JsonSerializer<T> {
+	private static record SDS2<T>(com.google.gson.JsonDeserializer<T> jds, com.google.gson.JsonSerializer<T> js) implements com.google.gson.JsonDeserializer<T>, com.google.gson.JsonSerializer<T> {
 
 		@Override
 		public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {

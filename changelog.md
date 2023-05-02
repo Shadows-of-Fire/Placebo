@@ -1,3 +1,9 @@
+## 7.2.0
+* Updated TypeKeyed to no longer require setting the serializer. Objects should be aware of what their serializer is, as two serializers should not produce the same object.
+  * Breaking change for Apotheosis, Gateways, and HNN, so all of those will need to be updated as well.
+  * Also improved some validation in the deserialization process.
+* Added more codec support across the board.
+
 ## 7.1.8
 * Made the TagParser accept codec-form CompoundTag (NBT) Objects.
 * Fixed a crash that could happen if negative luck was encountered.

@@ -2,8 +2,6 @@ package shadows.placebo.json;
 
 import java.util.function.Consumer;
 
-import shadows.placebo.json.PlaceboJsonReloadListener.TypeKeyed;
-
 public interface ListenerCallback<V extends TypeKeyed<V>> {
 
 	public void beginReload(PlaceboJsonReloadListener<V> manager);
