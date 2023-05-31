@@ -1,3 +1,6 @@
+## 7.2.1
+* Added a method to invalidate all cached objects of a given type.
+
 ## 7.2.0
 * Updated TypeKeyed to no longer require setting the serializer. Objects should be aware of what their serializer is, as two serializers should not produce the same object.
   * Breaking change for Apotheosis, Gateways, and HNN, so all of those will need to be updated as well.

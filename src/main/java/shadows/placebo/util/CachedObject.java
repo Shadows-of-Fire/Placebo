@@ -1,5 +1,10 @@
 package shadows.placebo.util;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
@@ -16,6 +21,11 @@ import net.minecraft.world.item.ItemStack;
  * @param <T> The type of object being cached.
  */
 public final class CachedObject<T> {
+
+	/**
+	 * A global cache of all CachedObject(s), if they ever need to be invalidated without accessing all parent objects.
+	 */
+	private static final Map<ResourceLocation, Set<CachedObject<?>>> GLOBAL_CACHE = new HashMap<>();
 
 	public static final int HAS_NEVER_BEEN_INITIALIZED = -2;
 	public static final int EMPTY_NBT = -1;
@@ -37,6 +47,7 @@ public final class CachedObject<T> {
 		this.id = id;
 		this.deserializer = deserializer;
 		this.hasher = hasher;
+		insertToCache(this);
 	}
 
 	/**
@@ -48,21 +59,38 @@ public final class CachedObject<T> {
 		this(id, deserializer, CachedObject::defaultHash);
 	}
 
+	/**
+	 * Retrieves the stored value from this CachedObject, computing it if necessary from the passed itemstack.
+	 * @param stack The itemstack owning this CachedObject.
+	 * @return The cached result.
+	 */
 	@Nullable
 	public T get(ItemStack stack) {
 		if (this.lastNbtHash == HAS_NEVER_BEEN_INITIALIZED) {
-			refresh(stack);
+			compute(stack);
 			return this.data;
 		}
 
 		if (this.hasher.applyAsInt(stack) != this.lastNbtHash) {
-			refresh(stack);
+			compute(stack);
 		}
 
 		return data;
 	}
 
-	protected void refresh(ItemStack stack) {
+	/**
+	 * Resets this CachedObject to the initial state, deleting all cached data.
+	 */
+	public void reset() {
+		this.data = null;
+		this.lastNbtHash = HAS_NEVER_BEEN_INITIALIZED;
+	}
+
+	/**
+	 * Computes the cached value from the parent itemstack.
+	 * @param stack The itemstack owning this CachedObject.
+	 */
+	protected void compute(ItemStack stack) {
 		this.data = deserializer.apply(stack);
 		this.lastNbtHash = this.hasher.applyAsInt(stack);
 	}
@@ -75,24 +103,58 @@ public final class CachedObject<T> {
 	}
 
 	/**
-	 * Cast ItemStack to this interface.
+	 * A CachedObjectSource is any parent object capable of holding CachedObjects.<br>
+	 * Currently this is limited to just ItemStack. This interface is applied via mixin.
+	 * <p>
+	 * Cast ItemStack to this interface to access CachedObjects.
 	 */
 	public interface CachedObjectSource {
 
+		/**
+		 * Gets a cached value, creating the necessary CachedObject (and computing the value) if necessary.
+		 * @param <T> The type of object being requested.
+		 * @param id The ID of the cached object type.
+		 * @param deserializer The cached object deserializer.
+		 * @param hasher The hash function.
+		 * @return The object, as produced by the deserializer, which will also be stored in the internal cache.
+		 */
 		public <T> T getOrCreate(ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher);
 
+		/**
+		 * @see #getOrCreate(ResourceLocation, Function, ToIntFunction)
+		 */
 		public default <T> T getOrCreate(ResourceLocation id, Function<ItemStack, T> deserializer) {
 			return getOrCreate(id, deserializer, CachedObject::defaultHash);
 		}
 
+		/**
+		 * Helper which hides the cast to CachedObjectSource.
+		 * @see #getOrCreate(ResourceLocation, Function, ToIntFunction)
+		 */
 		public static <T> T getOrCreate(ItemStack stack, ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
 			return ((CachedObjectSource) (Object) stack).getOrCreate(id, deserializer, hasher);
 		}
 
+		/**
+		 * Helper which hides the cast to CachedObjectSource.
+		 * @see #getOrCreate(ResourceLocation, Function, ToIntFunction)
+		 */
 		public static <T> T getOrCreate(ItemStack stack, ResourceLocation id, Function<ItemStack, T> deserializer) {
 			return ((CachedObjectSource) (Object) stack).getOrCreate(id, deserializer);
 		}
 
+	}
+
+	/**
+	 * Invalidates ALL CachedObjects of a specific type ID.
+	 */
+	public static void invalidateAll(ResourceLocation id) {
+		GLOBAL_CACHE.getOrDefault(id, Collections.emptySet()).forEach(CachedObject::reset);
+	}
+
+	private static void insertToCache(CachedObject<?> obj) {
+		var set = GLOBAL_CACHE.computeIfAbsent(obj.id, key -> Collections.newSetFromMap(new WeakHashMap<>()));
+		set.add(obj);
 	}
 
 }
