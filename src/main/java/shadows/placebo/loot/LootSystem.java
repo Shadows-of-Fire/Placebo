@@ -6,6 +6,8 @@ import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootDataId;
+import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
@@ -22,7 +24,7 @@ public class LootSystem {
 	/**
 	 * All custom tables to be loaded into the game.
 	 */
-	public static final Map<ResourceLocation, LootTable> PLACEBO_TABLES = new HashMap<>();
+	public static final Map<LootDataId<LootTable>, LootTable> PLACEBO_TABLES = new HashMap<>();
 
 	/**
 	 * Registers a loot table.  Tables should be registered during the {@link FMLCommonSetupEvent}.
@@ -31,9 +33,10 @@ public class LootSystem {
 	 * @param table The table instance.
 	 */
 	public static void registerLootTable(ResourceLocation key, LootTable table) {
-		if (!PLACEBO_TABLES.containsKey(key)) {
+		var trueKey = new LootDataId<>(LootDataType.TABLE, key);
+		if (!PLACEBO_TABLES.containsKey(trueKey)) {
 			table.setLootTableId(key);
-			PLACEBO_TABLES.put(key, table);
+			PLACEBO_TABLES.put(trueKey, table);
 		} else Placebo.LOGGER.warn("Duplicate loot entry detected, this is not allowed!  Key: " + key);
 	}
 

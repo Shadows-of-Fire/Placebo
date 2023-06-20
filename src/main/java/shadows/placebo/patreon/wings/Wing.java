@@ -2,7 +2,7 @@ package shadows.placebo.patreon.wings;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -57,7 +57,7 @@ public class Wing extends EntityModel<AbstractClientPlayer> implements IWingMode
 		WingType type = WingsManager.getType(player.getUUID());
 		stack.translate(0, 0, 0.065);
 		if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ArmorItem) stack.translate(0, 0, 0.075);
-		stack.mulPose(Vector3f.YN.rotationDegrees(90));
+		stack.mulPose(Axis.YN.rotationDegrees(90));
 		float rotationTime = player.tickCount % 40 + partialTicks;
 		this.setRotationAngle(this.cube_r1, 0, 0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(type.flapSpeed * Math.PI * rotationTime / 20), 0);
 		this.setRotationAngle(this.cube_r2, 0, -(0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(type.flapSpeed * Math.PI * rotationTime / 20)), 0);

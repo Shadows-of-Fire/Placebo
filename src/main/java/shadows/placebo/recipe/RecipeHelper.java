@@ -17,6 +17,7 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -165,7 +166,7 @@ public final class RecipeHelper {
 		 */
 		public void addShapeless(Object output, Object... inputs) {
 			ItemStack out = makeStack(output);
-			addRecipe(new ShapelessRecipe(this.name(out), this.modid, out, createInput(modid, false, inputs)));
+			addRecipe(new ShapelessRecipe(this.name(out), this.modid, CraftingBookCategory.MISC, out, createInput(modid, false, inputs)));
 		}
 
 		/**
@@ -185,7 +186,7 @@ public final class RecipeHelper {
 
 		private ShapedRecipe genShaped(ItemStack output, int width, int height, Object... input) {
 			if (width * height != input.length) throw new UnsupportedOperationException("Attempted to add invalid shaped recipe.  Complain to the author of " + this.modid);
-			return new ShapedRecipe(this.name(output), this.modid, width, height, createInput(modid, true, input), output);
+			return new ShapedRecipe(this.name(output), this.modid, CraftingBookCategory.MISC, width, height, createInput(modid, true, input), output);
 		}
 
 		private ResourceLocation name(ItemStack out) {

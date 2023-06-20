@@ -1,3 +1,6 @@
+## 8.0.0
+* Updated to 1.20.1
+
 ## 7.2.1
 * Added a method to invalidate all cached objects of a given type.
 

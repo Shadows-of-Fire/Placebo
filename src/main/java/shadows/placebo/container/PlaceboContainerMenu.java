@@ -19,7 +19,7 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 
 	protected PlaceboContainerMenu(MenuType<?> type, int id, Inventory pInv) {
 		super(type, id);
-		this.level = pInv.player.level;
+		this.level = pInv.player.level();
 	}
 
 	/**

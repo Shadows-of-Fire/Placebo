@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.network.IContainerFactory;
@@ -43,7 +44,7 @@ public class ContainerUtil {
 	}
 
 	public static <T extends AbstractContainerMenu> MenuType<T> makeType(PosFactory<T> fac) {
-		return new MenuType<>(factory(fac));
+		return new MenuType<T>(factory(fac), FeatureFlags.REGISTRY.subset());
 	}
 
 	public static <T extends AbstractContainerMenu> IContainerFactory<T> factory(PosFactory<T> fac) {
@@ -51,8 +52,8 @@ public class ContainerUtil {
 	}
 
 	public static <M extends AbstractContainerMenu> InteractionResult openGui(Player player, BlockPos pos, PosFactory<M> factory) {
-		if (player.level.isClientSide) return InteractionResult.SUCCESS;
-		NetworkHooks.openScreen((ServerPlayer) player, new SimplerMenuProvider<>(player.level, pos, factory), pos);
+		if (player.level().isClientSide) return InteractionResult.SUCCESS;
+		NetworkHooks.openScreen((ServerPlayer) player, new SimplerMenuProvider<>(player.level(), pos, factory), pos);
 		return InteractionResult.CONSUME;
 	}
 

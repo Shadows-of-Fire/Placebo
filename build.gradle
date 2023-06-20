@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '[6.0,6.2)', changing: true
 		classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
 		classpath 'org.parchmentmc:librarian:1.+'
     }
@@ -17,13 +17,18 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
 
-archivesBaseName = "${fileName}-${mcVersion}"
+base {
+    archivesName = "${fileName}-${mcVersion}"
+}
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(project.properties.javaVersion)
 
 minecraft {
     mappings channel: 'parchment', version: project.properties.parchmentVersion
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    enableEclipsePrepareRuns = true
+    copyIdeResources = true
+    generateRunFolders = true
     runs {
         client = {
             properties 'forge.logging.markers': ''
@@ -72,7 +77,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mcVersion}-${forgeVersion}"
 	if(project.mixin.toBoolean()) annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
-	if(project.hasProperty('jeiVersion')) implementation fg.deobf("mezz.jei:jei-${jeiVersion}")
+	if(project.hasProperty('jeiVersion')) implementation fg.deobf("mezz.jei:jei-${mcVersion}-forge:${jeiVersion}")
 	if(project.hasProperty('jadeFileId')) implementation fg.deobf("curse.maven:jade-324717:${jadeFileId}")
 	if(project.hasProperty('curiosVer'))  implementation fg.deobf("top.theillusivec4.curios:curios-forge:${curiosVer}")
 	if(project.hasProperty('topVersion')) implementation fg.deobf(project.dependencies.create("mcjty.theoneprobe:theoneprobe:${topVersion}") {
@@ -99,10 +104,10 @@ def replaceProperties = [modid: modid,
 						 clientMixins: clientMixins
 						]
 
-if(project.hasProperty('placeboDep')) replaceProperties.put placeboDep, placeboDep
-if(project.hasProperty('curiosVer')) replaceProperties.put curiosVer, curiosVer
-if(project.hasProperty('topVersion')) replaceProperties.put topVersion, topVersion
-if(project.hasProperty('patchouliVer')) replaceProperties.put patchouliVer, patchouliVer
+if (project.hasProperty('placeboDep')) replaceProperties.put 'placeboDep', placeboDep
+if (project.hasProperty('curiosVer')) replaceProperties.put 'curiosVer', curiosVer
+if (project.hasProperty('topVersion')) replaceProperties.put 'topVersion', topVersion
+if (project.hasProperty('patchouliVer')) replaceProperties.put 'patchouliVer', patchouliVer
 
 processResources {
     inputs.properties replaceProperties
@@ -144,7 +149,7 @@ jar.finalizedBy('reobfJar')
 task devJar(type: Jar) {
     from sourceSets.main.output
 	from sourceSets.main.allJava
-    classifier = 'dev'
+    archiveClassifier  = 'dev'
     manifest {
         attributes(["Specification-Title": project.fileName,
                     "Specification-Vendor": project.author,
@@ -162,4 +167,8 @@ devJar.finalizedBy('reobfJar')
 
 artifacts {
     archives devJar
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }

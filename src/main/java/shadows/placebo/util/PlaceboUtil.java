@@ -61,7 +61,7 @@ public class PlaceboUtil {
 	public static <B extends Block & IReplacementBlock> void registerOverride(Block old, B block, String modid) {
 		ResourceLocation key = ForgeRegistries.BLOCKS.getKey(old);
 		ForgeRegistries.BLOCKS.register(key, block);
-		ForgeRegistries.ITEMS.register(key, new BlockItem(block, new Item.Properties().tab(old.asItem().getItemCategory())) {
+		ForgeRegistries.ITEMS.register(key, new BlockItem(block, new Item.Properties()) {
 			@Override
 			public String getCreatorModId(ItemStack itemStack) {
 				return modid;

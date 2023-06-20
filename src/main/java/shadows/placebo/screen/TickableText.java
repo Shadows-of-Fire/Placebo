@@ -2,9 +2,8 @@ package shadows.placebo.screen;
 
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
 public class TickableText {
@@ -35,8 +34,8 @@ public class TickableText {
 		return this;
 	}
 
-	public void render(Font font, PoseStack stack, int x, int y) {
-		font.draw(stack, this.message.substring(0, Mth.ceil(Math.min(this.ticks * this.tickRate, this.message.length()))), x, y, this.color);
+	public void render(Font font, GuiGraphics graphics, int x, int y) {
+		graphics.drawString(font, this.message.substring(0, Mth.ceil(Math.min(this.ticks * this.tickRate, this.message.length()))), x, y, this.color);
 	}
 
 	public int getMaxUsefulTicks() {

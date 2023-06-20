@@ -1,7 +1,6 @@
 package shadows.placebo.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
@@ -15,10 +14,10 @@ public abstract class PlaceboContainerScreen<T extends AbstractContainerMenu> ex
 	}
 
 	@Override
-	public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-		this.renderBackground(pPoseStack);
-		super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-		this.renderTooltip(pPoseStack, pMouseX, pMouseY);
+	public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+		this.renderBackground(graphics);
+		super.render(graphics, pMouseX, pMouseY, pPartialTick);
+		this.renderTooltip(graphics, pMouseX, pMouseY);
 	}
 
 }

@@ -65,7 +65,7 @@ public class TrailsManager {
 		if (e.phase == Phase.END && Minecraft.getInstance().level != null) {
 			for (Player player : Minecraft.getInstance().level.players()) {
 				if (!player.isInvisible() && player.tickCount * 3 % 2 == 0 && !DISABLED.contains(player.getUUID()) && (t = TRAILS.get(player.getUUID())) != null) {
-					ClientLevel world = (ClientLevel) player.level;
+					ClientLevel world = (ClientLevel) player.level();
 					RandomSource rand = world.random;
 					ParticleOptions type = t.type.get();
 					world.addParticle(type, player.getX() + rand.nextDouble() * 0.4 - 0.2, player.getY() + 0.1, player.getZ() + rand.nextDouble() * 0.4 - 0.2, 0, 0, 0);

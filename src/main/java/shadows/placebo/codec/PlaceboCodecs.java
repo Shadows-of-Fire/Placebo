@@ -57,7 +57,7 @@ public class PlaceboCodecs {
 			Codec codec = key.<Codec>map(this.registry::get).orElse(this.defaultCodec);
 
 			if (codec == null) {
-				return DataResult.error("Failure when parsing a " + name + ". Unrecognized type: " + key.map(ResourceLocation::toString).orElse("null"));
+				return DataResult.error(() -> "Failure when parsing a " + name + ". Unrecognized type: " + key.map(ResourceLocation::toString).orElse("null"));
 			}
 			return codec.decode(ops, input);
 		}
@@ -67,7 +67,7 @@ public class PlaceboCodecs {
 			Codec<V> codec = (Codec<V>) input.getCodec();
 			ResourceLocation key = this.registry.inverse().get(codec);
 			if (key == null) {
-				return DataResult.error("Attempted to serialize an element of type " + name + " with an unregistered codec! Object: " + input);
+				return DataResult.error(() -> "Attempted to serialize an element of type " + name + " with an unregistered codec! Object: " + input);
 			}
 			T encodedKey = ResourceLocation.CODEC.encodeStart(ops, key).getOrThrow(false, Placebo.LOGGER::error);
 			T encodedObj = (T) codec.encode(input, ops, prefix).getOrThrow(false, Placebo.LOGGER::error);
