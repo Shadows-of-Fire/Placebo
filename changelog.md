@@ -1,3 +1,8 @@
+## 7.3.0
+* Added an Ingredient codec.
+* Made CachedObject use ConcurrentHashMap to avoid issues resolving offthread (induced by FastSuite recipe matching in parallel).
+* Reduced conditions-not-met log message from PlaceboJsonReloadList
+
 ## 7.2.1
 * Added a method to invalidate all cached objects of a given type.
 

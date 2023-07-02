@@ -1,20 +1,29 @@
 package shadows.placebo.codec;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.BiMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import shadows.placebo.Placebo;
+import shadows.placebo.json.ItemAdapter;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class PlaceboCodecs {
@@ -27,8 +36,44 @@ public class PlaceboCodecs {
 		return new MapBackedCodec<>(name, reg);
 	}
 
+	@Deprecated // Renamed to setOf
 	public static <V> Codec<Set<V>> setCodec(Codec<V> elementCodec) {
-		return elementCodec.listOf().<Set<V>>xmap(HashSet::new, ArrayList::new);
+		return setOf(elementCodec);
+	}
+
+	public static <V> Codec<Set<V>> setOf(Codec<V> elementCodec) {
+		return setFromList(elementCodec.listOf());
+	}
+
+	public static <V> Codec<Set<V>> setFromList(Codec<List<V>> listCodec) {
+		return listCodec.<Set<V>>xmap(HashSet::new, ArrayList::new);
+	}
+
+	/**
+	 * One-Way Ingredient codec. When initialliy deserializing, supports a mix of tag keys and item registry names.<br>
+	 * When serialzing, it will only serialize the actual item list, which will not include the original tag key.
+	 */
+	public static class IngredientCodec implements Codec<Ingredient> {
+
+		public static IngredientCodec INSTANCE = new IngredientCodec();
+
+		private static Codec<List<ItemStack>> ITEM_LIST_CODEC = ItemAdapter.CODEC.listOf();
+
+		@Override
+		public <T> DataResult<T> encode(Ingredient input, DynamicOps<T> ops, T prefix) {
+			return ITEM_LIST_CODEC.encode(Arrays.asList(input.getItems()), ops, prefix);
+		}
+
+		@Override
+		public <T> DataResult<Pair<Ingredient, T>> decode(DynamicOps<T> ops, T input) {
+			JsonElement json = input instanceof JsonElement j ? j : ops.convertTo(JsonOps.INSTANCE, input);
+			try {
+				return DataResult.success(Pair.of(CraftingHelper.getIngredient(json), input));
+			} catch (JsonSyntaxException ex) {
+				return DataResult.error(ex.getMessage());
+			}
+		}
+
 	}
 
 	public static class MapBackedCodec<V extends CodecProvider<V>> implements Codec<V> {
