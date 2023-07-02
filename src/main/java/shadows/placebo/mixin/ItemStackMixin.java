@@ -1,7 +1,7 @@
 package shadows.placebo.mixin;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
@@ -21,7 +21,7 @@ import shadows.placebo.util.CachedObject.CachedObjectSource;
 @Mixin(ItemStack.class)
 public class ItemStackMixin implements CachedObjectSource {
 
-	public Map<ResourceLocation, CachedObject<?>> cachedObjects = new HashMap<>();
+	public Map<ResourceLocation, CachedObject<?>> cachedObjects = new ConcurrentHashMap<>();
 
 	@Inject(at = @At("HEAD"), method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", cancellable = true)
 	public void placebo_itemUseHook(UseOnContext ctx, CallbackInfoReturnable<InteractionResult> cir) {

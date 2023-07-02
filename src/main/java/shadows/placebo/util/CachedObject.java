@@ -1,10 +1,10 @@
 package shadows.placebo.util;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
@@ -25,7 +25,7 @@ public final class CachedObject<T> {
 	/**
 	 * A global cache of all CachedObject(s), if they ever need to be invalidated without accessing all parent objects.
 	 */
-	private static final Map<ResourceLocation, Set<CachedObject<?>>> GLOBAL_CACHE = new HashMap<>();
+	private static final Map<ResourceLocation, Set<CachedObject<?>>> GLOBAL_CACHE = new ConcurrentHashMap<>();
 
 	public static final int HAS_NEVER_BEEN_INITIALIZED = -2;
 	public static final int EMPTY_NBT = -1;
@@ -100,6 +100,13 @@ public final class CachedObject<T> {
 	 */
 	public static int defaultHash(ItemStack stack) {
 		return stack.hasTag() ? stack.getTag().hashCode() : EMPTY_NBT;
+	}
+
+	/**
+	 * Creates a hashing function that hashes a specific subkey.
+	 */
+	public static ToIntFunction<ItemStack> hashSubkey(String subkey) {
+		return stack -> stack.getTagElement(subkey) != null ? stack.getTagElement(subkey).hashCode() : EMPTY_NBT;
 	}
 
 	/**

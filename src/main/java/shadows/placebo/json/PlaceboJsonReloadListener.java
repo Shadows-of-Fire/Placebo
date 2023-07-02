@@ -237,7 +237,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed<V>> extends 
 	 */
 	public static boolean checkConditions(JsonElement e, ResourceLocation id, String type, Logger logger, IContext context) {
 		if (e.isJsonObject() && !CraftingHelper.processConditions(e.getAsJsonObject(), "conditions", context)) {
-			logger.debug("Skipping loading {} item with id {} as it's conditions were not met", type, id);
+			logger.trace("Skipping loading {} item with id {} as it's conditions were not met", type, id);
 			return false;
 		}
 		return true;
