@@ -10,7 +10,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 
-version = "1.12.2-1.6.0"
+version = "1.12.2-1.6.1"
 group= "shadows.placebo"
 archivesBaseName = "Placebo"
 
@@ -36,8 +36,8 @@ repositories {
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.12.2:+"
-	deobfCompile "mcp.mobius.waila:Hwyla:1.8.+"
+	//deobfCompile "mezz.jei:jei_1.12.2:+"
+	//deobfCompile "mcp.mobius.waila:Hwyla:1.8.+"
 }
 
 processResources
