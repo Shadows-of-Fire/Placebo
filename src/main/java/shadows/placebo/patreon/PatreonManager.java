@@ -43,7 +43,7 @@ public class PatreonManager {
 		new Thread(() -> {
 			Placebo.LOG.info("Loading patreon data...");
 			try {
-				URL url = new URL("https://raw.githubusercontent.com/Shadows-of-Fire/Placebo/master/PatreonInfo.txt");
+				URL url = new URL("https://raw.githubusercontent.com/Shadows-of-Fire/Placebo/1.12/PatreonInfo.txt");
 				BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
 				while (reader.ready()) {
 					String s = reader.readLine();
