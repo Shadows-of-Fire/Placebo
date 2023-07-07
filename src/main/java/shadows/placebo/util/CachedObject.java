@@ -91,8 +91,10 @@ public final class CachedObject<T> {
 	 * @param stack The itemstack owning this CachedObject.
 	 */
 	protected void compute(ItemStack stack) {
-		this.data = deserializer.apply(stack);
-		this.lastNbtHash = this.hasher.applyAsInt(stack);
+		synchronized (this) {
+			this.data = deserializer.apply(stack);
+			this.lastNbtHash = this.hasher.applyAsInt(stack);
+		}
 	}
 
 	/**
@@ -160,8 +162,12 @@ public final class CachedObject<T> {
 	}
 
 	private static void insertToCache(CachedObject<?> obj) {
-		var set = GLOBAL_CACHE.computeIfAbsent(obj.id, key -> Collections.newSetFromMap(new WeakHashMap<>()));
-		set.add(obj);
+		// Compute ensures that we are in a synchronized block of the global ConcurrentHashMap.
+		GLOBAL_CACHE.compute(obj.id, (id, set) -> {
+			if (set == null) set = Collections.newSetFromMap(new WeakHashMap<>());
+			set.add(obj);
+			return set;
+		});
 	}
 
 }
