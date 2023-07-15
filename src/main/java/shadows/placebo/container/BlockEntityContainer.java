@@ -6,9 +6,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import shadows.placebo.container.EasyContainerData.IDataAutoRegister;
-import shadows.placebo.container.QuickMoveHandler.IExposedContainer;
 
-public abstract class BlockEntityContainer<T extends BlockEntity> extends PlaceboContainerMenu implements IExposedContainer {
+public abstract class BlockEntityContainer<T extends BlockEntity> extends PlaceboContainerMenu {
 
 	protected final BlockPos pos;
 	protected final T tile;
