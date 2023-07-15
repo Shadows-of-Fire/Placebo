@@ -1,19 +1,22 @@
 package shadows.placebo.container;
 
+import java.util.function.Predicate;
+
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import shadows.placebo.cap.InternalItemHandler;
 import shadows.placebo.container.QuickMoveHandler.IExposedContainer;
 
 public abstract class PlaceboContainerMenu extends AbstractContainerMenu implements IExposedContainer {
 
 	protected final Level level;
 	protected final QuickMoveHandler mover = new QuickMoveHandler();
-	protected IDataUpdateListener updateListener;
 
 	protected int playerInvStart = -1, hotbarStart = -1;
 
@@ -65,14 +68,52 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 		return super.moveItemStackTo(pStack, pStartIndex, pEndIndex, pReverseDirection);
 	}
 
+	@Deprecated
 	public void setDataListener(IDataUpdateListener listener) {
-		this.updateListener = listener;
+		addDataListener(listener);
 	}
 
-	@Override
-	public void setData(int pId, int pData) {
-		super.setData(pId, pData);
-		if (this.updateListener != null) this.updateListener.dataUpdated(pId, pData);
+	public void addDataListener(IDataUpdateListener listener) {
+		this.addSlotListener(new ContainerListener() {
+
+			@Override
+			public void slotChanged(AbstractContainerMenu pContainerToSend, int pDataSlotIndex, ItemStack pStack) {
+			}
+
+			@Override
+			public void dataChanged(AbstractContainerMenu pContainerMenu, int pDataSlotIndex, int pValue) {
+				listener.dataUpdated(pDataSlotIndex, pValue);
+			}
+
+		});
+	}
+
+	public void addSlotListener(SlotUpdateListener listener) {
+		this.addSlotListener(new ContainerListener() {
+
+			@Override
+			public void slotChanged(AbstractContainerMenu pContainerToSend, int pDataSlotIndex, ItemStack pStack) {
+				listener.slotUpdated(pDataSlotIndex, pStack);
+			}
+
+			@Override
+			public void dataChanged(AbstractContainerMenu pContainerMenu, int pDataSlotIndex, int pValue) {
+			}
+
+		});
+	}
+
+	protected class UpdatingSlot extends FilteredSlot {
+
+		public UpdatingSlot(InternalItemHandler handler, int index, int x, int y, Predicate<ItemStack> filter) {
+			super(handler, index, x, y, filter);
+		}
+
+		@Override
+		public void setChanged() {
+			super.setChanged();
+			PlaceboContainerMenu.this.slotsChanged(null);
+		}
 	}
 
 }

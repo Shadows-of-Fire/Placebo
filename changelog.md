@@ -1,3 +1,6 @@
+## 7.3.1
+* Added SlotUpdateListener so I can stop copying `Runnable listener` into all my menu classes.
+
 ## 7.3.0
 * Added an Ingredient codec.
 * Made CachedObject use ConcurrentHashMap to avoid issues resolving offthread (induced by FastSuite recipe matching in parallel).
