@@ -1,7 +1,9 @@
 package shadows.placebo;
 
+import java.io.File;
 import java.util.HashMap;
 
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,6 +45,7 @@ import net.minecraftforge.registries.RegisterEvent;
 import shadows.placebo.color.GradientColor;
 import shadows.placebo.commands.PlaceboCommand;
 import shadows.placebo.compat.TOPCompat;
+import shadows.placebo.config.Configuration;
 import shadows.placebo.network.MessageHelper;
 import shadows.placebo.packets.ButtonClickMessage;
 import shadows.placebo.packets.PatreonDisableMessage;
@@ -56,6 +59,10 @@ public class Placebo {
 
 	public static final String MODID = "placebo";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
+	static final File configDir = new File(FMLPaths.CONFIGDIR.get().toFile(), MODID);
+
+	public static boolean firstPersonPatreonEffects = true;
+
 	//Formatter::off
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
             .named(new ResourceLocation(MODID, MODID))
@@ -82,6 +89,7 @@ public class Placebo {
 		MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
 		MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
 		MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
+		setupConfig();
 		e.enqueueWork(() -> {
 			PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
 		});
@@ -124,6 +132,13 @@ public class Placebo {
 
 	public void registerCommands(RegisterCommandsEvent e) {
 		PlaceboCommand.register(e.getDispatcher());
+	}
+
+	public void setupConfig() {
+		Configuration config = new Configuration(new File(configDir, "placebo.cfg"));
+		config.setTitle("Placebo Configuration");
+		firstPersonPatreonEffects = config.getBoolean("Enable First Person Patreon Trail Effect", "patreon", true, "Render your Patreon trail particle effects in first person mode");
+		config.save();
 	}
 
 }
