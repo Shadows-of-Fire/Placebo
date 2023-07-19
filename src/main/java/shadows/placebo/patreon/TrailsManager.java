@@ -64,6 +64,10 @@ public class TrailsManager {
 		PatreonParticleType t = null;
 		if (e.phase == Phase.END && Minecraft.getInstance().level != null) {
 			for (Player player : Minecraft.getInstance().level.players()) {
+				if (Minecraft.getInstance().player.getUUID() == player.getUUID() && !Placebo.firstPersonPatreonEffects && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+					continue;
+				}
+
 				if (!player.isInvisible() && player.tickCount * 3 % 2 == 0 && !DISABLED.contains(player.getUUID()) && (t = TRAILS.get(player.getUUID())) != null) {
 					ClientLevel world = (ClientLevel) player.level;
 					RandomSource rand = world.random;
