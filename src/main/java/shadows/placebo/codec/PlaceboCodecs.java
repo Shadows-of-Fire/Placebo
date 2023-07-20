@@ -68,9 +68,9 @@ public class PlaceboCodecs {
 		public <T> DataResult<Pair<Ingredient, T>> decode(DynamicOps<T> ops, T input) {
 			JsonElement json = input instanceof JsonElement j ? j : ops.convertTo(JsonOps.INSTANCE, input);
 			try {
-				return DataResult.success(Pair.of(CraftingHelper.getIngredient(json), input));
+				return DataResult.success(Pair.of(CraftingHelper.getIngredient(json, true), input));
 			} catch (JsonSyntaxException ex) {
-				return DataResult.error(ex.getMessage());
+				return DataResult.error(ex::getMessage);
 			}
 		}
 
