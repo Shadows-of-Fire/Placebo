@@ -15,11 +15,11 @@ import shadows.placebo.recipe.RecipeHelper;
 @Mixin(ReloadableServerResources.class)
 public class ServerResourcesMixin {
 
-	@Inject(method = "listeners()Ljava/util/List;", at = @At("RETURN"), cancellable = true)
-	public void placebo_listeners(CallbackInfoReturnable<List<PreparableReloadListener>> ci) {
-		List<PreparableReloadListener> listeners = new ArrayList<>(ci.getReturnValue());
-		listeners.add(RecipeHelper.getReloader(((ReloadableServerResources) (Object) this).getRecipeManager()));
-		ci.setReturnValue(listeners);
-	}
+    @Inject(method = "listeners()Ljava/util/List;", at = @At("RETURN"), cancellable = true)
+    public void placebo_listeners(CallbackInfoReturnable<List<PreparableReloadListener>> ci) {
+        List<PreparableReloadListener> listeners = new ArrayList<>(ci.getReturnValue());
+        listeners.add(RecipeHelper.getReloader(((ReloadableServerResources) (Object) this).getRecipeManager()));
+        ci.setReturnValue(listeners);
+    }
 
 }

@@ -12,61 +12,61 @@ import net.minecraft.world.level.block.Block;
  */
 public class StackPrimer {
 
-	Item item = null;
-	Block block;
-	int size;
-	CompoundTag tag;
+    Item item = null;
+    Block block;
+    int size;
+    CompoundTag tag;
 
-	public StackPrimer(Item item, int size, @Nullable CompoundTag tag) {
-		this.item = item;
-		this.size = size;
-		this.tag = tag;
-	}
+    public StackPrimer(Item item, int size, @Nullable CompoundTag tag) {
+        this.item = item;
+        this.size = size;
+        this.tag = tag;
+    }
 
-	public StackPrimer(Item item, @Nullable CompoundTag tag) {
-		this(item, 1, tag);
-	}
+    public StackPrimer(Item item, @Nullable CompoundTag tag) {
+        this(item, 1, tag);
+    }
 
-	public StackPrimer(Item item) {
-		this(item, 1, null);
-	}
+    public StackPrimer(Item item) {
+        this(item, 1, null);
+    }
 
-	public StackPrimer(Block block, int size, @Nullable CompoundTag tag) {
-		this.block = block;
-		this.size = size;
-		this.tag = tag;
-	}
+    public StackPrimer(Block block, int size, @Nullable CompoundTag tag) {
+        this.block = block;
+        this.size = size;
+        this.tag = tag;
+    }
 
-	public StackPrimer(Block item, @Nullable CompoundTag tag) {
-		this(item, 1, tag);
-	}
+    public StackPrimer(Block item, @Nullable CompoundTag tag) {
+        this(item, 1, tag);
+    }
 
-	public StackPrimer(Block item) {
-		this(item, 1, null);
-	}
+    public StackPrimer(Block item) {
+        this(item, 1, null);
+    }
 
-	public ItemStack genStack() {
-		ItemStack stack = new ItemStack(this.item == null ? this.item = this.block.asItem() : this.item, this.size);
-		stack.setTag(this.tag.copy());
-		return stack;
-	}
+    public ItemStack genStack() {
+        ItemStack stack = new ItemStack(this.item == null ? this.item = this.block.asItem() : this.item, this.size);
+        stack.setTag(this.tag.copy());
+        return stack;
+    }
 
-	public boolean isEmpty() {
-		return this.item == null || this.size <= 0;
-	}
+    public boolean isEmpty() {
+        return this.item == null || this.size <= 0;
+    }
 
-	@Nullable
-	public Block getBlock() {
-		return this.block;
-	}
+    @Nullable
+    public Block getBlock() {
+        return this.block;
+    }
 
-	@Nullable
-	public Item getItem() {
-		return this.item;
-	}
+    @Nullable
+    public Item getItem() {
+        return this.item;
+    }
 
-	public int getCount() {
-		return this.size;
-	}
+    public int getCount() {
+        return this.size;
+    }
 
 }

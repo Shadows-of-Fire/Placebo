@@ -12,20 +12,20 @@ import shadows.placebo.patreon.WingsManager;
 
 public class WingLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-	public WingLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> playerModelIn) {
-		super(playerModelIn);
-	}
+    public WingLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> playerModelIn) {
+        super(playerModelIn);
+    }
 
-	@Override
-	public void render(PoseStack stack, MultiBufferSource buf, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-		if (WingsManager.DISABLED.contains(player.getUUID())) return;
-		WingType type = WingsManager.getType(player.getUUID());
-		if (type != null) {
-			stack.pushPose();
-			stack.translate(0, type.yOffset, 0);
-			type.model.get().render(stack, buf, packedLightIn, player, partialTicks, type.textureGetter.apply(player), this.getParentModel());
-			stack.popPose();
-		}
-	}
+    @Override
+    public void render(PoseStack stack, MultiBufferSource buf, int packedLightIn, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (WingsManager.DISABLED.contains(player.getUUID())) return;
+        WingType type = WingsManager.getType(player.getUUID());
+        if (type != null) {
+            stack.pushPose();
+            stack.translate(0, type.yOffset, 0);
+            type.model.get().render(stack, buf, packedLightIn, player, partialTicks, type.textureGetter.apply(player), this.getParentModel());
+            stack.popPose();
+        }
+    }
 
 }

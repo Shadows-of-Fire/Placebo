@@ -16,51 +16,53 @@ import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
 
 /**
- * In-Code LootTables.  This allows for the creation and automatic registration of tables without JSON files.
+ * In-Code LootTables. This allows for the creation and automatic registration of tables without JSON files.
  * Tables are automatically ceded to JSON tables if any are present under the same name.
  */
 public class LootSystem {
 
-	/**
-	 * All custom tables to be loaded into the game.
-	 */
-	public static final Map<LootDataId<LootTable>, LootTable> PLACEBO_TABLES = new HashMap<>();
+    /**
+     * All custom tables to be loaded into the game.
+     */
+    public static final Map<LootDataId<LootTable>, LootTable> PLACEBO_TABLES = new HashMap<>();
 
-	/**
-	 * Registers a loot table.  Tables should be registered during the {@link FMLCommonSetupEvent}.
-	 * However, tables will work as long as they are registered before initial reload.
-	 * @param key The name of the table.
-	 * @param table The table instance.
-	 */
-	public static void registerLootTable(ResourceLocation key, LootTable table) {
-		var trueKey = new LootDataId<>(LootDataType.TABLE, key);
-		if (!PLACEBO_TABLES.containsKey(trueKey)) {
-			table.setLootTableId(key);
-			PLACEBO_TABLES.put(trueKey, table);
-		} else Placebo.LOGGER.warn("Duplicate loot entry detected, this is not allowed!  Key: " + key);
-	}
+    /**
+     * Registers a loot table. Tables should be registered during the {@link FMLCommonSetupEvent}.
+     * However, tables will work as long as they are registered before initial reload.
+     *
+     * @param key   The name of the table.
+     * @param table The table instance.
+     */
+    public static void registerLootTable(ResourceLocation key, LootTable table) {
+        var trueKey = new LootDataId<>(LootDataType.TABLE, key);
+        if (!PLACEBO_TABLES.containsKey(trueKey)) {
+            table.setLootTableId(key);
+            PLACEBO_TABLES.put(trueKey, table);
+        }
+        else Placebo.LOGGER.warn("Duplicate loot entry detected, this is not allowed!  Key: " + key);
+    }
 
-	/**
-	 * Helper function to get a loot table builder.
-	 */
-	public static LootTable.Builder tableBuilder() {
-		return new LootTable.Builder();
-	}
+    /**
+     * Helper function to get a loot table builder.
+     */
+    public static LootTable.Builder tableBuilder() {
+        return new LootTable.Builder();
+    }
 
-	/**
-	 * Creates a new {@link PoolBuilder} which is used to create {@link LootPool}s
-	 */
-	public static PoolBuilder poolBuilder(int minRolls, int maxRolls) {
-		return new PoolBuilder(minRolls, maxRolls);
-	}
+    /**
+     * Creates a new {@link PoolBuilder} which is used to create {@link LootPool}s
+     */
+    public static PoolBuilder poolBuilder(int minRolls, int maxRolls) {
+        return new PoolBuilder(minRolls, maxRolls);
+    }
 
-	/**
-	 * Automatically creates and registers a "default" block loot table.
-	 */
-	public static void defaultBlockTable(Block b) {
-		LootTable.Builder builder = tableBuilder();
-		builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(ExplosionCondition.survivesExplosion()));
-		registerLootTable(new ResourceLocation(ForgeRegistries.BLOCKS.getKey(b).getNamespace(), "blocks/" + ForgeRegistries.BLOCKS.getKey(b).getPath()), builder.build());
-	}
+    /**
+     * Automatically creates and registers a "default" block loot table.
+     */
+    public static void defaultBlockTable(Block b) {
+        LootTable.Builder builder = tableBuilder();
+        builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(ExplosionCondition.survivesExplosion()));
+        registerLootTable(new ResourceLocation(ForgeRegistries.BLOCKS.getKey(b).getNamespace(), "blocks/" + ForgeRegistries.BLOCKS.getKey(b).getPath()), builder.build());
+    }
 
 }

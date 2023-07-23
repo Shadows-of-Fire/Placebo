@@ -21,19 +21,19 @@ import shadows.placebo.util.CachedObject.CachedObjectSource;
 @Mixin(ItemStack.class)
 public class ItemStackMixin implements CachedObjectSource {
 
-	public Map<ResourceLocation, CachedObject<?>> cachedObjects = new ConcurrentHashMap<>();
+    public Map<ResourceLocation, CachedObject<?>> cachedObjects = new ConcurrentHashMap<>();
 
-	@Inject(at = @At("HEAD"), method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", cancellable = true)
-	public void placebo_itemUseHook(UseOnContext ctx, CallbackInfoReturnable<InteractionResult> cir) {
-		InteractionResult itemUseEventRes = PlaceboEventFactory.onItemUse((ItemStack) (Object) this, ctx);
-		if (itemUseEventRes != null) cir.setReturnValue(itemUseEventRes);
-	}
+    @Inject(at = @At("HEAD"), method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", cancellable = true)
+    public void placebo_itemUseHook(UseOnContext ctx, CallbackInfoReturnable<InteractionResult> cir) {
+        InteractionResult itemUseEventRes = PlaceboEventFactory.onItemUse((ItemStack) (Object) this, ctx);
+        if (itemUseEventRes != null) cir.setReturnValue(itemUseEventRes);
+    }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getOrCreate(ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
-		var cachedObj = this.cachedObjects.computeIfAbsent(id, key -> new CachedObject<>(key, deserializer, hasher));
-		return (T) cachedObj.get((ItemStack) (Object) this);
-	}
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getOrCreate(ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
+        var cachedObj = this.cachedObjects.computeIfAbsent(id, key -> new CachedObject<>(key, deserializer, hasher));
+        return (T) cachedObj.get((ItemStack) (Object) this);
+    }
 
 }

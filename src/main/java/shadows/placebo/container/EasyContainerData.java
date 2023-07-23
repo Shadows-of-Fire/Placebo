@@ -17,67 +17,67 @@ import shadows.placebo.cap.ModifiableEnergyStorage;
  */
 public class EasyContainerData {
 
-	protected List<DataSlot> slots = new ArrayList<>();
+    protected List<DataSlot> slots = new ArrayList<>();
 
-	public void addSlot(DataSlot slot) {
-		this.slots.add(slot);
-	}
+    public void addSlot(DataSlot slot) {
+        this.slots.add(slot);
+    }
 
-	public void addData(IntSupplier getter, IntConsumer setter) {
-		this.addSlot(new LambdaDataSlot(getter, setter));
-	}
+    public void addData(IntSupplier getter, IntConsumer setter) {
+        this.addSlot(new LambdaDataSlot(getter, setter));
+    }
 
-	public void addData(BooleanSupplier getter, BooleanConsumer setter) {
-		this.addData(() -> getter.getAsBoolean() ? 1 : 0, v -> setter.accept(v == 1));
-	}
+    public void addData(BooleanSupplier getter, BooleanConsumer setter) {
+        this.addData(() -> getter.getAsBoolean() ? 1 : 0, v -> setter.accept(v == 1));
+    }
 
-	public List<DataSlot> getSlots() {
-		return this.slots;
-	}
+    public List<DataSlot> getSlots() {
+        return this.slots;
+    }
 
-	public void register(Consumer<DataSlot> consumer) {
-		this.slots.forEach(consumer);
-	}
+    public void register(Consumer<DataSlot> consumer) {
+        this.slots.forEach(consumer);
+    }
 
-	/**
-	 * Registers an energy storage for tracking.  Note that an energy storage uses two slots!
-	 */
-	public void addEnergy(ModifiableEnergyStorage energy) {
-		this.addSlot(new EnergyDataSlot(energy, false));
-		this.addSlot(new EnergyDataSlot(energy, true));
-	}
+    /**
+     * Registers an energy storage for tracking. Note that an energy storage uses two slots!
+     */
+    public void addEnergy(ModifiableEnergyStorage energy) {
+        this.addSlot(new EnergyDataSlot(energy, false));
+        this.addSlot(new EnergyDataSlot(energy, true));
+    }
 
-	public class LambdaDataSlot extends DataSlot {
+    public class LambdaDataSlot extends DataSlot {
 
-		private final IntSupplier getter;
-		private final IntConsumer setter;
+        private final IntSupplier getter;
+        private final IntConsumer setter;
 
-		public LambdaDataSlot(IntSupplier getter, IntConsumer setter) {
-			this.getter = getter;
-			this.setter = setter;
-		}
+        public LambdaDataSlot(IntSupplier getter, IntConsumer setter) {
+            this.getter = getter;
+            this.setter = setter;
+        }
 
-		@Override
-		public int get() {
-			return this.getter.getAsInt();
-		}
+        @Override
+        public int get() {
+            return this.getter.getAsInt();
+        }
 
-		@Override
-		public void set(int pValue) {
-			this.setter.accept(pValue);
-		}
+        @Override
+        public void set(int pValue) {
+            this.setter.accept(pValue);
+        }
 
-	}
+    }
 
-	public class EnergyDataSlot extends LambdaDataSlot {
+    public class EnergyDataSlot extends LambdaDataSlot {
 
-		public EnergyDataSlot(ModifiableEnergyStorage energy, boolean upper) {
-			super(() -> ContainerUtil.split(energy.getEnergyStored(), upper), v -> ContainerUtil.deserializeEnergy(energy, v, upper));
-		}
-	}
+        public EnergyDataSlot(ModifiableEnergyStorage energy, boolean upper) {
+            super(() -> ContainerUtil.split(energy.getEnergyStored(), upper), v -> ContainerUtil.deserializeEnergy(energy, v, upper));
+        }
+    }
 
-	public interface IDataAutoRegister {
-		public void registerSlots(Consumer<DataSlot> consumer);
-	}
+    public interface IDataAutoRegister {
+        public void registerSlots(Consumer<DataSlot> consumer);
+    }
 
 }

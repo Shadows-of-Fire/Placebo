@@ -7,17 +7,17 @@ import net.minecraft.world.item.ItemStack;
 
 public class LockedSlot extends Slot {
 
-	public LockedSlot(Inventory inv, int index, int x, int y) {
-		super(inv, index, x, y);
-	}
+    public LockedSlot(Inventory inv, int index, int x, int y) {
+        super(inv, index, x, y);
+    }
 
-	@Override
-	public boolean mayPickup(Player player) {
-		return false;
-	}
+    @Override
+    public boolean mayPickup(Player player) {
+        return false;
+    }
 
-	@Override
-	public boolean mayPlace(ItemStack stack) {
-		return false;
-	}
+    @Override
+    public boolean mayPlace(ItemStack stack) {
+        return false;
+    }
 }

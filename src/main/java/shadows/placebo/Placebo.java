@@ -54,76 +54,77 @@ import shadows.placebo.util.RegistryEvent.Register;
 @Mod(Placebo.MODID)
 public class Placebo {
 
-	public static final String MODID = "placebo";
-	public static final Logger LOGGER = LogManager.getLogger(MODID);
-	//Formatter::off
+    public static final String MODID = "placebo";
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
+    // Formatter::off
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
-            .named(new ResourceLocation(MODID, MODID))
-            .clientAcceptedVersions(s->true)
-            .serverAcceptedVersions(s->true)
-            .networkProtocolVersion(() -> "1.0.0")
-            .simpleChannel();
-    //Formatter::on
+        .named(new ResourceLocation(MODID, MODID))
+        .clientAcceptedVersions(s -> true)
+        .serverAcceptedVersions(s -> true)
+        .networkProtocolVersion(() -> "1.0.0")
+        .simpleChannel();
+    // Formatter::on
 
-	public Placebo() {
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-		bus.register(this);
-		String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
-		ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> version, (remoteVer, isNetwork) -> remoteVer == null || version.equals(remoteVer)));
-		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
-		if (ModList.get().isLoaded("theoneprobe")) TOPCompat.register();
-		TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
-	}
+    public Placebo() {
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.register(this);
+        String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
+        ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> version, (remoteVer, isNetwork) -> remoteVer == null || version.equals(remoteVer)));
+        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
+        if (ModList.get().isLoaded("theoneprobe")) TOPCompat.register();
+        TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
+    }
 
-	@SubscribeEvent
-	public void setup(FMLCommonSetupEvent e) {
-		MessageHelper.registerMessage(CHANNEL, 0, new ButtonClickMessage());
-		MessageHelper.registerMessage(CHANNEL, 1, new PatreonDisableMessage(0));
-		MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
-		MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
-		MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
-		e.enqueueWork(() -> {
-			PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
-		});
-	}
+    @SubscribeEvent
+    public void setup(FMLCommonSetupEvent e) {
+        MessageHelper.registerMessage(CHANNEL, 0, new ButtonClickMessage());
+        MessageHelper.registerMessage(CHANNEL, 1, new PatreonDisableMessage(0));
+        MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
+        MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
+        MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
+        e.enqueueWork(() -> {
+            PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
+        });
+    }
 
-	@SubscribeEvent
-	public void postRegistryEvents(RegisterEvent e) {
-		checkAndPost(e, Block.class, ForgeRegistries.BLOCKS);
-		checkAndPost(e, Fluid.class, ForgeRegistries.FLUIDS);
-		checkAndPost(e, Item.class, ForgeRegistries.ITEMS);
-		checkAndPost(e, MobEffect.class, ForgeRegistries.MOB_EFFECTS);
-		checkAndPost(e, SoundEvent.class, ForgeRegistries.SOUND_EVENTS);
-		checkAndPost(e, Potion.class, ForgeRegistries.POTIONS);
-		checkAndPost(e, Enchantment.class, ForgeRegistries.ENCHANTMENTS);
-		checkAndPost(e, EntityType.class, ForgeRegistries.ENTITY_TYPES);
-		checkAndPost(e, BlockEntityType.class, ForgeRegistries.BLOCK_ENTITY_TYPES);
-		checkAndPost(e, ParticleType.class, ForgeRegistries.PARTICLE_TYPES);
-		checkAndPost(e, MenuType.class, ForgeRegistries.MENU_TYPES);
-		checkAndPost(e, PaintingVariant.class, ForgeRegistries.PAINTING_VARIANTS);
-		checkAndPost(e, RecipeType.class, ForgeRegistries.RECIPE_TYPES);
-		checkAndPost(e, RecipeSerializer.class, ForgeRegistries.RECIPE_SERIALIZERS);
-		checkAndPost(e, Attribute.class, ForgeRegistries.ATTRIBUTES);
-		checkAndPost(e, StatType.class, ForgeRegistries.STAT_TYPES);
-		checkAndPost(e, Feature.class, ForgeRegistries.FEATURES);
-	}
+    @SubscribeEvent
+    public void postRegistryEvents(RegisterEvent e) {
+        this.checkAndPost(e, Block.class, ForgeRegistries.BLOCKS);
+        this.checkAndPost(e, Fluid.class, ForgeRegistries.FLUIDS);
+        this.checkAndPost(e, Item.class, ForgeRegistries.ITEMS);
+        this.checkAndPost(e, MobEffect.class, ForgeRegistries.MOB_EFFECTS);
+        this.checkAndPost(e, SoundEvent.class, ForgeRegistries.SOUND_EVENTS);
+        this.checkAndPost(e, Potion.class, ForgeRegistries.POTIONS);
+        this.checkAndPost(e, Enchantment.class, ForgeRegistries.ENCHANTMENTS);
+        this.checkAndPost(e, EntityType.class, ForgeRegistries.ENTITY_TYPES);
+        this.checkAndPost(e, BlockEntityType.class, ForgeRegistries.BLOCK_ENTITY_TYPES);
+        this.checkAndPost(e, ParticleType.class, ForgeRegistries.PARTICLE_TYPES);
+        this.checkAndPost(e, MenuType.class, ForgeRegistries.MENU_TYPES);
+        this.checkAndPost(e, PaintingVariant.class, ForgeRegistries.PAINTING_VARIANTS);
+        this.checkAndPost(e, RecipeType.class, ForgeRegistries.RECIPE_TYPES);
+        this.checkAndPost(e, RecipeSerializer.class, ForgeRegistries.RECIPE_SERIALIZERS);
+        this.checkAndPost(e, Attribute.class, ForgeRegistries.ATTRIBUTES);
+        this.checkAndPost(e, StatType.class, ForgeRegistries.STAT_TYPES);
+        this.checkAndPost(e, Feature.class, ForgeRegistries.FEATURES);
+    }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" }) // Stupid generics...
-	private <T> void checkAndPost(RegisterEvent e, Class<T> clazz, IForgeRegistry<? extends T> reg) {
-		if (e.getForgeRegistry() == reg) {
-			var ctr = ModLoadingContext.get().getActiveContainer();
-			ModLoader.get().postEventWithWrapInModOrder(new RegistryEvent.Register<>(clazz, (IForgeRegistry) reg), (mc, ev) -> ModLoadingContext.get().setActiveContainer(mc), (mc, ev) -> ModLoadingContext.get().setActiveContainer(null));
-			ModLoadingContext.get().setActiveContainer(ctr);
-		}
-	}
+    @SuppressWarnings({ "unchecked", "rawtypes" }) // Stupid generics...
+    private <T> void checkAndPost(RegisterEvent e, Class<T> clazz, IForgeRegistry<? extends T> reg) {
+        if (e.getForgeRegistry() == reg) {
+            var ctr = ModLoadingContext.get().getActiveContainer();
+            ModLoader.get().postEventWithWrapInModOrder(new RegistryEvent.Register<>(clazz, (IForgeRegistry) reg), (mc, ev) -> ModLoadingContext.get().setActiveContainer(mc),
+                (mc, ev) -> ModLoadingContext.get().setActiveContainer(null));
+            ModLoadingContext.get().setActiveContainer(ctr);
+        }
+    }
 
-	@SubscribeEvent
-	public void registerElse(Register<RecipeType<?>> e) {
-		PlaceboUtil.registerTypes();
-	}
+    @SubscribeEvent
+    public void registerElse(Register<RecipeType<?>> e) {
+        PlaceboUtil.registerTypes();
+    }
 
-	public void registerCommands(RegisterCommandsEvent e) {
-		PlaceboCommand.register(e.getDispatcher());
-	}
+    public void registerCommands(RegisterCommandsEvent e) {
+        PlaceboCommand.register(e.getDispatcher());
+    }
 
 }

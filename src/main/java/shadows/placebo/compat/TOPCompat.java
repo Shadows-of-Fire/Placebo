@@ -21,53 +21,51 @@ import shadows.placebo.Placebo;
 
 public class TOPCompat {
 
-	public static void register() {
-		InterModComms.sendTo("theoneprobe", "getTheOneProbe", GetTheOneProbe::new);
-	}
+    public static void register() {
+        InterModComms.sendTo("theoneprobe", "getTheOneProbe", GetTheOneProbe::new);
+    }
 
-	private static List<Provider> providers = new ArrayList<>();
+    private static List<Provider> providers = new ArrayList<>();
 
-	public static class GetTheOneProbe implements Function<ITheOneProbe, Void> {
+    public static class GetTheOneProbe implements Function<ITheOneProbe, Void> {
 
-		@Override
-		public Void apply(ITheOneProbe probe) {
-			probe.registerProvider(new IProbeInfoProvider() {
-				@Override
-				public ResourceLocation getID() {
-					return new ResourceLocation(Placebo.MODID, "plugin");
-				}
+        @Override
+        public Void apply(ITheOneProbe probe) {
+            probe.registerProvider(new IProbeInfoProvider(){
+                @Override
+                public ResourceLocation getID() {
+                    return new ResourceLocation(Placebo.MODID, "plugin");
+                }
 
-				@Override
-				public void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, BlockState state, IProbeHitData hitData) {
-					providers.forEach(p -> p.addProbeInfo(mode, info, player, level, state, hitData));
-				}
-			});
-			probe.registerEntityProvider(new IProbeInfoEntityProvider() {
-				@Override
-				public String getID() {
-					return Placebo.MODID + ":plugin";
-				}
+                @Override
+                public void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, BlockState state, IProbeHitData hitData) {
+                    providers.forEach(p -> p.addProbeInfo(mode, info, player, level, state, hitData));
+                }
+            });
+            probe.registerEntityProvider(new IProbeInfoEntityProvider(){
+                @Override
+                public String getID() {
+                    return Placebo.MODID + ":plugin";
+                }
 
-				@Override
-				public void addProbeEntityInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, Entity entity, IProbeHitEntityData hitData) {
-					providers.forEach(p -> p.addProbeEntityInfo(mode, info, player, level, entity, hitData));
-				}
-			});
-			return null;
-		}
+                @Override
+                public void addProbeEntityInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, Entity entity, IProbeHitEntityData hitData) {
+                    providers.forEach(p -> p.addProbeEntityInfo(mode, info, player, level, entity, hitData));
+                }
+            });
+            return null;
+        }
 
-	}
+    }
 
-	public static void registerProvider(Provider p) {
-		providers.add(p);
-	}
+    public static void registerProvider(Provider p) {
+        providers.add(p);
+    }
 
-	public static interface Provider {
-		default void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, BlockState state, IProbeHitData hitData) {
-		}
+    public static interface Provider {
+        default void addProbeInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, BlockState state, IProbeHitData hitData) {}
 
-		default void addProbeEntityInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, Entity entity, IProbeHitEntityData hitData) {
-		}
-	}
+        default void addProbeEntityInfo(ProbeMode mode, IProbeInfo info, Player player, Level level, Entity entity, IProbeHitEntityData hitData) {}
+    }
 
 }

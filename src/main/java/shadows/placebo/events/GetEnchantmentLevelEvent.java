@@ -20,26 +20,26 @@ import net.minecraftforge.eventbus.api.Event;
  */
 public class GetEnchantmentLevelEvent extends Event {
 
-	protected final ItemStack stack;
-	protected final Map<Enchantment, Integer> enchantments;
+    protected final ItemStack stack;
+    protected final Map<Enchantment, Integer> enchantments;
 
-	public GetEnchantmentLevelEvent(ItemStack stack, Map<Enchantment, Integer> enchantments) {
-		this.stack = stack;
-		this.enchantments = enchantments;
-	}
+    public GetEnchantmentLevelEvent(ItemStack stack, Map<Enchantment, Integer> enchantments) {
+        this.stack = stack;
+        this.enchantments = enchantments;
+    }
 
-	/**
-	 * Returns the item stack that is being queried.
-	 */
-	public ItemStack getStack() {
-		return this.stack;
-	}
+    /**
+     * Returns the item stack that is being queried.
+     */
+    public ItemStack getStack() {
+        return this.stack;
+    }
 
-	/**
-	 * Returns the mutable enchantment->level map.
-	 */
-	public Map<Enchantment, Integer> getEnchantments() {
-		return this.enchantments;
-	}
+    /**
+     * Returns the mutable enchantment->level map.
+     */
+    public Map<Enchantment, Integer> getEnchantments() {
+        return this.enchantments;
+    }
 
 }

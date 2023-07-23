@@ -16,9 +16,9 @@ import shadows.placebo.events.AnvilLandEvent;
 @Mixin(AnvilBlock.class)
 public class AnvilBlockMixin {
 
-	@Inject(at = @At("TAIL"), method = "onLand", require = 1)
-	public void onLand(Level level, BlockPos pos, BlockState newState, BlockState oldState, FallingBlockEntity entity, CallbackInfo ci) {
-		MinecraftForge.EVENT_BUS.post(new AnvilLandEvent(level, pos, newState, oldState, entity));
-	}
+    @Inject(at = @At("TAIL"), method = "onLand", require = 1)
+    public void onLand(Level level, BlockPos pos, BlockState newState, BlockState oldState, FallingBlockEntity entity, CallbackInfo ci) {
+        MinecraftForge.EVENT_BUS.post(new AnvilLandEvent(level, pos, newState, oldState, entity));
+    }
 
 }

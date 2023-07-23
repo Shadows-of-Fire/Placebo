@@ -8,10 +8,10 @@ import net.minecraft.commands.Commands;
 
 public class PlaceboCommand {
 
-	public static void register(CommandDispatcher<CommandSourceStack> pDispatcher) {
-		LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("placebo");
-		SerializeLootTableCommand.register(builder);
-		pDispatcher.register(builder);
-	}
+    public static void register(CommandDispatcher<CommandSourceStack> pDispatcher) {
+        LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("placebo");
+        SerializeLootTableCommand.register(builder);
+        pDispatcher.register(builder);
+    }
 
 }
