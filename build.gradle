@@ -122,7 +122,7 @@ tasks.named('processResources', ProcessResources).configure {
     filesMatching(resourceTargets) {
         expand replaceProperties
     }
-    
+
     // Automatically populate mixins.json from the mixin package and rename to modid.mixins.json
     filesMatching('mixins.json') {
         def mixinFiles = []
@@ -141,7 +141,7 @@ tasks.named('processResources', ProcessResources).configure {
                 }
             }
         }
-        
+
         def mixins = ''
         def clientMixins = ''
 
@@ -272,29 +272,38 @@ def getChangelogLink() {
     }
 }
 
+def splitDeps(deps) {
+    def split = deps.split(', ')
+    assert split.length == deps.count(',')
+    return split
+}
+
 task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-    // This token is used to authenticate with CurseForge. It should be handled
-    // with the same level of care and security as your actual password. You
-    // should never share your token with an untrusted source or publish it
-    // publicly to GitHub or embed it within a project. The best practice is to
-    // store this token in an environment variable or a build secret.
-    apiToken = findProperty('curseforgeUploadToken')
-
-    // A project ID is required to tell CurseForge which project the uploaded
-    // file belongs to. This is public on your project page and is not private
-    // information.
-    def projectId = findProperty('curseforgeProjectId')
-
-    // Tells CurseForgeGradle to publish the output of the jar task. This will
-    // return a UploadArtifact object that can be used to further configure the
-    // file.
+    def apiToken = getProperty('curseforgeUploadToken')
+    def projectId = getProperty('curseforgeProjectId')
+    disableVersionDetection()
+    
     def mainFile = upload(projectId, jar)
     mainFile.changelog = getChangelogLink()
-	mainFile.releaseType = "release"
-	mainFile.withAdditionalFile(sourcesJar)
+    mainFile.addModLoader('NeoForge')
+    mainFile.addJavaVersion("${javaVersion}")
+    mainFile.addGameVersion("${mcVersion}")
+    mainFile.releaseType = "release"
+
+    if (project.hasProperty('requiredDeps') {
+        mainFile.withRequirement(splitDeps("${requiredDeps}"))
+    }
+    if (project.addOptional('optionalDeps') {
+        mainFile.withRequirement(splitDeps("${optionalDeps}"))
+    }
+    if (project.hasProperty('incompatibleDeps') {
+        mainFile.addIncompatibility(splitDeps("${incompatibleDeps}"))
+    }
+
+    mainFile.withAdditionalFile(sourcesJar)
 }
 
 task publishAll() {
-	dependsOn publish
-	dependsOn publishCurseForge
+    dependsOn publish
+    dependsOn publishCurseForge
 }
