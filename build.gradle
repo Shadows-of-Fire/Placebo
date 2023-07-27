@@ -279,14 +279,14 @@ def splitDeps(deps) {
 }
 
 task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
-    def apiToken = getProperty('curseforgeUploadToken')
-    def projectId = getProperty('curseforgeProjectId')
+    apiToken = getProperty('curseforgeUploadToken')
     disableVersionDetection()
-    
+
+    def projectId = getProperty('curseforgeProjectId')
     def mainFile = upload(projectId, jar)
     mainFile.changelog = getChangelogLink()
     mainFile.addModLoader('NeoForge')
-    mainFile.addJavaVersion("${javaVersion}")
+    mainFile.addJavaVersion("Java ${javaVersion}")
     mainFile.addGameVersion("${mcVersion}")
     mainFile.releaseType = "release"
 
