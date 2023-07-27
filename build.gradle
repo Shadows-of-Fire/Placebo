@@ -274,7 +274,7 @@ def getChangelogLink() {
 
 def splitDeps(deps) {
     def split = deps.split(', ')
-    assert split.length == deps.count(',')
+    assert split.length == deps.count(',') + 1
     return split
 }
 
@@ -290,13 +290,13 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
     mainFile.addGameVersion("${mcVersion}")
     mainFile.releaseType = "release"
 
-    if (project.hasProperty('requiredDeps') {
-        mainFile.withRequirement(splitDeps("${requiredDeps}"))
+    if (project.hasProperty('requiredDeps')) {
+        mainFile.addRequirement(splitDeps("${requiredDeps}"))
     }
-    if (project.hasProperty('optionalDeps') {
+    if (project.hasProperty('optionalDeps')) {
         mainFile.addOptional(splitDeps("${optionalDeps}"))
     }
-    if (project.hasProperty('incompatibleDeps') {
+    if (project.hasProperty('incompatibleDeps')) {
         mainFile.addIncompatibility(splitDeps("${incompatibleDeps}"))
     }
 
