@@ -5,7 +5,7 @@ plugins {
     id 'net.neoforged.gradle' version '[6.0.18, 6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.diffplug.eclipse.apt' version '3.42.2'
-    id 'org.spongepowered.mixin' version '999' // TODO: Disable when fix is pulled.
+    id 'org.spongepowered.mixin' version '999+' // TODO: Disable when fix is pulled.
     id 'net.darkhax.curseforgegradle' version '1.1.15'
 }
 
@@ -290,4 +290,11 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
     // file.
     def mainFile = upload(projectId, jar)
     mainFile.changelog = getChangelogLink()
+	mainFile.releaseType = "release"
+	mainFile.withAdditionalFile(sourcesJar)
+}
+
+task publishAll() {
+	dependsOn publish
+	dependsOn publishCurseForge
 }
