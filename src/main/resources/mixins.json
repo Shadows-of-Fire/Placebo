@@ -4,10 +4,10 @@
     "compatibilityLevel": "JAVA_${javaVersion}",
     "refmap": "${modid}.refmap.json",
     "mixins": [
-        ${mixins}
+${mixins}
     ],
     "client": [
-        ${clientMixins}
+${clientMixins}
     ],
     "minVersion": "0.8"
 }

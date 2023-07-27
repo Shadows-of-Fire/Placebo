@@ -1,10 +1,11 @@
 plugins {
     id 'idea'
+    id 'eclipse'
     id 'maven-publish'
     id 'net.neoforged.gradle' version '[6.0.18, 6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
-    id 'eclipse'
+    id 'com.diffplug.eclipse.apt' version '3.42.2'
+    id 'org.spongepowered.mixin' version '999' // TODO: Disable when fix is pulled.
     id 'net.darkhax.curseforgegradle' version '1.1.15'
 }
 
@@ -18,7 +19,7 @@ minecraft {
     mappings channel: 'parchment', version: project.properties.parchmentVersion
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     enableEclipsePrepareRuns = true
-    // copyIdeResources = true
+    copyIdeResources = true
     generateRunFolders = true
     runs {
         configureEach {
@@ -93,10 +94,6 @@ mixin {
     if(project.mixin.toBoolean()) add sourceSets.main, "${modid}.refmap.json"
 }
 
-tasks.withType(net.minecraftforge.gradle.common.util.runs.MinecraftPrepareRunTask).configureEach {
-    dependsOn processResources
-}
-
 tasks.named('processResources', ProcessResources).configure {
     def replaceProperties = [
         modGroup: modGroup,
@@ -107,9 +104,7 @@ tasks.named('processResources', ProcessResources).configure {
         desc: desc,
         mcVersion: mcVersion,
         javaVersion: javaVersion,
-        forgeVersion: forgeVersion,
-        mixins: mixins,
-        clientMixins: clientMixins
+        forgeVersion: forgeVersion
     ]
 
     if (project.hasProperty('placeboVersion'))      replaceProperties.put 'placeboVersion', placeboVersion
@@ -128,11 +123,54 @@ tasks.named('processResources', ProcessResources).configure {
         expand replaceProperties
     }
     
+    // Automatically populate mixins.json from the mixin package and rename to modid.mixins.json
     filesMatching('mixins.json') {
+        def mixinFiles = []
+        def clientMixinFiles = []
+
+        def path = "${project.projectDir}/src/main/java/${modGroup}/${modid}/mixin".replaceAll('\\.', '/')
+        fileTree(path).visit { FileVisitDetails details ->
+            def name = details.file.path.replace('\\', '/')
+            name = name.substring(name.indexOf('mixin/') + 'mixin/'.length(), name.length())
+            if(name.endsWith('.java')) {
+                name = name.substring(0, name.length() - '.java'.length())
+                if(name.startsWith('client')) {
+                    clientMixinFiles.add(name)
+                } else {
+                    mixinFiles.add(name)
+                }
+            }
+        }
+        
+        def mixins = ''
+        def clientMixins = ''
+
+        for (int i = 0; i < mixinFiles.size(); i++) {
+            def name = mixinFiles[i]
+            name = name.replaceAll('\\/', '.')
+            mixins += '        "' + name + '"'
+            if (i != mixinFiles.size() - 1) {
+                mixins += ',\n'
+            }
+        }
+
+        for (int i = 0; i < clientMixinFiles.size(); i++) {
+            def name = clientMixinFiles[i]
+            name = name.replaceAll('\\/', '.')
+            clientMixins += '        "' + name + '"'
+            if (i != clientMixinFiles.size() - 1) {
+                clientMixins += ',\n'
+            }
+        }
+
+        replaceProperties.put('mixins', mixins)
+        replaceProperties.put('clientMixins', clientMixins)
+
         expand replaceProperties
         name "${modid}.mixins.json".toString()
     }
 
+    // Automatically populate coremods.json file from existing coremod js files in /coremods
     filesMatching('META-INF/coremods.json') {
         def names = []
         fileTree("${project.projectDir}/src/main/resources/coremods").visit { FileVisitDetails details ->
@@ -154,17 +192,6 @@ tasks.named('processResources', ProcessResources).configure {
         replaceProperties.put('coremods', coremods)
 
         expand replaceProperties
-    }
-
-    def intoTargets = ["$rootDir/out/production/resources/", "$rootDir/out/production/${project.name}.main/", "$rootDir/bin/main/"]
-
-    intoTargets.each { target ->
-        if (file(target).exists()) {
-            copy {
-                from 'build/resources/main'
-                into target
-            }
-        }
     }
 }
 
