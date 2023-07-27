@@ -265,7 +265,7 @@ def getChangelogLink() {
     proc.waitFor()
     // Remove ".git" and append /blob/branch/changelog.md
     if (!repo.isBlank() && !branch.isBlank()) {
-        return repo.substring(0, repo.length() - 4) + 'blob/' + branch + '/changelog.md'
+        return repo.substring(0, repo.length() - 4) + '/blob/' + branch + '/changelog.md'
     }
     else {
         return ''
