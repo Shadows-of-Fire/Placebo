@@ -293,8 +293,8 @@ task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge)
     if (project.hasProperty('requiredDeps') {
         mainFile.withRequirement(splitDeps("${requiredDeps}"))
     }
-    if (project.addOptional('optionalDeps') {
-        mainFile.withRequirement(splitDeps("${optionalDeps}"))
+    if (project.hasProperty('optionalDeps') {
+        mainFile.addOptional(splitDeps("${optionalDeps}"))
     }
     if (project.hasProperty('incompatibleDeps') {
         mainFile.addIncompatibility(splitDeps("${incompatibleDeps}"))
