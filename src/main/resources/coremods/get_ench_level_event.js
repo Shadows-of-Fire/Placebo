@@ -8,7 +8,7 @@ function initializeCoreMod() {
                 'methodDesc': '()Ljava/util/Map;'
             },
             'transformer': function(method) {
-                var owner = "shadows/placebo/events/PlaceboEventFactory";
+                var owner = "dev/shadowsoffire/placebo/events/PlaceboEventFactory";
                 var name = "getEnchantmentLevel";
                 var desc = "(Ljava/util/Map;Lnet/minecraftforge/common/extensions/IForgeItemStack;)Ljava/util/Map;";
                 var instr = method.instructions;

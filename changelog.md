@@ -1,3 +1,6 @@
+## 8.1.1
+* Fixed coremods using the wrong package name.
+
 ## 8.1.0
 * Updated to Neo.
 * Updated buildscripts to automate coremods.json and mixins.json file.
