@@ -1,3 +1,5 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
 plugins {
     id 'idea'
     id 'eclipse'
@@ -278,7 +280,7 @@ def splitDeps(deps) {
     return split
 }
 
-task publishCurseForge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+task publishCurseForge(type: TaskPublishCurseForge) {
     apiToken = getProperty('curseforgeUploadToken')
     disableVersionDetection()
 

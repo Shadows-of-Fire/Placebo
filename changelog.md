@@ -1,3 +1,6 @@
+## 8.1.2
+* Added the atlas file which loads textures from /blocks and /items.
+
 ## 8.1.1
 * Fixed coremods using the wrong package name.
 
