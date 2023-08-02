@@ -12,7 +12,7 @@ modId="${modid}" #mandatory
 
 version="${version}" #mandatory
 
-displayName="${displayName}" #mandatory
+displayName="${modName}" #mandatory
 
 description='''${desc}'''
 
