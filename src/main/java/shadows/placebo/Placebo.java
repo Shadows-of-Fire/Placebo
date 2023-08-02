@@ -1,9 +1,7 @@
 package shadows.placebo;
 
-import java.io.File;
 import java.util.HashMap;
 
-import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,7 +57,6 @@ public class Placebo {
 
 	public static final String MODID = "placebo";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
-	static final File configDir = new File(FMLPaths.CONFIGDIR.get().toFile(), MODID);
 
 	public static boolean firstPersonPatreonEffects = true;
 
@@ -135,9 +132,9 @@ public class Placebo {
 	}
 
 	public void setupConfig() {
-		Configuration config = new Configuration(new File(configDir, "placebo.cfg"));
+		Configuration config = new Configuration(MODID);
 		config.setTitle("Placebo Configuration");
-		firstPersonPatreonEffects = config.getBoolean("Enable First Person Patreon Trail Effect", "patreon", true, "Render your Patreon trail particle effects in first person mode");
+		firstPersonPatreonEffects = config.getBoolean("Enable First Person Patreon Trail Effect", "patreon", false, "[Client-Only]\n[Requires Restart]\nIf your Patreon trail renders in first person mode");
 		config.save();
 	}
 

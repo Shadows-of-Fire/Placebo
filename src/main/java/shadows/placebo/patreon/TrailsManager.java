@@ -64,7 +64,7 @@ public class TrailsManager {
 		PatreonParticleType t = null;
 		if (e.phase == Phase.END && Minecraft.getInstance().level != null) {
 			for (Player player : Minecraft.getInstance().level.players()) {
-				if (Minecraft.getInstance().player.getUUID() == player.getUUID() && !Placebo.firstPersonPatreonEffects && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+				if (player.isLocalPlayer() && !Placebo.firstPersonPatreonEffects && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
 					continue;
 				}
 
