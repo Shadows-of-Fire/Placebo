@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.MenuType.MenuSupplier;
 import net.minecraftforge.network.IContainerFactory;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -46,8 +47,16 @@ public class ContainerUtil {
         }
     }
 
-    public static <T extends AbstractContainerMenu> MenuType<T> makeType(PosFactory<T> fac) {
-        return new MenuType<>(factory(fac), FeatureFlags.REGISTRY.subset());
+    public static <T extends AbstractContainerMenu> MenuType<T> type(MenuSupplier<T> fac) {
+        return new MenuType<>(fac, FeatureFlags.DEFAULT_FLAGS);
+    }
+
+    public static <T extends AbstractContainerMenu> MenuType<T> type(IContainerFactory<T> fac) {
+        return new MenuType<>(fac, FeatureFlags.DEFAULT_FLAGS);
+    }
+
+    public static <T extends AbstractContainerMenu> MenuType<T> posType(PosFactory<T> fac) {
+        return new MenuType<>(factory(fac), FeatureFlags.DEFAULT_FLAGS);
     }
 
     public static <T extends AbstractContainerMenu> IContainerFactory<T> factory(PosFactory<T> fac) {

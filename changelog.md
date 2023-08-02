@@ -1,3 +1,12 @@
+## 8.1.5
+* Added additional utils to ContainerUtil for creating MenuType(s).
+
+## 8.1.4
+* Added DeferredHelper and moved registry helper classes to the registry package.
+
+## 8.1.3
+* Added ITabFiller and TabFillingRegistry
+
 ## 8.1.2
 * Added the atlas file which loads textures from /blocks and /items.
 

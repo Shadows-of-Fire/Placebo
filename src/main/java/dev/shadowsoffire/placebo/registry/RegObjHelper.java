@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.util;
+package dev.shadowsoffire.placebo.registry;
 
 import java.util.Locale;
 

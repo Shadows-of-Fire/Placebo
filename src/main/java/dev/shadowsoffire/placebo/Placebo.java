@@ -12,9 +12,10 @@ import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.packets.ButtonClickMessage;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
 import dev.shadowsoffire.placebo.packets.ReloadListenerPacket;
+import dev.shadowsoffire.placebo.registry.RegistryEvent;
+import dev.shadowsoffire.placebo.registry.RegistryEvent.Register;
+import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
-import dev.shadowsoffire.placebo.util.RegistryEvent;
-import dev.shadowsoffire.placebo.util.RegistryEvent.Register;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
@@ -56,14 +57,13 @@ public class Placebo {
 
     public static final String MODID = "placebo";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
-    // Formatter::off
+
     public static final SimpleChannel CHANNEL = NetworkRegistry.ChannelBuilder
         .named(new ResourceLocation(MODID, MODID))
         .clientAcceptedVersions(s -> true)
         .serverAcceptedVersions(s -> true)
         .networkProtocolVersion(() -> "1.0.0")
         .simpleChannel();
-    // Formatter::on
 
     public Placebo() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -73,6 +73,7 @@ public class Placebo {
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
         if (ModList.get().isLoaded("theoneprobe")) TOPCompat.register();
         TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
+        bus.addListener(TabFillingRegistry::fillTabs);
     }
 
     @SubscribeEvent
