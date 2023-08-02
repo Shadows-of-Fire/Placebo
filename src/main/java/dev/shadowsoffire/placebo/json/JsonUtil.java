@@ -45,11 +45,11 @@ public class JsonUtil {
      * @return True if the item's conditions are met, false otherwise.
      */
     public static boolean checkConditions(JsonElement e, ResourceLocation id, String type, Logger logger, IContext context) {
-        if (e.isJsonObject() && !CraftingHelper.processConditions(e.getAsJsonObject(), "conditions", context) && !CraftingHelper.processConditions(e.getAsJsonObject(), "forge:conditions", context)) {
-            logger.trace("Skipping loading {} item with id {} as it's conditions were not met", type, id);
-            return false;
+        if (!e.isJsonObject() || CraftingHelper.processConditions(e.getAsJsonObject(), "conditions", context) && CraftingHelper.processConditions(e.getAsJsonObject(), "forge:conditions", context)) {
+            return true;
         }
-        return true;
+        logger.trace("Skipping loading {} item with id {} as it's conditions were not met", type, id);
+        return false;
     }
 
     public static <T> T getRegistryObject(JsonObject parent, String name, IForgeRegistry<T> registry) {
