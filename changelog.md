@@ -1,3 +1,9 @@
+## 7.3.2
+* Un roman: Updated Ukranaian translation.
+* Excaliburns: Added a config option to control first-person trails.
+  * This config option is client-only and defaults to false.
+  * Previously, trails were always enabled in first-person, but now require changing the config to see in first person.
+
 ## 7.3.1
 * Added SlotUpdateListener so I can stop copying `Runnable listener` into all my menu classes.
 
