@@ -12,6 +12,7 @@ import dev.shadowsoffire.placebo.recipe.RecipeHelper;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 
+@Deprecated
 @Mixin(ReloadableServerResources.class)
 public class ServerResourcesMixin {
 

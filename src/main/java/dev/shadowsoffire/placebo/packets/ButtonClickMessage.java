@@ -16,7 +16,7 @@ import net.minecraftforge.network.NetworkEvent.Context;
  * Defer to using using {@link MultiPlayerGameMode#handleInventoryButtonClick} and {@link AbstractContainerMenu#clickMenuButton} when the buttonId can be a
  * byte.
  */
-public class ButtonClickMessage implements MessageProvider<ButtonClickMessage> {
+public class ButtonClickMessage {
 
     int button;
 
@@ -24,36 +24,35 @@ public class ButtonClickMessage implements MessageProvider<ButtonClickMessage> {
         this.button = button;
     }
 
-    public ButtonClickMessage() {
-
-    }
-
-    @Override
-    public Class<ButtonClickMessage> getMsgClass() {
-        return ButtonClickMessage.class;
-    }
-
-    @Override
-    public ButtonClickMessage read(FriendlyByteBuf buf) {
-        return new ButtonClickMessage(buf.readInt());
-    }
-
-    @Override
-    public void write(ButtonClickMessage msg, FriendlyByteBuf buf) {
-        buf.writeInt(msg.button);
-    }
-
-    @Override
-    public void handle(ButtonClickMessage msg, Supplier<Context> ctx) {
-        MessageHelper.handlePacket(() -> () -> {
-            if (ctx.get().getSender().containerMenu instanceof IButtonContainer) {
-                ((IButtonContainer) ctx.get().getSender().containerMenu).onButtonClick(msg.button);
-            }
-        }, ctx);
-    }
-
     public static interface IButtonContainer {
         void onButtonClick(int id);
+    }
+
+    public static class Provider implements MessageProvider<ButtonClickMessage> {
+
+        @Override
+        public Class<ButtonClickMessage> getMsgClass() {
+            return ButtonClickMessage.class;
+        }
+
+        @Override
+        public ButtonClickMessage read(FriendlyByteBuf buf) {
+            return new ButtonClickMessage(buf.readInt());
+        }
+
+        @Override
+        public void write(ButtonClickMessage msg, FriendlyByteBuf buf) {
+            buf.writeInt(msg.button);
+        }
+
+        @Override
+        public void handle(ButtonClickMessage msg, Supplier<Context> ctx) {
+            MessageHelper.handlePacket(() -> () -> {
+                if (ctx.get().getSender().containerMenu instanceof IButtonContainer) {
+                    ((IButtonContainer) ctx.get().getSender().containerMenu).onButtonClick(msg.button);
+                }
+            }, ctx);
+        }
     }
 
 }

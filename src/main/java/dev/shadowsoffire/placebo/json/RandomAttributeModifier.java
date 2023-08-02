@@ -16,7 +16,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.codec.EnumCodec;
+import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.util.StepFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -31,14 +31,12 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class RandomAttributeModifier {
 
-    // Formatter::off
     public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
             ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
-            new EnumCodec<>(Operation.class).fieldOf("operation").forGetter(a -> a.op),
+            PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.op),
             StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
         .apply(inst, RandomAttributeModifier::new));
-    // Formatter::on
 
     protected final Attribute attribute;
     protected final Operation op;

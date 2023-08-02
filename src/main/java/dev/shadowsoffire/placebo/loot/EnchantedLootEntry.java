@@ -9,6 +9,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 /**
  * StackLootEntry with the EnchantRandomly function pre-applied.
  */
+@Deprecated
 public class EnchantedLootEntry extends StackLootEntry {
 
     protected final LootItemFunction func = EnchantRandomlyFunction.randomApplicableEnchantment().build();

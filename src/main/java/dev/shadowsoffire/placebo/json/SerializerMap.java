@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
  *
  * @param <V> The base type of the object being de/serialized.
  */
-public class SerializerMap<V extends PSerializable<V>> {
+public class SerializerMap<V extends PSerializable<? super V>> {
 
     /**
      * The name of the object being de/serialized, for logging.

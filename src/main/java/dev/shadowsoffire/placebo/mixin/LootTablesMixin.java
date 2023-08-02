@@ -29,7 +29,7 @@ public class LootTablesMixin {
     private Multimap<LootDataType<?>, ResourceLocation> typeKeys;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Inject(method = "apply(Ljava/util/Map;)V", at = @At(value = "TAIL"))
+    @Inject(method = "apply(Ljava/util/Map;)V", at = @At(value = "TAIL"), require = 1)
     protected void apply(Map<ResourceLocation, JsonElement> pObject, CallbackInfo ci) {
         if (LootSystem.PLACEBO_TABLES.isEmpty()) return;
         this.elements = new HashMap<>(this.elements);

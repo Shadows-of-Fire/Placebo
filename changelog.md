@@ -1,3 +1,6 @@
+## 8.2.0
+* Refactors and documentation updates to most systems.
+
 ## 8.1.5
 * Added additional utils to ContainerUtil for creating MenuType(s).
 

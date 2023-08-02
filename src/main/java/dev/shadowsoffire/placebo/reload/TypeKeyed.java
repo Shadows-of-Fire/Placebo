@@ -1,14 +1,13 @@
-package dev.shadowsoffire.placebo.json;
+package dev.shadowsoffire.placebo.reload;
 
 import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * An interface supporting ID's and Serializers with generic types.
- *
- * @param <V> This
+ * Provides get/set ID methods, used in {@link PlaceboJsonReloadListener}.
  */
-public interface TypeKeyed<V extends TypeKeyed<V>>extends PSerializable<V> {
+public interface TypeKeyed {
+
     /**
      * Sets the ID of this object.
      *
@@ -27,7 +26,8 @@ public interface TypeKeyed<V extends TypeKeyed<V>>extends PSerializable<V> {
      *
      * @param <V> This
      */
-    public static abstract class TypeKeyedBase<V extends TypeKeyed<V>> implements TypeKeyed<V> {
+    public static abstract class TypeKeyedBase<V extends PSerializable<? super V>> implements TypeKeyed, PSerializable<V> {
+
         protected ResourceLocation id;
 
         @Override

@@ -37,6 +37,7 @@ import net.minecraftforge.registries.RegistryObject;
  *
  * @see {@link RecipeHelper#registerProvider(Consumer)}.
  */
+@Deprecated // Go use a json
 public final class RecipeHelper {
 
     private static final Multimap<String, Consumer<RecipeFactory>> PROVIDERS = HashMultimap.create();

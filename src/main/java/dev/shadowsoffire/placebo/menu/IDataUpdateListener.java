@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.container;
+package dev.shadowsoffire.placebo.menu;
 
 import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
 

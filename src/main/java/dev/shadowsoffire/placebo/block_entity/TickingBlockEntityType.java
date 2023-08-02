@@ -2,12 +2,20 @@ package dev.shadowsoffire.placebo.block_entity;
 
 import java.util.Set;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
-public class TickingBlockEntityType<T extends BlockEntity & TickingBlockEntity>extends BlockEntityType<T> {
+/**
+ * A custom {@link BlockEntityType} that will automatically provide {@link BlockEntityTicker}s for {@linkplain TickingBlockEntity ticking block entities}.
+ *
+ * @param <T> The type of the ticking block entity.
+ * @see TickingEntityBlock
+ */
+public class TickingBlockEntityType<T extends BlockEntity & TickingBlockEntity> extends BlockEntityType<T> {
 
     protected final boolean clientTick, serverTick;
 
@@ -17,14 +25,7 @@ public class TickingBlockEntityType<T extends BlockEntity & TickingBlockEntity>e
         this.serverTick = serverTick;
     }
 
-    public boolean ticksOnClient() {
-        return this.clientTick;
-    }
-
-    public boolean ticksOnServer() {
-        return this.serverTick;
-    }
-
+    @Nullable
     public BlockEntityTicker<T> getTicker(boolean client) {
         if (client && this.clientTick) return (level, pos, state, entity) -> entity.clientTick(level, pos, state);
         else if (!client && this.serverTick) return (level, pos, state, entity) -> entity.serverTick(level, pos, state);

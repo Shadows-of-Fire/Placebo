@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
-import dev.shadowsoffire.placebo.patreon.WingsManager;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
+import dev.shadowsoffire.placebo.patreon.WingsManager;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;

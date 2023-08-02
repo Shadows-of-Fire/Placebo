@@ -23,7 +23,7 @@ public class ItemStackMixin implements CachedObjectSource {
 
     public Map<ResourceLocation, CachedObject<?>> cachedObjects = new ConcurrentHashMap<>();
 
-    @Inject(at = @At("HEAD"), method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", cancellable = true, require = 1)
     public void placebo_itemUseHook(UseOnContext ctx, CallbackInfoReturnable<InteractionResult> cir) {
         InteractionResult itemUseEventRes = PlaceboEventFactory.onItemUse((ItemStack) (Object) this, ctx);
         if (itemUseEventRes != null) cir.setReturnValue(itemUseEventRes);

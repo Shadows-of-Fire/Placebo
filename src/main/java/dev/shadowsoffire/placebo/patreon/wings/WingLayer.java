@@ -2,8 +2,8 @@ package dev.shadowsoffire.placebo.patreon.wings;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import dev.shadowsoffire.placebo.patreon.WingsManager;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
+import dev.shadowsoffire.placebo.patreon.WingsManager;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;

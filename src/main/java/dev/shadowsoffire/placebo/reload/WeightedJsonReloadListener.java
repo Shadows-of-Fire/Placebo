@@ -1,6 +1,7 @@
-package dev.shadowsoffire.placebo.json;
+package dev.shadowsoffire.placebo.reload;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -12,7 +13,8 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 
-import dev.shadowsoffire.placebo.json.WeightedJsonReloadListener.ILuckyWeighted;
+import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
+import dev.shadowsoffire.placebo.reload.WeightedJsonReloadListener.ILuckyWeighted;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
@@ -20,10 +22,10 @@ import net.minecraft.util.random.WeightedEntry.Wrapper;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.level.Level;
 
-public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILuckyWeighted>extends PlaceboJsonReloadListener<V> {
+public abstract class WeightedJsonReloadListener<V extends TypeKeyed & PSerializable<? super V> & ILuckyWeighted> extends PlaceboJsonReloadListener<V> {
 
-    protected final List<Wrapper<V>> zeroLuckList = new ArrayList<>();
-    protected volatile int zeroLuckTotalWeight = 0;
+    protected List<Wrapper<V>> zeroLuckList = Collections.emptyList();
+    protected int zeroLuckTotalWeight = 0;
 
     public WeightedJsonReloadListener(Logger logger, String path, boolean synced, boolean subtypes) {
         super(logger, path, synced, subtypes);
@@ -32,26 +34,21 @@ public abstract class WeightedJsonReloadListener<V extends TypeKeyed<V> & ILucky
     @Override
     protected void beginReload() {
         super.beginReload();
-        this.zeroLuckList.clear();
+        this.zeroLuckList = Collections.emptyList();
         this.zeroLuckTotalWeight = 0;
     }
 
     @Override
-    protected <T extends V> void validateItem(T item) {
+    protected void validateItem(V item) {
         super.validateItem(item);
         Preconditions.checkArgument(item.getQuality() >= 0, "Item may not have negative quality!");
         Preconditions.checkArgument(item.getWeight() >= 0, "Item may not have negative weight!");
     }
 
     @Override
-    protected <T extends V> void register(ResourceLocation key, T item) {
-        super.register(key, item);
-        this.zeroLuckList.add(WeightedEntry.wrap(item, item.getWeight()));
-    }
-
-    @Override
     protected void onReload() {
         super.onReload();
+        this.zeroLuckList = this.registry.values().stream().map(item -> WeightedEntry.wrap(item, item.getWeight())).toList();
         this.zeroLuckTotalWeight = WeightedRandom.getTotalWeight(this.zeroLuckList);
         if (this.zeroLuckTotalWeight <= 0) throw new RuntimeException("The total weight for the " + this.path + " manager is zero!  This is not allowed.");
     }

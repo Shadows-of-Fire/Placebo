@@ -1,10 +1,5 @@
 package dev.shadowsoffire.placebo.util;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 
@@ -21,11 +16,6 @@ import net.minecraft.world.item.ItemStack;
  * @param <T> The type of object being cached.
  */
 public final class CachedObject<T> {
-
-    /**
-     * A global cache of all CachedObject(s), if they ever need to be invalidated without accessing all parent objects.
-     */
-    private static final Map<ResourceLocation, Set<CachedObject<?>>> GLOBAL_CACHE = new ConcurrentHashMap<>();
 
     public static final int HAS_NEVER_BEEN_INITIALIZED = -2;
     public static final int EMPTY_NBT = -1;
@@ -48,7 +38,6 @@ public final class CachedObject<T> {
         this.id = id;
         this.deserializer = deserializer;
         this.hasher = hasher;
-        insertToCache(this);
     }
 
     /**
@@ -159,22 +148,6 @@ public final class CachedObject<T> {
             return ((CachedObjectSource) (Object) stack).getOrCreate(id, deserializer);
         }
 
-    }
-
-    /**
-     * Invalidates ALL CachedObjects of a specific type ID.
-     */
-    public static void invalidateAll(ResourceLocation id) {
-        GLOBAL_CACHE.getOrDefault(id, Collections.emptySet()).forEach(CachedObject::reset);
-    }
-
-    private static void insertToCache(CachedObject<?> obj) {
-        // Compute ensures that we are in a synchronized block of the global ConcurrentHashMap.
-        GLOBAL_CACHE.compute(obj.id, (id, set) -> {
-            if (set == null) set = Collections.newSetFromMap(new WeakHashMap<>());
-            set.add(obj);
-            return set;
-        });
     }
 
 }

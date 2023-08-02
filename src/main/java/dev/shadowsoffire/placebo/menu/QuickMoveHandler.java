@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.container;
+package dev.shadowsoffire.placebo.menu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +61,14 @@ public class QuickMoveHandler {
         return slotStackCopy;
     }
 
+    /**
+     * Registers a new {@link QuickMoveRule}.
+     *
+     * @param req      The check to determine if this rule applies to a given slot.
+     * @param startIdx The (inclusive) start index of the target slot range to move to.
+     * @param endIdx   The (exclusive) end index of the target slot range to move to.
+     * @param reversed If true, the operation will attempt to place into endIdx and approach startIdx instead of start->end.
+     */
     public void registerRule(BiPredicate<ItemStack, Integer> req, int startIdx, int endIdx, boolean reversed) {
         this.rules.add(new QuickMoveRule(req, startIdx, endIdx, reversed));
     }

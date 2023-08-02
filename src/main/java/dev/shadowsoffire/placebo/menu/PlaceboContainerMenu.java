@@ -1,9 +1,9 @@
-package dev.shadowsoffire.placebo.container;
+package dev.shadowsoffire.placebo.menu;
 
 import java.util.function.Predicate;
 
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
-import dev.shadowsoffire.placebo.container.QuickMoveHandler.IExposedContainer;
+import dev.shadowsoffire.placebo.menu.QuickMoveHandler.IExposedContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;

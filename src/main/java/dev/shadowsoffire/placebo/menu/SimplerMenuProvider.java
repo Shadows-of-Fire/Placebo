@@ -1,6 +1,6 @@
-package dev.shadowsoffire.placebo.container;
+package dev.shadowsoffire.placebo.menu;
 
-import dev.shadowsoffire.placebo.container.ContainerUtil.PosFactory;
+import dev.shadowsoffire.placebo.menu.MenuUtil.PosFactory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
@@ -10,6 +10,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.level.Level;
 
+/**
+ * Boilerplate for creating {@link MenuProvider}s when using {@link BlockEntityMenu}.
+ */
 public class SimplerMenuProvider<M extends AbstractContainerMenu> implements MenuProvider {
     private final Component title;
     private final MenuConstructor menuConstructor;

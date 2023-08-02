@@ -17,7 +17,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.StatType;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
@@ -51,7 +53,7 @@ public class DeferredHelper {
 
     /**
      * Creates a new DeferredHelper and registers it to the mod event bus.
-     * 
+     *
      * @param modid The modid of the owning mod.
      * @return A new DeferredHelper.
      */
@@ -67,79 +69,93 @@ public class DeferredHelper {
     }
 
     public <T extends Block> RegistryObject<T> block(String path, Supplier<T> factory) {
-        return create(path, Registries.BLOCK, factory);
+        return this.create(path, Registries.BLOCK, factory);
     }
 
     public <T extends Fluid> RegistryObject<T> fluid(String path, Supplier<T> factory) {
-        return create(path, Registries.FLUID, factory);
+        return this.create(path, Registries.FLUID, factory);
     }
 
     public <T extends Item> RegistryObject<T> item(String path, Supplier<T> factory) {
-        return create(path, Registries.ITEM, factory);
+        return this.create(path, Registries.ITEM, factory);
     }
 
     public <T extends MobEffect> RegistryObject<T> effect(String path, Supplier<T> factory) {
-        return create(path, Registries.MOB_EFFECT, factory);
+        return this.create(path, Registries.MOB_EFFECT, factory);
     }
 
     public <T extends SoundEvent> RegistryObject<T> sound(String path, Supplier<T> factory) {
-        return create(path, Registries.SOUND_EVENT, factory);
+        return this.create(path, Registries.SOUND_EVENT, factory);
     }
 
     public <T extends Potion> RegistryObject<T> potion(String path, Supplier<T> factory) {
-        return create(path, Registries.POTION, factory);
+        return this.create(path, Registries.POTION, factory);
     }
 
     public <T extends Enchantment> RegistryObject<T> enchant(String path, Supplier<T> factory) {
-        return create(path, Registries.ENCHANTMENT, factory);
+        return this.create(path, Registries.ENCHANTMENT, factory);
     }
 
     public <U extends Entity, T extends EntityType<U>> RegistryObject<T> entity(String path, Supplier<T> factory) {
-        return create(path, Registries.ENTITY_TYPE, factory);
+        return this.create(path, Registries.ENTITY_TYPE, factory);
     }
 
     public <U extends BlockEntity, T extends BlockEntityType<U>> RegistryObject<T> blockEntity(String path, Supplier<T> factory) {
-        return create(path, Registries.BLOCK_ENTITY_TYPE, factory);
+        return this.create(path, Registries.BLOCK_ENTITY_TYPE, factory);
     }
 
     public <U extends ParticleOptions, T extends ParticleType<U>> RegistryObject<T> particle(String path, Supplier<T> factory) {
-        return create(path, Registries.PARTICLE_TYPE, factory);
+        return this.create(path, Registries.PARTICLE_TYPE, factory);
     }
 
     public <U extends AbstractContainerMenu, T extends MenuType<U>> RegistryObject<T> menu(String path, Supplier<T> factory) {
-        return create(path, Registries.MENU, factory);
+        return this.create(path, Registries.MENU, factory);
     }
 
     public <T extends PaintingVariant> RegistryObject<T> painting(String path, Supplier<T> factory) {
-        return create(path, Registries.PAINTING_VARIANT, factory);
+        return this.create(path, Registries.PAINTING_VARIANT, factory);
     }
 
     public <C extends Container, U extends Recipe<C>, T extends RecipeType<U>> RegistryObject<T> recipe(String path, Supplier<T> factory) {
-        return create(path, Registries.RECIPE_TYPE, factory);
+        return this.create(path, Registries.RECIPE_TYPE, factory);
     }
 
     public <C extends Container, U extends Recipe<C>, T extends RecipeSerializer<U>> RegistryObject<T> recipeSerializer(String path, Supplier<T> factory) {
-        return create(path, Registries.RECIPE_SERIALIZER, factory);
+        return this.create(path, Registries.RECIPE_SERIALIZER, factory);
     }
 
     public <T extends Attribute> RegistryObject<T> attribute(String path, Supplier<T> factory) {
-        return create(path, Registries.ATTRIBUTE, factory);
+        return this.create(path, Registries.ATTRIBUTE, factory);
     }
 
     public <S, U extends StatType<S>, T extends StatType<U>> RegistryObject<T> stat(String path, Supplier<T> factory) {
-        return create(path, Registries.STAT_TYPE, factory);
+        return this.create(path, Registries.STAT_TYPE, factory);
+    }
+
+    /**
+     * Creates a custom stat with the given path and formatter.<br>
+     * Calling {@link StatType#get} on {@link Stats#CUSTOM} is required for full registration, for some reason.
+     *
+     * @see Stats#makeCustomStat
+     */
+    public RegistryObject<ResourceLocation> customStat(String path, StatFormatter formatter) {
+        return this.create(path, Registries.CUSTOM_STAT, () -> {
+            ResourceLocation id = new ResourceLocation(this.modid, path);
+            Stats.CUSTOM.get(id, formatter);
+            return id;
+        });
     }
 
     public <U extends FeatureConfiguration, T extends Feature<U>> RegistryObject<T> feature(String path, Supplier<T> factory) {
-        return create(path, Registries.FEATURE, factory);
+        return this.create(path, Registries.FEATURE, factory);
     }
 
     public <T extends CreativeModeTab> RegistryObject<T> tab(String path, Supplier<T> factory) {
-        return create(path, Registries.CREATIVE_MODE_TAB, factory);
+        return this.create(path, Registries.CREATIVE_MODE_TAB, factory);
     }
 
     public <P, T extends P> RegistryObject<T> custom(String path, ResourceKey<Registry<P>> registry, Supplier<T> factory) {
-        return create(path, registry, factory);
+        return this.create(path, registry, factory);
     }
 
     protected <P, T extends P> RegistryObject<T> create(String path, ResourceKey<Registry<P>> regKey, Supplier<T> factory) {

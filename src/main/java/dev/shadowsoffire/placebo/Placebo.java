@@ -11,9 +11,9 @@ import dev.shadowsoffire.placebo.compat.TOPCompat;
 import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.packets.ButtonClickMessage;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
-import dev.shadowsoffire.placebo.packets.ReloadListenerPacket;
 import dev.shadowsoffire.placebo.registry.RegistryEvent;
 import dev.shadowsoffire.placebo.registry.RegistryEvent.Register;
+import dev.shadowsoffire.placebo.reload.ReloadListenerPacket;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
 import net.minecraft.core.particles.ParticleType;
@@ -53,6 +53,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegisterEvent;
 
 @Mod(Placebo.MODID)
+@SuppressWarnings("deprecation")
 public class Placebo {
 
     public static final String MODID = "placebo";
@@ -78,11 +79,11 @@ public class Placebo {
 
     @SubscribeEvent
     public void setup(FMLCommonSetupEvent e) {
-        MessageHelper.registerMessage(CHANNEL, 0, new ButtonClickMessage());
-        MessageHelper.registerMessage(CHANNEL, 1, new PatreonDisableMessage(0));
-        MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start(""));
-        MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content<>("", null, null));
-        MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End(""));
+        MessageHelper.registerMessage(CHANNEL, 0, new ButtonClickMessage.Provider());
+        MessageHelper.registerMessage(CHANNEL, 1, new PatreonDisableMessage.Provider());
+        MessageHelper.registerMessage(CHANNEL, 2, new ReloadListenerPacket.Start.Provider());
+        MessageHelper.registerMessage(CHANNEL, 3, new ReloadListenerPacket.Content.Provider<>());
+        MessageHelper.registerMessage(CHANNEL, 4, new ReloadListenerPacket.End.Provider());
         e.enqueueWork(() -> {
             PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
         });
@@ -120,6 +121,7 @@ public class Placebo {
     }
 
     @SubscribeEvent
+    @SuppressWarnings("deprecation")
     public void registerElse(Register<RecipeType<?>> e) {
         PlaceboUtil.registerTypes();
     }

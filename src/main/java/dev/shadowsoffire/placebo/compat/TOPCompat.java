@@ -19,6 +19,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.InterModComms;
 
+/**
+ * Stupid boilerplate for The One Probe.
+ */
 public class TOPCompat {
 
     public static void register() {

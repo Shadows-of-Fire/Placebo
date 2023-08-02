@@ -7,16 +7,16 @@ import net.minecraftforge.network.NetworkEvent;
 
 /**
  * A Message Provider encapsulates the default components that make up a SimpleChannel message.
- * That is, reading, writing, and handling. If "this" == "T" be sure to use the parameter fields and not "this".
+ * That is, reading, writing, and handling.
  *
- * @param <T> The type of the message. Can be this class or another class.
+ * @param <T> The type of the message.
  */
 public interface MessageProvider<T> {
 
-    @SuppressWarnings("unchecked")
-    default Class<T> getMsgClass() {
-        return (Class<T>) this.getClass();
-    }
+    /**
+     * @return The class of the message being provided, for registration to the channel.
+     */
+    Class<?> getMsgClass();
 
     /**
      * Writes the message to the byte buffer. Only use the parameter messager instance.<br>

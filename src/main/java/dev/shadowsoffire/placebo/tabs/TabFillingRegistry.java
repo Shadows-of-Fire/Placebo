@@ -25,7 +25,7 @@ public class TabFillingRegistry {
 
     /**
      * Registers an {@link ITabFiller} for all passed creative tabs.
-     * 
+     *
      * @param filler The tab filler.
      * @param tabs   A list of creative tabs to register the filler for.
      */
@@ -36,7 +36,7 @@ public class TabFillingRegistry {
 
     /**
      * Registers multiple {@link ITabFiller}s to a single creative tab.
-     * 
+     *
      * @param tab     The creative tab.
      * @param fillers A list of tab fillers to register to the creative tab.
      */
@@ -47,7 +47,7 @@ public class TabFillingRegistry {
     /**
      * Registers an {@link ItemLike} as an {@linkplain ITabFiller#simple(ItemLike) simple tab filler}.<br>
      * This will cause the default instance of this item to be added to all passed tabs.
-     * 
+     *
      * @param item An item-like object.
      * @param tabs A list of creative tabs to register the item to.
      */
@@ -59,7 +59,7 @@ public class TabFillingRegistry {
     /**
      * Registers multiple {@link ItemLike}s as a {@linkplain ITabFiller#simple(ItemLike) simple tab fillers}.<br>
      * This will cause the default instance of these items to be added to the passed tab.
-     * 
+     *
      * @param tab   The creative tab.
      * @param items A list of items to register to the creative tab.
      */
@@ -72,7 +72,7 @@ public class TabFillingRegistry {
      * tabs.<br>
      * A delegating tab filler will invoke {@link ITabFiller#fillItemCategory} if the supplied object is a tab filler, but otherwise
      * behave similar to {@link #registerSimple}.
-     * 
+     *
      * @param item An item-like supplier.
      * @param tabs A list of creative tabs to register the item to.
      */
@@ -85,7 +85,7 @@ public class TabFillingRegistry {
      * Registers multiple item-like suppliers to a single tab as {@linkplain ITabFiller#delegating(Supplier) a delegating tab filler}.<br>
      * A delegating tab filler will invoke {@link ITabFiller#fillItemCategory} if the supplied object is a tab filler, but otherwise
      * behave similar to {@link #registerSimple}.
-     * 
+     *
      * @param tab   The creative tab.
      * @param items A list of suppliers to register to the creative tab.
      */

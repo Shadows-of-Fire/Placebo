@@ -5,6 +5,10 @@ import net.minecraftforge.eventbus.api.GenericEvent;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
+/**
+ * @deprecated Use {@link DeferredHelper}
+ */
+@Deprecated
 public class RegistryEvent<T> extends GenericEvent<T> implements IModBusEvent {
 
     RegistryEvent(Class<T> clazz) {

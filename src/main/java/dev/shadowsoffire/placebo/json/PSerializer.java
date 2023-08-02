@@ -119,12 +119,26 @@ public class PSerializer<V> implements JsonDeserializer<V>, JsonSerializer<V>, N
      * @return A Codec-Backed PSerializer.
      */
     public static <V> PSerializer<V> fromCodec(String name, Codec<V> codec) {
+        return fromCodec(name, codec, codec);
+    }
+
+    /**
+     * Automatically creates a PSerializer from a codec, with the option to provide a network-specific codec.<br>
+     * Network de/serialization is handled by converting the object to/from NBT and sending that over the network.
+     *
+     * @param <V>      The type of object being serialized.
+     * @param name     The name of the type of object being serialized, for error logging.
+     * @param codec    The codec.
+     * @param netCodec The network codec.
+     * @return A Codec-Backed PSerializer.
+     */
+    public static <V> PSerializer<V> fromCodec(String name, Codec<V> codec, Codec<V> netCodec) {
         Builder<V> builder = new Builder<>(name);
         Consumer<String> onErr = msg -> logCodecError(name, msg);
         builder.toJson(obj -> codec.encodeStart(JsonOps.INSTANCE, obj).getOrThrow(false, onErr).getAsJsonObject());
         builder.fromJson(json -> codec.decode(JsonOps.INSTANCE, json).getOrThrow(false, onErr).getFirst());
-        builder.toNetwork((obj, buf) -> buf.writeNbt((CompoundTag) codec.encodeStart(NbtOps.INSTANCE, obj).getOrThrow(false, onErr)));
-        builder.fromNetwork(buf -> codec.decode(NbtOps.INSTANCE, buf.readNbt()).getOrThrow(false, onErr).getFirst());
+        builder.toNetwork((obj, buf) -> buf.writeNbt((CompoundTag) netCodec.encodeStart(NbtOps.INSTANCE, obj).getOrThrow(false, onErr)));
+        builder.fromNetwork(buf -> netCodec.decode(NbtOps.INSTANCE, buf.readNbt()).getOrThrow(false, onErr).getFirst());
         return builder.build();
     }
 
@@ -268,7 +282,7 @@ public class PSerializer<V> implements JsonDeserializer<V>, JsonSerializer<V>, N
      *
      * @param <V> This
      */
-    public static interface PSerializable<V extends PSerializable<V>> {
+    public static interface PSerializable<V extends PSerializable<? super V>> {
 
         /**
          * Returns the serializer that is responsible for de/serializing this object.<br>

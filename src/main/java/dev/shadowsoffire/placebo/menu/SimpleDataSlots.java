@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.container;
+package dev.shadowsoffire.placebo.menu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +12,10 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.world.inventory.DataSlot;
 
 /**
- * Simple ContainerData implementation that allows for lambda registration.
+ * Simple DataSlot implementation that allows for lambda registration.
  * The other option is creation of anonymous classes.
  */
-public class EasyContainerData {
+public class SimpleDataSlots {
 
     protected List<DataSlot> slots = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class EasyContainerData {
     public class EnergyDataSlot extends LambdaDataSlot {
 
         public EnergyDataSlot(ModifiableEnergyStorage energy, boolean upper) {
-            super(() -> ContainerUtil.split(energy.getEnergyStored(), upper), v -> ContainerUtil.deserializeEnergy(energy, v, upper));
+            super(() -> MenuUtil.split(energy.getEnergyStored(), upper), v -> energy.setEnergy(MenuUtil.merge(energy.getEnergyStored(), v, upper)));
         }
     }
 

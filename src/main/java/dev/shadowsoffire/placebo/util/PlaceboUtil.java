@@ -28,6 +28,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 /**
  * Collection of misc util stuff.
  */
+@SuppressWarnings("deprecation")
 public class PlaceboUtil {
 
     /**
@@ -58,6 +59,7 @@ public class PlaceboUtil {
      * Replaces a block and item and provides the original states to the new block.
      * States are updated such that the old state references are still valid.
      */
+    @Deprecated
     public static <B extends Block & IReplacementBlock> void registerOverride(Block old, B block, String modid) {
         ResourceLocation key = ForgeRegistries.BLOCKS.getKey(old);
         ForgeRegistries.BLOCKS.register(key, block);
@@ -73,6 +75,7 @@ public class PlaceboUtil {
     /**
      * Updates the references for a replaced block such that original BlockState objects are still valid.
      */
+    @Deprecated
     public static <B extends Block & IReplacementBlock> void overrideStates(Block old, B block) {
         block.setStateContainer(old.getStateDefinition());
         block._setDefaultState(old.defaultBlockState());
@@ -119,6 +122,7 @@ public class PlaceboUtil {
     static Map<ResourceLocation, RecipeType<?>> unregisteredTypes = new HashMap<>();
 
     @SuppressWarnings("unchecked")
+    @Deprecated // Use defreg
     public static <T extends Recipe<?>> RecipeType<T> makeRecipeType(final String pIdentifier) {
         if (late) throw new RuntimeException("Attempted to register a recipe type after the registration period closed.");
         RecipeType<T> type = new RecipeType<>(){
@@ -131,6 +135,7 @@ public class PlaceboUtil {
         return type;
     }
 
+    @Deprecated
     public static void registerTypes() {
         unregisteredTypes.forEach((key, type) -> ForgeRegistries.RECIPE_TYPES.register(key, type));
         Placebo.LOGGER.debug("Registered {} recipe types.", unregisteredTypes.size());

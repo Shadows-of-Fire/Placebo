@@ -32,8 +32,9 @@ public class MessageHelper {
      * @param id      Message id.
      * @param prov    An instance of the message provider. Note that this object will be kept around, so try to keep all fields uninitialized if possible.
      */
+    @SuppressWarnings("unchecked")
     public static <T> void registerMessage(SimpleChannel channel, int id, MessageProvider<T> prov) {
-        channel.registerMessage(id, prov.getMsgClass(), prov::write, prov::read, prov::handle);
+        channel.registerMessage(id, (Class<T>) prov.getMsgClass(), prov::write, prov::read, prov::handle);
     }
 
     /**

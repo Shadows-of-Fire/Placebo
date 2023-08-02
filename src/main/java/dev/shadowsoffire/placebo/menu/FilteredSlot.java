@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.container;
+package dev.shadowsoffire.placebo.menu;
 
 import java.util.function.Predicate;
 
@@ -9,6 +9,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
 
+/**
+ * Extension of {@link SlotItemHandler} which takes a filter on what may enter the slot.
+ */
 public class FilteredSlot extends SlotItemHandler {
 
     protected final Predicate<ItemStack> filter;
