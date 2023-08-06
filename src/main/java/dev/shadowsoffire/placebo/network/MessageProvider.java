@@ -1,8 +1,10 @@
 package dev.shadowsoffire.placebo.network;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 /**
@@ -19,20 +21,20 @@ public interface MessageProvider<T> {
     Class<?> getMsgClass();
 
     /**
-     * Writes the message to the byte buffer. Only use the parameter messager instance.<br>
+     * Writes the message to the byte buffer. Only use the parameter messager instance.
      *
      * @param msg The message to serialize.
      * @param buf The byte buffer.
      */
-    public abstract void write(T msg, FriendlyByteBuf buf);
+    void write(T msg, FriendlyByteBuf buf);
 
     /**
-     * Reads the message from a byte buffer. Must construct a new message object.<br>
+     * Reads the message from a byte buffer. Must construct a new message object.
      *
      * @param buf The byte buffer. Data must be read in the order it was written.
      * @return A new message instance with the read data.
      */
-    public abstract T read(FriendlyByteBuf buf);
+    T read(FriendlyByteBuf buf);
 
     /**
      * Handle the message. Must call {@link NetworkEvent.Context#setPacketHandled(boolean)} to avoid errors.
@@ -41,5 +43,16 @@ public interface MessageProvider<T> {
      * @param msg The messsage to handle.
      * @param ctx Relevant network context information.
      */
-    public abstract void handle(T msg, Supplier<NetworkEvent.Context> ctx);
+    void handle(T msg, Supplier<NetworkEvent.Context> ctx);
+
+    /**
+     * Gets the network direction in which this packet may be sent.<br>
+     * {@link Optional#empty()} means both directions are supported.
+     * 
+     * @return The optional containing the valid network direction, or empty if both directions are supported.
+     * @apiNote This method will not have a default return value in a future version.
+     */
+    default Optional<NetworkDirection> getNetworkDirection() {
+        return Optional.empty();
+    }
 }

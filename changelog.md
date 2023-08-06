@@ -1,3 +1,6 @@
+## 8.2.2
+* Added the method `MessageProvider#getNetworkDirection`.
+
 ## 8.2.1
 * Reduced `MessageHelper.handlePacket` from `Supplier<Runnable>` to `Runnable`.
 * Added a quick util method for making `SoundEvent`s to `DeferredHelper`.

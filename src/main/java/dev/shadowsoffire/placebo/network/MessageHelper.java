@@ -34,7 +34,7 @@ public class MessageHelper {
      */
     @SuppressWarnings("unchecked")
     public static <T> void registerMessage(SimpleChannel channel, int id, MessageProvider<T> prov) {
-        channel.registerMessage(id, (Class<T>) prov.getMsgClass(), prov::write, prov::read, prov::handle);
+        channel.registerMessage(id, (Class<T>) prov.getMsgClass(), prov::write, prov::read, prov::handle, prov.getNetworkDirection());
     }
 
     /**
