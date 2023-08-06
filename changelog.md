@@ -1,3 +1,7 @@
+## 8.2.1
+* Reduced `MessageHelper.handlePacket` from `Supplier<Runnable>` to `Runnable`.
+* Added a quick util method for making `SoundEvent`s to `DeferredHelper`.
+
 ## 8.2.0
 * Refactors and documentation updates to most systems.
 

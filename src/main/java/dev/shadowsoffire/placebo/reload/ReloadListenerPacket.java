@@ -43,7 +43,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
 
             @Override
             public void handle(Start msg, Supplier<Context> ctx) {
-                MessageHelper.handlePacket(() -> () -> SyncManagement.initSync(msg.path), ctx);
+                MessageHelper.handlePacket(() -> SyncManagement.initSync(msg.path), ctx);
             }
         }
     }
@@ -84,7 +84,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
 
             @Override
             public void handle(Content<V> msg, Supplier<Context> ctx) {
-                MessageHelper.handlePacket(() -> () -> SyncManagement.acceptItem(msg.path, msg.item), ctx);
+                MessageHelper.handlePacket(() -> SyncManagement.acceptItem(msg.path, msg.item), ctx);
             }
         }
     }
@@ -114,7 +114,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
 
             @Override
             public void handle(End msg, Supplier<Context> ctx) {
-                MessageHelper.handlePacket(() -> () -> SyncManagement.endSync(msg.path), ctx);
+                MessageHelper.handlePacket(() -> SyncManagement.endSync(msg.path), ctx);
             }
         }
     }

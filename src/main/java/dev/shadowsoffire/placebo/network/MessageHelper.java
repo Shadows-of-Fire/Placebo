@@ -40,12 +40,12 @@ public class MessageHelper {
     /**
      * Handles a packet. Enqueues the runnable to run on the main thread and calls {@link NetworkEvent.Context#setPacketHandled(boolean)}
      *
-     * @param r   Code to run to handle the packet. Uses a supplier to try and combat some classloading stuff.
+     * @param r   Code to run to handle the packet. Will be executed on the main thread.
      * @param ctx Context object. Available from {@link MessageProvider#handle(Object, Supplier)}
      */
-    public static void handlePacket(Supplier<Runnable> r, Supplier<NetworkEvent.Context> ctxSup) {
+    public static void handlePacket(Runnable r, Supplier<NetworkEvent.Context> ctxSup) {
         NetworkEvent.Context ctx = ctxSup.get();
-        ctx.enqueueWork(r.get());
+        ctx.enqueueWork(r);
         ctx.setPacketHandled(true);
     }
 

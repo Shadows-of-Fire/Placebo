@@ -47,7 +47,7 @@ public class ButtonClickMessage {
 
         @Override
         public void handle(ButtonClickMessage msg, Supplier<Context> ctx) {
-            MessageHelper.handlePacket(() -> () -> {
+            MessageHelper.handlePacket(() -> {
                 if (ctx.get().getSender().containerMenu instanceof IButtonContainer) {
                     ((IButtonContainer) ctx.get().getSender().containerMenu).onButtonClick(msg.button);
                 }

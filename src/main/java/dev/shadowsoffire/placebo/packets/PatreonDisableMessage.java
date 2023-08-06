@@ -54,11 +54,11 @@ public class PatreonDisableMessage {
         @Override
         public void handle(PatreonDisableMessage msg, Supplier<Context> ctx) {
             if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
-                MessageHelper.handlePacket(() -> () -> {
+                MessageHelper.handlePacket(() -> {
                     PacketDistro.sendToAll(Placebo.CHANNEL, new PatreonDisableMessage(msg.type, ctx.get().getSender().getUUID()));
                 }, ctx);
             }
-            else MessageHelper.handlePacket(() -> () -> {
+            else MessageHelper.handlePacket(() -> {
                 Set<UUID> set = msg.type == 0 ? TrailsManager.DISABLED : WingsManager.DISABLED;
                 if (set.contains(msg.id)) {
                     set.remove(msg.id);

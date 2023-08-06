@@ -88,6 +88,10 @@ public class DeferredHelper {
         return this.create(path, Registries.SOUND_EVENT, factory);
     }
 
+    public RegistryObject<SoundEvent> sound(String path) {
+        return sound(path, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(modid, path)));
+    }
+
     public <T extends Potion> RegistryObject<T> potion(String path, Supplier<T> factory) {
         return this.create(path, Registries.POTION, factory);
     }
