@@ -1,3 +1,8 @@
+## 8.3.0
+* Major refactor to PlaceboJsonReloadListener and related code.
+  * Now called DynamicRegistry, and DynamicRegistryObject is now DynamicHolder.
+* Made data listeners trigger on the clientside when using PlaceboContainerMenu.
+
 ## 8.2.2
 * Added the method `MessageProvider#getNetworkDirection`.
 

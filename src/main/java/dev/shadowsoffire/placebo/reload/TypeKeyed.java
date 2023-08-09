@@ -4,7 +4,7 @@ import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Provides get/set ID methods, used in {@link PlaceboJsonReloadListener}.
+ * Provides get/set ID methods, used in {@link DynamicRegistry}.
  */
 public interface TypeKeyed {
 

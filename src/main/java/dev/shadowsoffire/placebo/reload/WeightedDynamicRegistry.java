@@ -14,7 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 
 import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
-import dev.shadowsoffire.placebo.reload.WeightedJsonReloadListener.ILuckyWeighted;
+import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
@@ -22,12 +22,17 @@ import net.minecraft.util.random.WeightedEntry.Wrapper;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.level.Level;
 
-public abstract class WeightedJsonReloadListener<V extends TypeKeyed & PSerializable<? super V> & ILuckyWeighted> extends PlaceboJsonReloadListener<V> {
+/**
+ * An extension of {@link DynamicRegistry} with support for weighted entries, including various utilities for accessing items randomly.
+ *
+ * @param <V>
+ */
+public abstract class WeightedDynamicRegistry<V extends TypeKeyed & PSerializable<? super V> & ILuckyWeighted> extends DynamicRegistry<V> {
 
     protected List<Wrapper<V>> zeroLuckList = Collections.emptyList();
     protected int zeroLuckTotalWeight = 0;
 
-    public WeightedJsonReloadListener(Logger logger, String path, boolean synced, boolean subtypes) {
+    public WeightedDynamicRegistry(Logger logger, String path, boolean synced, boolean subtypes) {
         super(logger, path, synced, subtypes);
     }
 

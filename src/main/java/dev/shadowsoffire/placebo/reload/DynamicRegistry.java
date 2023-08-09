@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nullable;
@@ -41,18 +42,21 @@ import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 /**
- * A Placebo JSON Reload Listener is all the boilerplate for registering reload listeners efficiently.<br>
+ * A Dynamic Registry is a reload listener which acts like a registry. Unlike datapack registries, it can reload.
+ * <p>
  * To utilize this class, subclass it, and provide the appropriate constructor parameters.<br>
+ * Then, create a single static instance of it and keep it around.
+ * <p>
  * You will provide your serializers via {@link #registerBuiltinSerializers()}.<br>
  * You will then need to register it via {@link #registerToBus()}.<br>
  * From then on, loading of files, condition checks, network sync, and everything else is automatically handled.
  *
- * @param <V> The base type of objects stored in this reload listener.
+ * @param <R> The base type of objects stored in this registry.
  */
-public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializable<? super V>> extends SimpleJsonResourceReloadListener {
+public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? super R>> extends SimpleJsonResourceReloadListener {
 
     /**
-     * The Default key is used when subtypes are not enabled.
+     * The default serializer key that is used when subtypes are not enabled.
      */
     public static final ResourceLocation DEFAULT = new ResourceLocation("default");
 
@@ -60,24 +64,49 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
     protected final String path;
     protected final boolean synced;
     protected final boolean subtypes;
-    protected final SerializerMap<V> serializers;
+    protected final SerializerMap<R> serializers;
 
-    protected Map<ResourceLocation, V> registry = ImmutableMap.of();
+    /**
+     * Internal registry. Immutable when outside of the registration phase.
+     * <p>
+     * This map is cleared in {@link #beginReload()} and frozen in {@link #onReload()}
+     */
+    protected Map<ResourceLocation, R> registry = ImmutableMap.of();
 
-    private final Map<ResourceLocation, V> staged = new HashMap<>();
-    private final Set<ListenerCallback<V>> callbacks = new HashSet<>();
+    /**
+     * Staged data used during the sync process. Discarded when running an integrated server.
+     */
+    private final Map<ResourceLocation, R> staged = new HashMap<>();
+
+    /**
+     * Map of all holders that have ever been requested for this registry.
+     */
+    private final Map<ResourceLocation, DynamicHolder<? extends R>> holders = new ConcurrentHashMap<>();
+
+    /**
+     * List of callbacks attached to this registry.
+     * 
+     * @see #addCallback(RegistryCallback)
+     * @see #removeCallback(RegistryCallback)
+     */
+    private final Set<RegistryCallback<R>> callbacks = new HashSet<>();
+
+    /**
+     * Reference to the reload context, if available.<br>
+     * Set when the reload event fires, and good for the reload process.
+     */
     private WeakReference<ICondition.IContext> context;
 
     /**
-     * Constructs a new JSON reload listener. All parameters will be saved finally in the object.
+     * Constructs a new dynamic registry.
      *
      * @param logger   The logger used by this listener for all relevant messages.
      * @param path     The datapack path used by this listener for loading files.
-     * @param synced   If this listener will be synced over the network. You must also call
-     *                 {@link PlaceboJsonReloadListener#registerForSync(PlaceboJsonReloadListener)}
+     * @param synced   If this listener will be synced over the network.
      * @param subtypes If this listener supports subtyped objects (and the "type" key on top-level objects).
+     * @apiNote After construction, {@link #registerToBus()} must be called during setup.
      */
-    public PlaceboJsonReloadListener(Logger logger, String path, boolean synced, boolean subtypes) {
+    public DynamicRegistry(Logger logger, String path, boolean synced, boolean subtypes) {
         super(new GsonBuilder().setLenient().create(), path);
         this.logger = logger;
         this.path = path;
@@ -105,7 +134,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
             try {
                 if (JsonUtil.checkAndLogEmpty(ele, key, this.path, this.logger) && JsonUtil.checkConditions(ele, key, this.path, this.logger, this.getContext())) {
                     JsonObject obj = ele.getAsJsonObject();
-                    V deserialized;
+                    R deserialized;
                     if (this.subtypes) {
                         deserialized = this.serializers.read(obj);
                     }
@@ -140,6 +169,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
     protected void beginReload() {
         this.callbacks.forEach(l -> l.beginReload(this));
         this.registry = new HashMap<>();
+        this.holders.values().forEach(DynamicHolder::unbind);
     }
 
     /**
@@ -150,6 +180,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
         this.registry = ImmutableMap.copyOf(this.registry);
         this.logger.info("Registered {} {}.", this.registry.size(), this.path);
         this.callbacks.forEach(l -> l.onReload(this));
+        this.holders.values().forEach(DynamicHolder::bind);
     }
 
     /**
@@ -162,7 +193,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
     /**
      * @return An immutable view of all items registered for this type.
      */
-    public Collection<V> getValues() {
+    public Collection<R> getValues() {
         return this.registry.values();
     }
 
@@ -170,14 +201,14 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
      * @return The item associated with this key, or null.
      */
     @Nullable
-    public V getValue(ResourceLocation key) {
+    public R getValue(ResourceLocation key) {
         return this.getOrDefault(key, null);
     }
 
     /**
      * @return The item associated with this key, or the default value.
      */
-    public V getOrDefault(ResourceLocation key, V defValue) {
+    public R getOrDefault(ResourceLocation key, R defValue) {
         return this.registry.getOrDefault(key, defValue);
     }
 
@@ -191,17 +222,16 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
     }
 
     /**
-     * Creates a {@link DynamicRegistryObject} pointing to a value stored in this reload listener.<br>
-     * This method also registers {@linkplain DynamicRegistryObject#reset() the invalidation listener} to the reload listener.
+     * Creates a {@link DynamicHolder} pointing to a value stored in this reload listener.<br>
+     * This method also registers {@linkplain DynamicHolder#reset() the invalidation listener} to the reload listener.
      *
      * @param <T> The type of the target value.
      * @param id  The ID of the target value.
      * @return A dynamic registry object pointing to the target value.
      */
-    public <T extends V> DynamicRegistryObject<T> registryObject(ResourceLocation id) {
-        DynamicRegistryObject<T> obj = new DynamicRegistryObject<>(id, this);
-        this.registerCallback(ListenerCallback.beginOnly(mgr -> obj.reset()));
-        return obj;
+    @SuppressWarnings("unchecked")
+    public <T extends R> DynamicHolder<T> holder(ResourceLocation id) {
+        return (DynamicHolder<T>) this.holders.computeIfAbsent(id, k -> new DynamicHolder<>(this, k));
     }
 
     /**
@@ -210,7 +240,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
      * @param id         The ID of the serializer. If subtypes are not supported, this is ignored, and {@link #DEFAULT} is used.
      * @param serializer The serializer being registered.
      */
-    public final void registerSerializer(ResourceLocation id, PSerializer<? extends V> serializer) {
+    public final void registerSerializer(ResourceLocation id, PSerializer<? extends R> serializer) {
         serializer.validate(false, this.synced);
         if (this.subtypes) {
             if (this.serializers.contains(id)) throw new RuntimeException("Attempted to register a " + this.path + " serializer with id " + id + " but one already exists!");
@@ -225,7 +255,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
     /**
      * Registers a ListenerCallback to this reload listener.
      */
-    public final boolean registerCallback(ListenerCallback<V> callback) {
+    public final boolean addCallback(RegistryCallback<R> callback) {
         return this.callbacks.add(callback);
     }
 
@@ -233,7 +263,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
      * Removes a ListenerCallback from this reload listener.
      * Must be the same instance as one that was previously registered, or an object that implements equals/hashcode.
      */
-    public final boolean removeCallback(ListenerCallback<V> callback) {
+    public final boolean removeCallback(RegistryCallback<R> callback) {
         return this.callbacks.remove(callback);
     }
 
@@ -247,11 +277,12 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
      * @throws UnsupportedOperationException if the key does not match {@link TypeKeyed#getId() the item's key}
      * @throws UnsupportedOperationException if the key is already in use.
      */
-    protected final void register(ResourceLocation key, V item) {
+    protected final void register(ResourceLocation key, R item) {
         if (!key.equals(item.getId())) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a mismatched registry ID! Expected: " + item.getId() + " Provided: " + key);
         if (this.registry.containsKey(key)) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a duplicate registry ID! Key: " + key);
         this.validateItem(item);
         this.registry.put(key, item);
+        this.holders.computeIfAbsent(key, k -> new DynamicHolder<>(this, k));
     }
 
     /**
@@ -260,7 +291,7 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
      *
      * @param item The item about to be registered.
      */
-    protected void validateItem(V item) {}
+    protected void validateItem(R item) {}
 
     /**
      * @return The context object held in this listener, or {@link IContext.EMPTY} if it is unavailable.
@@ -310,16 +341,16 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
     @ApiStatus.Internal
     static class SyncManagement {
 
-        private static final Map<String, PlaceboJsonReloadListener<?>> SYNC_REGISTRY = new HashMap<>();
+        private static final Map<String, DynamicRegistry<?>> SYNC_REGISTRY = new HashMap<>();
 
         /**
-         * Registers a {@link PlaceboJsonReloadListener} for syncing.
+         * Registers a {@link DynamicRegistry} for syncing.
          *
          * @param listener The listener to register.
          * @throws UnsupportedOperationException if the listener is not a synced listener.
          * @throws UnsupportedOperationException if the listener is already registered to the sync registry.
          */
-        static void registerForSync(PlaceboJsonReloadListener<?> listener) {
+        static void registerForSync(DynamicRegistry<?> listener) {
             if (!listener.synced) throw new UnsupportedOperationException("Attempted to register the non-synced JSON Reload Listener " + listener.path + " as a synced listener!");
             synchronized (SYNC_REGISTRY) {
                 if (SYNC_REGISTRY.containsKey(listener.path)) throw new UnsupportedOperationException("Attempted to register the JSON Reload Listener for syncing " + listener.path + " but one already exists!");
@@ -403,8 +434,8 @@ public abstract class PlaceboJsonReloadListener<V extends TypeKeyed & PSerializa
         /**
          * Executes an action if the specified path is present in the sync registry.
          */
-        private static void ifPresent(String path, BiConsumer<String, PlaceboJsonReloadListener<?>> consumer) {
-            PlaceboJsonReloadListener<?> value = SYNC_REGISTRY.get(path);
+        private static void ifPresent(String path, BiConsumer<String, DynamicRegistry<?>> consumer) {
+            DynamicRegistry<?> value = SYNC_REGISTRY.get(path);
             if (value != null) consumer.accept(path, value);
         }
     }

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
 import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.network.MessageProvider;
-import dev.shadowsoffire.placebo.reload.PlaceboJsonReloadListener.SyncManagement;
+import dev.shadowsoffire.placebo.reload.DynamicRegistry.SyncManagement;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent.Context;

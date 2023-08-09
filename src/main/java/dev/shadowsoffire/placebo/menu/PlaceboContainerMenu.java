@@ -4,6 +4,8 @@ import java.util.function.Predicate;
 
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.menu.QuickMoveHandler.IExposedContainer;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -69,11 +71,22 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
         return super.moveItemStackTo(pStack, pStartIndex, pEndIndex, pReverseDirection);
     }
 
-    @Deprecated
-    public void setDataListener(IDataUpdateListener listener) {
-        this.addDataListener(listener);
+    /**
+     * Causes {@link ContainerListener#dataChanged(AbstractContainerMenu, int, int)} to be called on the client.
+     * <p>
+     * This method is normally only called via {@link ClientGamePacketListener#handleContainerSetData(ClientboundContainerSetDataPacket)}
+     */
+    @Override
+    public void setData(int pId, int pData) {
+        super.setData(pId, pData);
+        this.updateDataSlotListeners(pId, pData);
     }
 
+    /**
+     * Adds a data update listener. These are invoked on both sides, whenever data changes.
+     * 
+     * @param listener
+     */
     public void addDataListener(IDataUpdateListener listener) {
         this.addSlotListener(new ContainerListener(){
 
@@ -88,6 +101,12 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
         });
     }
 
+    /**
+     * Adds a slot update listener, which is only invoked on the server, when it feels like it™
+     * Probably best to avoid this...
+     * 
+     * @param listener
+     */
     public void addSlotListener(SlotUpdateListener listener) {
         this.addSlotListener(new ContainerListener(){
 
