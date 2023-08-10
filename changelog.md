@@ -1,3 +1,7 @@
+## 8.3.1
+* Added a T -> DynamicHolder function.
+* Added support for empty holders.
+
 ## 8.3.0
 * Major refactor to PlaceboJsonReloadListener and related code.
   * Now called DynamicRegistry, and DynamicRegistryObject is now DynamicHolder.

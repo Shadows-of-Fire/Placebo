@@ -18,6 +18,13 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class DynamicHolder<T extends TypeKeyed & PSerializable<? super T>> implements Supplier<T> {
 
+    /**
+     * The ID of an "empty" holder.
+     * 
+     * @see DynamicRegistry#emptyHolder()
+     */
+    public static final ResourceLocation EMPTY = new ResourceLocation("empty", "empty");
+
     protected final DynamicRegistry<? super T> registry;
     protected final ResourceLocation id;
 
@@ -38,7 +45,7 @@ public class DynamicHolder<T extends TypeKeyed & PSerializable<? super T>> imple
     /**
      * Checks if the target value is present in the registry, resolving it if possible.
      * 
-     * @return True, if the value is present, and {@link #value()} may be called.
+     * @return True, if the value is present, and {@link #get()} may be called.
      */
     public boolean isBound() {
         bind();
@@ -51,10 +58,18 @@ public class DynamicHolder<T extends TypeKeyed & PSerializable<? super T>> imple
      * @return The target value.
      * @throws NullPointerException if the value is not {@linkplain #isPresent() present}.
      */
-    public T value() {
+    @Override
+    public T get() {
         this.bind();
         Objects.requireNonNull(this.value, "Trying to access unbound value: " + this.id);
         return this.value;
+    }
+
+    /**
+     * @return An optional containing the target value if this {@link #isBound()}, otherwise {@link Optional#empty()}.
+     */
+    public Optional<T> getOptional() {
+        return this.isBound() ? Optional.of(this.value()) : Optional.empty();
     }
 
     /**
@@ -74,13 +89,6 @@ public class DynamicHolder<T extends TypeKeyed & PSerializable<? super T>> imple
         return this.id.equals(id);
     }
 
-    /**
-     * @return An optional containing the target value if this {@link #isBound()}, otherwise {@link Optional#empty()}.
-     */
-    public Optional<T> getOptional() {
-        return this.isBound() ? Optional.of(this.value()) : Optional.empty();
-    }
-
     @Override
     public boolean equals(Object obj) {
         return this == obj || obj instanceof DynamicHolder dh && dh.registry == this.registry && dh.id.equals(this.id);
@@ -89,11 +97,6 @@ public class DynamicHolder<T extends TypeKeyed & PSerializable<? super T>> imple
     @Override
     public int hashCode() {
         return Objects.hash(this.id, this.registry);
-    }
-
-    @Override
-    public T get() {
-        return value();
     }
 
     /**
@@ -112,6 +115,11 @@ public class DynamicHolder<T extends TypeKeyed & PSerializable<? super T>> imple
      */
     void unbind() {
         this.value = null;
+    }
+
+    @Deprecated(forRemoval = true)
+    public T value() {
+        return this.get();
     }
 
 }

@@ -222,8 +222,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
     }
 
     /**
-     * Creates a {@link DynamicHolder} pointing to a value stored in this reload listener.<br>
-     * This method also registers {@linkplain DynamicHolder#reset() the invalidation listener} to the reload listener.
+     * Creates a {@link DynamicHolder} pointing to a value stored in this reload listener.
      *
      * @param <T> The type of the target value.
      * @param id  The ID of the target value.
@@ -232,6 +231,26 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
     @SuppressWarnings("unchecked")
     public <T extends R> DynamicHolder<T> holder(ResourceLocation id) {
         return (DynamicHolder<T>) this.holders.computeIfAbsent(id, k -> new DynamicHolder<>(this, k));
+    }
+
+    /**
+     * Gets the {@link DynamicHolder} associated with a particular value.
+     * 
+     * @see #holder(ResourceLocation)
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends R> DynamicHolder<T> holder(T t) {
+        return (DynamicHolder<T>) this.holders.computeIfAbsent(t.getId(), k -> new DynamicHolder<>(this, k));
+    }
+
+    /**
+     * Gets an empty {@link DynamicHolder}.
+     * 
+     * @see #holder(ResourceLocation)
+     */
+    @SuppressWarnings("unchecked")
+    public DynamicHolder<R> emptyHolder() {
+        return (DynamicHolder<R>) this.holders.computeIfAbsent(DynamicHolder.EMPTY, k -> new DynamicHolder<>(this, k));
     }
 
     /**
