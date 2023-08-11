@@ -26,7 +26,7 @@ public class MenuUtil {
      * <p>
      * Necessary because the constructor of {@link MenuType} does not allow for lambda registration with {@link IContainerFactory}.
      */
-    public static <T extends AbstractContainerMenu> MenuType<T> type(IContainerFactory<T> factory) {
+    public static <T extends AbstractContainerMenu> MenuType<T> bufType(IContainerFactory<T> factory) {
         return new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS);
     }
 

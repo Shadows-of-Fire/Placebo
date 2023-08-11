@@ -1,3 +1,6 @@
+## 8.3.2
+* Renamed the MenuUtil.type overloads because generic inference fails.
+
 ## 8.3.1
 * Added a T -> DynamicHolder function.
 * Added support for empty holders.
