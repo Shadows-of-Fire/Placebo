@@ -21,7 +21,7 @@ import net.minecraft.world.item.context.UseOnContext;
 @Mixin(ItemStack.class)
 public class ItemStackMixin implements CachedObjectSource {
 
-    public Map<ResourceLocation, CachedObject<?>> cachedObjects = new ConcurrentHashMap<>();
+    private volatile Map<ResourceLocation, CachedObject<?>> cachedObjects = null;
 
     @Inject(at = @At("HEAD"), method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", cancellable = true, require = 1)
     public void placebo_itemUseHook(UseOnContext ctx, CallbackInfoReturnable<InteractionResult> cir) {
@@ -32,8 +32,17 @@ public class ItemStackMixin implements CachedObjectSource {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getOrCreate(ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
-        var cachedObj = this.cachedObjects.computeIfAbsent(id, key -> new CachedObject<>(key, deserializer, hasher));
+        var cachedObj = this.getOrCreate().computeIfAbsent(id, key -> new CachedObject<>(key, deserializer, hasher));
         return (T) cachedObj.get((ItemStack) (Object) this);
+    }
+
+    private Map<ResourceLocation, CachedObject<?>> getOrCreate() {
+        if (this.cachedObjects == null) {
+            synchronized (this) {
+                if (this.cachedObjects == null) this.cachedObjects = new ConcurrentHashMap<>();
+            }
+        }
+        return this.cachedObjects;
     }
 
 }

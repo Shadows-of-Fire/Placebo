@@ -1,3 +1,6 @@
+## 8.3.3
+* Made CachedObject lazy-init the ConcurrentHashMap stored on ItemStack.
+
 ## 8.3.2
 * Renamed the MenuUtil.type overloads because generic inference fails.
 
