@@ -1,3 +1,6 @@
+## 8.3.4
+* Made DynamicRegistry use a linked hash map when syncing to preserve registration order.
+
 ## 8.3.3
 * Made CachedObject lazy-init the ConcurrentHashMap stored on ItemStack.
 

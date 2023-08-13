@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -360,7 +361,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
     @ApiStatus.Internal
     static class SyncManagement {
 
-        private static final Map<String, DynamicRegistry<?>> SYNC_REGISTRY = new HashMap<>();
+        private static final Map<String, DynamicRegistry<?>> SYNC_REGISTRY = new LinkedHashMap<>();
 
         /**
          * Registers a {@link DynamicRegistry} for syncing.
@@ -373,8 +374,8 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
             if (!listener.synced) throw new UnsupportedOperationException("Attempted to register the non-synced JSON Reload Listener " + listener.path + " as a synced listener!");
             synchronized (SYNC_REGISTRY) {
                 if (SYNC_REGISTRY.containsKey(listener.path)) throw new UnsupportedOperationException("Attempted to register the JSON Reload Listener for syncing " + listener.path + " but one already exists!");
+                if (SYNC_REGISTRY.isEmpty()) MinecraftForge.EVENT_BUS.addListener(SyncManagement::syncAll);
                 SYNC_REGISTRY.put(listener.path, listener);
-                MinecraftForge.EVENT_BUS.addListener(listener::sync);
             }
         }
 
@@ -387,6 +388,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
             ifPresent(path, (k, v) -> {
                 v.staged.clear();
             });
+            Placebo.LOGGER.info("Starting sync for {}", path);
         }
 
         /**
@@ -456,6 +458,10 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
         private static void ifPresent(String path, BiConsumer<String, DynamicRegistry<?>> consumer) {
             DynamicRegistry<?> value = SYNC_REGISTRY.get(path);
             if (value != null) consumer.accept(path, value);
+        }
+
+        private static void syncAll(OnDatapackSyncEvent e) {
+            SYNC_REGISTRY.values().forEach(r -> r.sync(e));
         }
     }
 

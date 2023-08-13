@@ -2,6 +2,11 @@ package dev.shadowsoffire.placebo.reload;
 
 import java.util.function.Supplier;
 
+import org.jetbrains.annotations.ApiStatus;
+
+import com.mojang.datafixers.util.Either;
+
+import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
 import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.network.MessageProvider;
@@ -10,6 +15,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@ApiStatus.Internal
 public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
 
     final String path;
@@ -51,12 +57,33 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
     public static class Content<V extends TypeKeyed & PSerializable<? super V>> extends ReloadListenerPacket<Content<V>> {
 
         final ResourceLocation key;
-        final V item;
+        final Either<V, FriendlyByteBuf> data;
 
         public Content(String path, ResourceLocation key, V item) {
             super(path);
             this.key = key;
-            this.item = item;
+            this.data = Either.left(item);
+        }
+
+        private Content(String path, ResourceLocation key, FriendlyByteBuf buf) {
+            super(path);
+            this.key = key;
+            this.data = Either.right(buf);
+        }
+
+        private V readItem() {
+            FriendlyByteBuf buf = this.data.right().get();
+            try {
+                return SyncManagement.readItem(path, key, buf);
+            }
+            catch (Exception ex) {
+                Placebo.LOGGER.error("Failure when deserializing a dynamic registry object via network: Registry: {}, Object ID: {}", path, key);
+                ex.printStackTrace();
+                throw new RuntimeException(ex);
+            }
+            finally {
+                buf.release();
+            }
         }
 
         public static class Provider<V extends TypeKeyed & PSerializable<? super V>> implements MessageProvider<Content<V>> {
@@ -71,20 +98,19 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
             public void write(Content<V> msg, FriendlyByteBuf buf) {
                 buf.writeUtf(msg.path, 50);
                 buf.writeResourceLocation(msg.key);
-                SyncManagement.writeItem(msg.path, msg.item, buf);
+                SyncManagement.writeItem(msg.path, msg.data.left().get(), buf);
             }
 
             @Override
             public Content<V> read(FriendlyByteBuf buf) {
                 String path = buf.readUtf(50);
                 ResourceLocation key = buf.readResourceLocation();
-                V item = SyncManagement.readItem(path, key, buf);
-                return new Content<>(path, key, item);
+                return new Content<>(path, key, new FriendlyByteBuf(buf.copy()));
             }
 
             @Override
             public void handle(Content<V> msg, Supplier<Context> ctx) {
-                MessageHelper.handlePacket(() -> SyncManagement.acceptItem(msg.path, msg.item), ctx);
+                MessageHelper.handlePacket(() -> SyncManagement.acceptItem(msg.path, msg.readItem()), ctx);
             }
         }
     }
