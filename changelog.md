@@ -1,3 +1,7 @@
+## 8.3.5
+* Removed forge dependency line from the mods.toml and marked as Forge and NeoForge for CF.
+  * The dependency will be added back and the Forge marker will be removed once CF supports Neo correctly.
+
 ## 8.3.4
 * Made DynamicRegistry use a linked hash map when syncing to preserve registration order.
 
