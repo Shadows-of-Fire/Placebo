@@ -1,3 +1,8 @@
+## 8.3.6
+* Added `/placebo hand` for emitting the currently held item in JSON Object form, which is used by dependent mods.
+* Added `/placebo string_to_obj` for converting legacy NBT-Strings to JSON Object form.
+* Made it so that `\n` is unescaped when logging chat lines.
+
 ## 8.3.5
 * Removed forge dependency line from the mods.toml and marked as Forge and NeoForge for CF.
   * The dependency will be added back and the Forge marker will be removed once CF supports Neo correctly.
