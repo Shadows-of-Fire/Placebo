@@ -1,3 +1,6 @@
+## 8.3.7
+* Added `DynamicRegistry#holderCodec` to easily produce a codec for `DynamicHolder`s.
+
 ## 8.3.6
 * Added `/placebo hand` for emitting the currently held item in JSON Object form, which is used by dependent mods.
 * Added `/placebo string_to_obj` for converting legacy NBT-Strings to JSON Object form.
