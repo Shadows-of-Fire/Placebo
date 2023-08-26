@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.json.JsonUtil;
@@ -66,6 +67,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
     protected final boolean synced;
     protected final boolean subtypes;
     protected final SerializerMap<R> serializers;
+    protected final Codec<DynamicHolder<R>> holderCodec;
 
     /**
      * Internal registry. Immutable when outside of the registration phase.
@@ -116,6 +118,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
         this.serializers = new SerializerMap<>(path);
         this.registerBuiltinSerializers();
         if (this.serializers.isEmpty()) throw new RuntimeException("Attempted to create a json reload listener for " + path + " with no built-in serializers!");
+        this.holderCodec = ResourceLocation.CODEC.xmap(this::holder, DynamicHolder::getId);
     }
 
     /**
@@ -252,6 +255,16 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
     @SuppressWarnings("unchecked")
     public DynamicHolder<R> emptyHolder() {
         return (DynamicHolder<R>) this.holders.computeIfAbsent(DynamicHolder.EMPTY, k -> new DynamicHolder<>(this, k));
+    }
+
+    /**
+     * Returns a {@link Codec} that can handle {@link DynamicHolder}s for this registry.<br>
+     * The serialized form is {@link ResourceLocation}.
+     * 
+     * @return The Dynamic Holder Codec for this registry.
+     */
+    public Codec<DynamicHolder<R>> holderCodec() {
+        return this.holderCodec;
     }
 
     /**
