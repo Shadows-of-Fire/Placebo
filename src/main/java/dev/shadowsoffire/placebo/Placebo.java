@@ -127,7 +127,7 @@ public class Placebo {
     }
 
     public void registerCommands(RegisterCommandsEvent e) {
-        PlaceboCommand.register(e.getDispatcher());
+        PlaceboCommand.register(e.getDispatcher(), e.getBuildContext());
     }
 
 }
