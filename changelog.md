@@ -1,3 +1,6 @@
+## 8.4.1
+* Added the key as context to `DynamicRegistry#validateItem`.
+
 ## 8.4.0
 * Removed `TypeKeyed` and usages. The keys of dynamic items may now be retrieved from the relevant `DynamicRegistry` or `DynamicHolder`.
 
