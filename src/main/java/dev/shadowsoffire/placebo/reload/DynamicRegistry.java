@@ -314,14 +314,14 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
      * <p>
      * Override {@link #validateItem} to perform additional validation of registered objects.
      *
-     * @param key  The key of the object being registered.
-     * @param item The object being registered.
+     * @param key   The key of the value being registered.
+     * @param value The value being registered.
      * @throws UnsupportedOperationException if the key is already in use.
      */
-    protected final void register(ResourceLocation key, R item) {
+    protected final void register(ResourceLocation key, R value) {
         if (this.registry.containsKey(key)) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a duplicate registry ID! Key: " + key);
-        this.validateItem(item);
-        this.registry.put(key, item);
+        this.validateItem(key, value);
+        this.registry.put(key, value);
         this.holders.computeIfAbsent(key, k -> new DynamicHolder<>(this, k));
     }
 
@@ -329,9 +329,10 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
      * Validates that an individual item meets any criteria set by this reload listener.<br>
      * Called just before insertion into the registry.
      *
-     * @param item The item about to be registered.
+     * @param key   The key of the value being registered.
+     * @param value The value being registered.
      */
-    protected void validateItem(R item) {}
+    protected void validateItem(ResourceLocation key, R value) {}
 
     /**
      * @return The context object held in this listener, or {@link IContext.EMPTY} if it is unavailable.
