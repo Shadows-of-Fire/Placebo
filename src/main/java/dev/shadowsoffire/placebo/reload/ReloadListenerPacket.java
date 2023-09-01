@@ -54,7 +54,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
         }
     }
 
-    public static class Content<V extends TypeKeyed & PSerializable<? super V>> extends ReloadListenerPacket<Content<V>> {
+    public static class Content<V extends PSerializable<? super V>> extends ReloadListenerPacket<Content<V>> {
 
         final ResourceLocation key;
         final Either<V, FriendlyByteBuf> data;
@@ -74,7 +74,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
         private V readItem() {
             FriendlyByteBuf buf = this.data.right().get();
             try {
-                return SyncManagement.readItem(path, key, buf);
+                return SyncManagement.readItem(path, buf);
             }
             catch (Exception ex) {
                 Placebo.LOGGER.error("Failure when deserializing a dynamic registry object via network: Registry: {}, Object ID: {}", path, key);
@@ -86,7 +86,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
             }
         }
 
-        public static class Provider<V extends TypeKeyed & PSerializable<? super V>> implements MessageProvider<Content<V>> {
+        public static class Provider<V extends PSerializable<? super V>> implements MessageProvider<Content<V>> {
 
             @Override
             @SuppressWarnings("rawtypes")
@@ -110,7 +110,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
 
             @Override
             public void handle(Content<V> msg, Supplier<Context> ctx) {
-                MessageHelper.handlePacket(() -> SyncManagement.acceptItem(msg.path, msg.readItem()), ctx);
+                MessageHelper.handlePacket(() -> SyncManagement.acceptItem(msg.path, msg.key, msg.readItem()), ctx);
             }
         }
     }

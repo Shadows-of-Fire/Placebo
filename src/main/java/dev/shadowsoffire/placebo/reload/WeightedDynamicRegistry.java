@@ -27,7 +27,7 @@ import net.minecraft.world.level.Level;
  *
  * @param <V>
  */
-public abstract class WeightedDynamicRegistry<V extends TypeKeyed & PSerializable<? super V> & ILuckyWeighted> extends DynamicRegistry<V> {
+public abstract class WeightedDynamicRegistry<V extends PSerializable<? super V> & ILuckyWeighted> extends DynamicRegistry<V> {
 
     protected List<Wrapper<V>> zeroLuckList = Collections.emptyList();
     protected int zeroLuckTotalWeight = 0;

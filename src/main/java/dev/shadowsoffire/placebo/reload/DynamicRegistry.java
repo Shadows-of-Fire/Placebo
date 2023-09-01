@@ -16,7 +16,9 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -55,7 +57,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
  *
  * @param <R> The base type of objects stored in this registry.
  */
-public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? super R>> extends SimpleJsonResourceReloadListener {
+public abstract class DynamicRegistry<R extends PSerializable<? super R>> extends SimpleJsonResourceReloadListener {
 
     /**
      * The default serializer key that is used when subtypes are not enabled.
@@ -74,7 +76,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
      * <p>
      * This map is cleared in {@link #beginReload()} and frozen in {@link #onReload()}
      */
-    protected Map<ResourceLocation, R> registry = ImmutableMap.of();
+    protected BiMap<ResourceLocation, R> registry = ImmutableBiMap.of();
 
     /**
      * Staged data used during the sync process. Discarded when running an integrated server.
@@ -145,8 +147,6 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
                     else {
                         deserialized = this.serializers.get(DEFAULT).read(obj);
                     }
-                    deserialized.setId(key);
-                    Preconditions.checkNotNull(deserialized.getId(), "A " + this.path + " with id " + key + " failed to set ID.");
                     Preconditions.checkNotNull(deserialized.getSerializer(), "A " + this.path + " with id " + key + " is not declaring a serializer.");
                     Preconditions.checkNotNull(this.serializers.get(deserialized.getSerializer()), "A " + this.path + " with id " + key + " is declaring an unregistered serializer.");
                     this.register(key, deserialized);
@@ -172,7 +172,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
      */
     protected void beginReload() {
         this.callbacks.forEach(l -> l.beginReload(this));
-        this.registry = new HashMap<>();
+        this.registry = HashBiMap.create();
         this.holders.values().forEach(DynamicHolder::unbind);
     }
 
@@ -181,7 +181,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
      * Should handle any info logging, and data immutability.
      */
     protected void onReload() {
-        this.registry = ImmutableMap.copyOf(this.registry);
+        this.registry = ImmutableBiMap.copyOf(this.registry);
         this.logger.info("Registered {} {}.", this.registry.size(), this.path);
         this.callbacks.forEach(l -> l.onReload(this));
         this.holders.values().forEach(DynamicHolder::bind);
@@ -206,7 +206,15 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
      */
     @Nullable
     public R getValue(ResourceLocation key) {
-        return this.getOrDefault(key, null);
+        return this.registry.get(key);
+    }
+
+    /**
+     * @return The key associated with this value, or null.
+     */
+    @Nullable
+    public ResourceLocation getKey(R value) {
+        return this.registry.inverse().get(value);
     }
 
     /**
@@ -238,23 +246,24 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
     }
 
     /**
-     * Gets the {@link DynamicHolder} associated with a particular value.
+     * Gets the {@link DynamicHolder} associated with a particular value if it exists.
+     * <p>
+     * If the value is not present in the registry, instead returns {@linkplain #emptyHolder() the empty holder}.
      * 
      * @see #holder(ResourceLocation)
      */
-    @SuppressWarnings("unchecked")
     public <T extends R> DynamicHolder<T> holder(T t) {
-        return (DynamicHolder<T>) this.holders.computeIfAbsent(t.getId(), k -> new DynamicHolder<>(this, k));
+        ResourceLocation key = getKey(t);
+        return holder(key == null ? DynamicHolder.EMPTY : key);
     }
 
     /**
-     * Gets an empty {@link DynamicHolder}.
+     * Gets the empty {@link DynamicHolder}.
      * 
      * @see #holder(ResourceLocation)
      */
-    @SuppressWarnings("unchecked")
     public DynamicHolder<R> emptyHolder() {
-        return (DynamicHolder<R>) this.holders.computeIfAbsent(DynamicHolder.EMPTY, k -> new DynamicHolder<>(this, k));
+        return holder(DynamicHolder.EMPTY);
     }
 
     /**
@@ -303,15 +312,13 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
     /**
      * Registers a single item of this type to the registry during reload.
      * <p>
-     * Override {@link #validateItem(TypeKeyed)} to perform additional validation of registered objects.
+     * Override {@link #validateItem} to perform additional validation of registered objects.
      *
      * @param key  The key of the object being registered.
      * @param item The object being registered.
-     * @throws UnsupportedOperationException if the key does not match {@link TypeKeyed#getId() the item's key}
      * @throws UnsupportedOperationException if the key is already in use.
      */
     protected final void register(ResourceLocation key, R item) {
-        if (!key.equals(item.getId())) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a mismatched registry ID! Expected: " + item.getId() + " Provided: " + key);
         if (this.registry.containsKey(key)) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a duplicate registry ID! Key: " + key);
         this.validateItem(item);
         this.registry.put(key, item);
@@ -413,7 +420,7 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
          * @param buf   The buffer being written to.
          */
         @SuppressWarnings("unchecked")
-        static <V extends TypeKeyed & PSerializable<? super V>> void writeItem(String path, V value, FriendlyByteBuf buf) {
+        static <V extends PSerializable<? super V>> void writeItem(String path, V value, FriendlyByteBuf buf) {
             ifPresent(path, (k, v) -> {
                 ((SerializerMap<V>) v.serializers).write(value, buf);
             });
@@ -424,16 +431,14 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
          *
          * @param <V>  The type of item being read.
          * @param path The path of the listener.
-         * @param key  The key of the item being read (not the serializer key).
          * @param buf  The buffer being read from.
          * @return An object of type V as deserialized from the network.
          */
         @SuppressWarnings("unchecked")
-        static <V extends TypeKeyed> V readItem(String path, ResourceLocation key, FriendlyByteBuf buf) {
+        static <V> V readItem(String path, FriendlyByteBuf buf) {
             var listener = SYNC_REGISTRY.get(path);
             if (listener == null) throw new RuntimeException("Received sync packet for unknown registry!");
             V v = (V) listener.serializers.read(buf);
-            v.setId(key);
             return v;
         }
 
@@ -445,9 +450,9 @@ public abstract class DynamicRegistry<R extends TypeKeyed & PSerializable<? supe
          * @param value The object being staged.
          */
         @SuppressWarnings("unchecked")
-        static <V extends TypeKeyed> void acceptItem(String path, V value) {
+        static <V> void acceptItem(String path, ResourceLocation key, V value) {
             ifPresent(path, (k, v) -> {
-                ((Map<ResourceLocation, V>) v.staged).put(value.getId(), value);
+                ((Map<ResourceLocation, V>) v.staged).put(key, value);
             });
         }
 

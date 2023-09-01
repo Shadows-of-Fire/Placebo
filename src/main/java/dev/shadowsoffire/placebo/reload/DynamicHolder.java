@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 
@@ -16,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
  *
  * @param <T> The type of the target value.
  */
-public class DynamicHolder<T extends TypeKeyed & PSerializable<? super T>> implements Supplier<T> {
+public class DynamicHolder<T> implements Supplier<T> {
 
     /**
      * The ID of an "empty" holder.
