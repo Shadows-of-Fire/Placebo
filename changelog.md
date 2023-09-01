@@ -1,3 +1,6 @@
+## 8.4.0
+* Removed `TypeKeyed` and usages. The keys of dynamic items may now be retrieved from the relevant `DynamicRegistry` or `DynamicHolder`.
+
 ## 8.3.7
 * Added `DynamicRegistry#holderCodec` to easily produce a codec for `DynamicHolder`s.
 
