@@ -44,8 +44,8 @@ public abstract class WeightedDynamicRegistry<V extends PSerializable<? super V>
     }
 
     @Override
-    protected void validateItem(V item) {
-        super.validateItem(item);
+    protected void validateItem(ResourceLocation key, V item) {
+        super.validateItem(key, item);
         Preconditions.checkArgument(item.getQuality() >= 0, "Item may not have negative quality!");
         Preconditions.checkArgument(item.getWeight() >= 0, "Item may not have negative weight!");
     }
