@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
 import dev.shadowsoffire.placebo.compat.TOPCompat;
+import dev.shadowsoffire.placebo.json.GearSetRegistry;
 import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.packets.ButtonClickMessage;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
@@ -87,6 +88,7 @@ public class Placebo {
         e.enqueueWork(() -> {
             PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
         });
+        GearSetRegistry.INSTANCE.registerToBus();
     }
 
     @SubscribeEvent
