@@ -1,3 +1,6 @@
+## 8.5.1
+* Fixed how `CodecMap`'s default codec system worked.
+
 ## 8.5.0
 * Removed `PSerializable` and usages. Everything is codecs now!
 * Renamed `SerializerMap` to `CodecMap` and switched the internals to work with codecs.
