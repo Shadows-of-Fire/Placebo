@@ -55,7 +55,6 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
         super.onReload();
         this.zeroLuckList = this.registry.values().stream().map(item -> WeightedEntry.wrap(item, item.getWeight())).toList();
         this.zeroLuckTotalWeight = WeightedRandom.getTotalWeight(this.zeroLuckList);
-        if (this.zeroLuckTotalWeight <= 0) throw new RuntimeException("The total weight for the " + this.path + " manager is zero!  This is not allowed.");
     }
 
     /**

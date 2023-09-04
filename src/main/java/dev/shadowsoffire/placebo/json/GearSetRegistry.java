@@ -46,7 +46,7 @@ public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
 
     @Override
     protected void registerBuiltinCodecs() {
-        this.registerCodec(new ResourceLocation(Placebo.MODID, "default"), GearSet.CODEC);
+        this.registerDefaultCodec(new ResourceLocation(Placebo.MODID, "gear_set"), GearSet.CODEC);
     }
 
 }
