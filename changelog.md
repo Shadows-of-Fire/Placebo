@@ -1,3 +1,6 @@
+## 8.5.2
+* Fixed startup error from GearSetRegistry.
+
 ## 8.5.1
 * Fixed how `CodecMap`'s default codec system worked.
 
