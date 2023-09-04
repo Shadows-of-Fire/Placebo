@@ -1,3 +1,10 @@
+## 8.5.0
+* Removed `PSerializable` and usages. Everything is codecs now!
+* Renamed `SerializerMap` to `CodecMap` and switched the internals to work with codecs.
+* Added `NullableFieldCodec` to work around issues with `Codec#optionalFieldOf` - Stolen from Commoble.
+* Added `GearSet` and `ChancedEffectInstance` from Apotheosis.
+  * The `GearSetRegistry` was also pulled here. No default gear sets were added.
+
 ## 8.4.1
 * Added the key as context to `DynamicRegistry#validateItem`.
 
