@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -23,12 +23,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.placebo.Placebo;
+import dev.shadowsoffire.placebo.codec.CodecMap;
+import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.json.JsonUtil;
-import dev.shadowsoffire.placebo.json.PSerializer;
-import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
-import dev.shadowsoffire.placebo.json.SerializerMap;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ReloadableServerResources;
@@ -57,18 +59,18 @@ import net.minecraftforge.server.ServerLifecycleHooks;
  *
  * @param <R> The base type of objects stored in this registry.
  */
-public abstract class DynamicRegistry<R extends PSerializable<? super R>> extends SimpleJsonResourceReloadListener {
+public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimpleJsonResourceReloadListener {
 
     /**
      * The default serializer key that is used when subtypes are not enabled.
      */
-    public static final ResourceLocation DEFAULT = new ResourceLocation("default");
+    public static final ResourceLocation DEFAULT = CodecMap.DEFAULT;
 
     protected final Logger logger;
     protected final String path;
     protected final boolean synced;
     protected final boolean subtypes;
-    protected final SerializerMap<R> serializers;
+    protected final CodecMap<R> codecs;
     protected final Codec<DynamicHolder<R>> holderCodec;
 
     /**
@@ -117,9 +119,9 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
         this.path = path;
         this.synced = synced;
         this.subtypes = subtypes;
-        this.serializers = new SerializerMap<>(path);
+        this.codecs = new CodecMap<>(path);
         this.registerBuiltinSerializers();
-        if (this.serializers.isEmpty()) throw new RuntimeException("Attempted to create a json reload listener for " + path + " with no built-in serializers!");
+        if (this.codecs.isEmpty()) throw new RuntimeException("Attempted to create a json reload listener for " + path + " with no built-in serializers!");
         this.holderCodec = ResourceLocation.CODEC.xmap(this::holder, DynamicHolder::getId);
     }
 
@@ -140,15 +142,9 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
             try {
                 if (JsonUtil.checkAndLogEmpty(ele, key, this.path, this.logger) && JsonUtil.checkConditions(ele, key, this.path, this.logger, this.getContext())) {
                     JsonObject obj = ele.getAsJsonObject();
-                    R deserialized;
-                    if (this.subtypes) {
-                        deserialized = this.serializers.read(obj);
-                    }
-                    else {
-                        deserialized = this.serializers.get(DEFAULT).read(obj);
-                    }
-                    Preconditions.checkNotNull(deserialized.getSerializer(), "A " + this.path + " with id " + key + " is not declaring a serializer.");
-                    Preconditions.checkNotNull(this.serializers.get(deserialized.getSerializer()), "A " + this.path + " with id " + key + " is declaring an unregistered serializer.");
+                    R deserialized = this.codecs.decode(JsonOps.INSTANCE, obj).getOrThrow(false, this::logCodecError).getFirst();
+                    Preconditions.checkNotNull(deserialized.getCodec(), "A " + this.path + " with id " + key + " is not declaring a codec.");
+                    Preconditions.checkNotNull(this.codecs.getKey(deserialized.getCodec()), "A " + this.path + " with id " + key + " is declaring an unregistered codec.");
                     this.register(key, deserialized);
                 }
             }
@@ -277,20 +273,18 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
     }
 
     /**
-     * Register a serializer to this listener. Does not permit duplicates, and does not permit multiple registration.
+     * Registers a codec to this listener. Does not permit duplicates, and does not permit multiple registration.
      *
-     * @param id         The ID of the serializer. If subtypes are not supported, this is ignored, and {@link #DEFAULT} is used.
-     * @param serializer The serializer being registered.
+     * @param key   The key of the codec. If subtypes are not supported, this is ignored, and {@link #DEFAULT} is used.
+     * @param codec The codec being registered.
      */
-    public final void registerSerializer(ResourceLocation id, PSerializer<? extends R> serializer) {
-        serializer.validate(false, this.synced);
+    public final void registerCodec(ResourceLocation key, Codec<? extends R> codec) {
         if (this.subtypes) {
-            if (this.serializers.contains(id)) throw new RuntimeException("Attempted to register a " + this.path + " serializer with id " + id + " but one already exists!");
-            this.serializers.register(id, serializer);
+            this.codecs.register(key, codec);
         }
         else {
-            if (!this.serializers.isEmpty()) throw new RuntimeException("Attempted to register a " + this.path + " serializer with id " + id + " but subtypes are not supported!");
-            this.serializers.register(DEFAULT, serializer);
+            if (!this.codecs.isEmpty()) throw new UnsupportedOperationException("Attempted to register a second " + this.path + " codec with key " + key + " but subtypes are not supported!");
+            this.codecs.register(DEFAULT, codec);
         }
     }
 
@@ -362,6 +356,10 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
         this.onReload();
     }
 
+    private void logCodecError(String msg) {
+        Placebo.LOGGER.error("Codec failure for type {}, message: {}", this.path, msg);
+    }
+
     /**
      * Sync event handler. Sends the start packet, a content packet for each item, and then the end packet.
      */
@@ -406,9 +404,7 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
          * @param path The path of the listener being synced.
          */
         static void initSync(String path) {
-            ifPresent(path, (k, v) -> {
-                v.staged.clear();
-            });
+            ifPresent(path, registry -> registry.staged.clear());
             Placebo.LOGGER.info("Starting sync for {}", path);
         }
 
@@ -421,14 +417,15 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
          * @param buf   The buffer being written to.
          */
         @SuppressWarnings("unchecked")
-        static <V extends PSerializable<? super V>> void writeItem(String path, V value, FriendlyByteBuf buf) {
-            ifPresent(path, (k, v) -> {
-                ((SerializerMap<V>) v.serializers).write(value, buf);
+        static <V extends CodecProvider<? super V>> void writeItem(String path, V value, FriendlyByteBuf buf) {
+            ifPresent(path, registry -> {
+                Codec<V> c = (Codec<V>) registry.codecs;
+                buf.writeNbt((CompoundTag) c.encodeStart(NbtOps.INSTANCE, value).getOrThrow(false, registry::logCodecError));
             });
         }
 
         /**
-         * Reads an item from the network, via the listener's serializers.
+         * Reads an item from the network, via the listener's codec.
          *
          * @param <V>  The type of item being read.
          * @param path The path of the listener.
@@ -437,10 +434,10 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
          */
         @SuppressWarnings("unchecked")
         static <V> V readItem(String path, FriendlyByteBuf buf) {
-            var listener = SYNC_REGISTRY.get(path);
-            if (listener == null) throw new RuntimeException("Received sync packet for unknown registry!");
-            V v = (V) listener.serializers.read(buf);
-            return v;
+            var registry = SYNC_REGISTRY.get(path);
+            if (registry == null) throw new RuntimeException("Received sync packet for unknown registry!");
+            Codec<V> c = (Codec<V>) registry.codecs;
+            return c.decode(NbtOps.INSTANCE, buf.readNbt()).getOrThrow(false, registry::logCodecError).getFirst();
         }
 
         /**
@@ -452,9 +449,7 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
          */
         @SuppressWarnings("unchecked")
         static <V> void acceptItem(String path, ResourceLocation key, V value) {
-            ifPresent(path, (k, v) -> {
-                ((Map<ResourceLocation, V>) v.staged).put(key, value);
-            });
+            ifPresent(path, registry -> ((Map<ResourceLocation, V>) registry.staged).put(key, value));
         }
 
         /**
@@ -466,17 +461,15 @@ public abstract class DynamicRegistry<R extends PSerializable<? super R>> extend
          */
         static void endSync(String path) {
             if (ServerLifecycleHooks.getCurrentServer() != null) return; // Do not propgate received changed on the host of a singleplayer world, as they may not be the full data.
-            ifPresent(path, (k, v) -> {
-                v.pushStagedToLive();
-            });
+            ifPresent(path, DynamicRegistry::pushStagedToLive);
         }
 
         /**
          * Executes an action if the specified path is present in the sync registry.
          */
-        private static void ifPresent(String path, BiConsumer<String, DynamicRegistry<?>> consumer) {
+        private static void ifPresent(String path, Consumer<DynamicRegistry<?>> consumer) {
             DynamicRegistry<?> value = SYNC_REGISTRY.get(path);
-            if (value != null) consumer.accept(path, value);
+            if (value != null) consumer.accept(value);
         }
 
         private static void syncAll(OnDatapackSyncEvent e) {

@@ -10,12 +10,13 @@ import com.google.gson.JsonParseException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
+import dev.shadowsoffire.placebo.util.StepFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraftforge.registries.ForgeRegistries;
-import dev.shadowsoffire.placebo.util.StepFunction;
 
 /**
  * Represents a potion with a chance to receive this potion.
@@ -26,9 +27,9 @@ public class ChancedEffectInstance {
         .group(
             Codec.FLOAT.fieldOf("chance").forGetter(a -> a.chance),
             ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(a -> a.effect),
-            StepFunction.CODEC.optionalFieldOf("amplifier", StepFunction.constant(0)).forGetter(a -> a.amp),
-            Codec.BOOL.optionalFieldOf("ambient", true).forGetter(a -> a.ambient),
-            Codec.BOOL.optionalFieldOf("visible", false).forGetter(a -> a.visible))
+            PlaceboCodecs.nullableField(StepFunction.CODEC, "amplifier", StepFunction.constant(0)).forGetter(a -> a.amp),
+            PlaceboCodecs.nullableField(Codec.BOOL, "ambient", true).forGetter(a -> a.ambient),
+            PlaceboCodecs.nullableField(Codec.BOOL, "visible", false).forGetter(a -> a.visible))
         .apply(inst, ChancedEffectInstance::new));
 
     protected final float chance;

@@ -5,6 +5,7 @@ import java.util.List;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -22,7 +23,7 @@ public class WeightedItemStack extends WeightedEntry.IntrusiveBase {
     public static final Codec<WeightedItemStack> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         ItemAdapter.CODEC.fieldOf("stack").forGetter(w -> w.stack),
         Weight.CODEC.fieldOf("weight").forGetter(w -> w.getWeight()),
-        Codec.FLOAT.optionalFieldOf("drop_chance", -1F).forGetter(w -> w.dropChance))
+        PlaceboCodecs.nullableField(Codec.FLOAT, "drop_chance", -1F).forGetter(w -> w.dropChance))
         .apply(inst, WeightedItemStack::new));
 
     public static final Codec<List<WeightedItemStack>> LIST_CODEC = CODEC.listOf();

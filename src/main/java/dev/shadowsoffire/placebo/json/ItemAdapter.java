@@ -18,6 +18,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -32,19 +33,17 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
     public static final Gson ITEM_READER = new GsonBuilder().registerTypeAdapter(ItemStack.class, INSTANCE).registerTypeAdapter(CompoundTag.class, NBTAdapter.INSTANCE)
         .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer()).create();
 
-    // Formatter::off
     public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
             ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ItemStack::getItem),
-            Codec.intRange(0, 64).optionalFieldOf("count", 1).forGetter(ItemStack::getCount),
-            CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(stack -> Optional.ofNullable(stack.getTag())),
-            CompoundTag.CODEC.optionalFieldOf("cap_nbt").forGetter(ItemAdapter::getCapNBT))
+            PlaceboCodecs.nullableField(Codec.intRange(0, 64), "count", 1).forGetter(ItemStack::getCount),
+            PlaceboCodecs.nullableField(CompoundTag.CODEC, "nbt").forGetter(stack -> Optional.ofNullable(stack.getTag())),
+            PlaceboCodecs.nullableField(CompoundTag.CODEC, "cap_nbt").forGetter(ItemAdapter::getCapNBT))
         .apply(inst, (item, count, nbt, capNbt) -> {
             var stack = new ItemStack(item, count, capNbt.orElse(null));
             stack.setTag(nbt.orElse(null));
             return stack;
         }));
-    // Formatter::on
 
     private static Optional<CompoundTag> getCapNBT(ItemStack stack) {
         CompoundTag written = stack.save(new CompoundTag());

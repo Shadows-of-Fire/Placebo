@@ -7,7 +7,8 @@ import java.util.function.Predicate;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
+import dev.shadowsoffire.placebo.codec.CodecProvider;
+import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
@@ -22,21 +23,19 @@ import net.minecraft.world.entity.LivingEntity;
  * The list of potentials for a slot may be empty.
  */
 public record GearSet(int weight, float quality, List<WeightedItemStack> mainhands, List<WeightedItemStack> offhands, List<WeightedItemStack> boots, List<WeightedItemStack> leggings, List<WeightedItemStack> chestplates,
-    List<WeightedItemStack> helmets, List<String> tags) implements PSerializable<GearSet>, ILuckyWeighted {
+    List<WeightedItemStack> helmets, List<String> tags) implements CodecProvider<GearSet>, ILuckyWeighted {
 
     public static final Codec<GearSet> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         Codec.intRange(0, Integer.MAX_VALUE).fieldOf("weight").forGetter(ILuckyWeighted::getWeight),
-        Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("quality", 0F).forGetter(ILuckyWeighted::getQuality),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("mainhands", Collections.emptyList()).forGetter(g -> g.mainhands),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("offhands", Collections.emptyList()).forGetter(g -> g.offhands),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("boots", Collections.emptyList()).forGetter(g -> g.boots),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("leggings", Collections.emptyList()).forGetter(g -> g.leggings),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("chestplates", Collections.emptyList()).forGetter(g -> g.chestplates),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("helmets", Collections.emptyList()).forGetter(g -> g.helmets),
+        PlaceboCodecs.nullableField(Codec.floatRange(0, Float.MAX_VALUE), "quality", 0F).forGetter(ILuckyWeighted::getQuality),
+        PlaceboCodecs.nullableField(WeightedItemStack.LIST_CODEC, "mainhands", Collections.emptyList()).forGetter(g -> g.mainhands),
+        PlaceboCodecs.nullableField(WeightedItemStack.LIST_CODEC, "offhands", Collections.emptyList()).forGetter(g -> g.offhands),
+        PlaceboCodecs.nullableField(WeightedItemStack.LIST_CODEC, "boots", Collections.emptyList()).forGetter(g -> g.boots),
+        PlaceboCodecs.nullableField(WeightedItemStack.LIST_CODEC, "leggings", Collections.emptyList()).forGetter(g -> g.leggings),
+        PlaceboCodecs.nullableField(WeightedItemStack.LIST_CODEC, "chestplates", Collections.emptyList()).forGetter(g -> g.chestplates),
+        PlaceboCodecs.nullableField(WeightedItemStack.LIST_CODEC, "helmets", Collections.emptyList()).forGetter(g -> g.helmets),
         Codec.STRING.listOf().fieldOf("tags").forGetter(g -> g.tags))
         .apply(inst, GearSet::new));
-
-    public static final PSerializer<GearSet> SERIALIZER = PSerializer.fromCodec("Gear Set", CODEC);
 
     @Override
     public int getWeight() {
@@ -70,8 +69,8 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
     }
 
     @Override
-    public PSerializer<? extends GearSet> getSerializer() {
-        return SERIALIZER;
+    public Codec<? extends GearSet> getCodec() {
+        return CODEC;
     }
 
     public static class SetPredicate implements Predicate<GearSet> {

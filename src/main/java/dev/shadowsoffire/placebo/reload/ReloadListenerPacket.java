@@ -7,7 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 import com.mojang.datafixers.util.Either;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.json.PSerializer.PSerializable;
+import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.network.MessageHelper;
 import dev.shadowsoffire.placebo.network.MessageProvider;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry.SyncManagement;
@@ -54,7 +54,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
         }
     }
 
-    public static class Content<V extends PSerializable<? super V>> extends ReloadListenerPacket<Content<V>> {
+    public static class Content<V extends CodecProvider<? super V>> extends ReloadListenerPacket<Content<V>> {
 
         final ResourceLocation key;
         final Either<V, FriendlyByteBuf> data;
@@ -86,7 +86,7 @@ public abstract class ReloadListenerPacket<T extends ReloadListenerPacket<T>> {
             }
         }
 
-        public static class Provider<V extends PSerializable<? super V>> implements MessageProvider<Content<V>> {
+        public static class Provider<V extends CodecProvider<? super V>> implements MessageProvider<Content<V>> {
 
             @Override
             @SuppressWarnings("rawtypes")

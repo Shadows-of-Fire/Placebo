@@ -45,7 +45,7 @@ public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
 
     @Override
     protected void registerBuiltinSerializers() {
-        this.registerSerializer(DEFAULT, GearSet.SERIALIZER);
+        this.registerCodec(DEFAULT, GearSet.CODEC);
     }
 
 }
