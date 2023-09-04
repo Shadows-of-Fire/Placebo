@@ -53,18 +53,13 @@ import net.minecraftforge.server.ServerLifecycleHooks;
  * To utilize this class, subclass it, and provide the appropriate constructor parameters.<br>
  * Then, create a single static instance of it and keep it around.
  * <p>
- * You will provide your serializers via {@link #registerBuiltinSerializers()}.<br>
+ * You will provide your serializers via {@link #registerBuiltinCodecs()}.<br>
  * You will then need to register it via {@link #registerToBus()}.<br>
  * From then on, loading of files, condition checks, network sync, and everything else is automatically handled.
  *
  * @param <R> The base type of objects stored in this registry.
  */
 public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimpleJsonResourceReloadListener {
-
-    /**
-     * The default serializer key that is used when subtypes are not enabled.
-     */
-    public static final ResourceLocation DEFAULT = CodecMap.DEFAULT;
 
     protected final Logger logger;
     protected final String path;
@@ -120,8 +115,8 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         this.synced = synced;
         this.subtypes = subtypes;
         this.codecs = new CodecMap<>(path);
-        this.registerBuiltinSerializers();
-        if (this.codecs.isEmpty()) throw new RuntimeException("Attempted to create a json reload listener for " + path + " with no built-in serializers!");
+        this.registerBuiltinCodecs();
+        if (this.codecs.isEmpty()) throw new RuntimeException("Attempted to create a dynamic registry for " + path + " with no built-in codecs!");
         this.holderCodec = ResourceLocation.CODEC.xmap(this::holder, DynamicHolder::getId);
     }
 
@@ -158,9 +153,9 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
     /**
      * Add all default serializers to this reload listener.
-     * This should be a series of calls to {@link registerSerializer}
+     * This should be a series of calls to {@link #registerCodec(ResourceLocation, Codec)}
      */
-    protected abstract void registerBuiltinSerializers();
+    protected abstract void registerBuiltinCodecs();
 
     /**
      * Called when this manager begins reloading all items.
@@ -273,19 +268,29 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
-     * Registers a codec to this listener. Does not permit duplicates, and does not permit multiple registration.
+     * Registers a codec to this registry. Does not permit duplicates, and does not permit multiple registration. Not valid for registries that do not support
+     * subtypes.
      *
-     * @param key   The key of the codec. If subtypes are not supported, this is ignored, and {@link #DEFAULT} is used.
+     * @param key   The key of the codec.
      * @param codec The codec being registered.
+     * @throws UnsupportedOperationException if this registry does not support subtypes. Use {@link #registerDefaultCodec(ResourceLocation, Codec)} instead.
      */
     public final void registerCodec(ResourceLocation key, Codec<? extends R> codec) {
-        if (this.subtypes) {
-            this.codecs.register(key, codec);
-        }
-        else {
-            if (!this.codecs.isEmpty()) throw new UnsupportedOperationException("Attempted to register a second " + this.path + " codec with key " + key + " but subtypes are not supported!");
-            this.codecs.register(DEFAULT, codec);
-        }
+        if (!this.subtypes) throw new UnsupportedOperationException("Attempted to call registerCodec on a registry which does not support subtypes.");
+        this.codecs.register(key, codec);
+    }
+
+    /**
+     * Registers a default codec for this registry. Only one default codec can be registered, and it cannot be changed.
+     *
+     * @param key   The key of the codec.
+     * @param codec The codec being registered.
+     * @throws UnsupportedOperationException if a default codec has already been registered.
+     */
+    protected final void registerDefaultCodec(ResourceLocation key, Codec<? extends R> codec) {
+        if (this.codecs.getDefaultCodec() != null) throw new UnsupportedOperationException("Attempted to register a second " + this.path + " default codec with key " + key + " but subtypes are not supported!");
+        this.codecs.register(key, codec);
+        this.codecs.setDefaultCodec(codec);
     }
 
     /**

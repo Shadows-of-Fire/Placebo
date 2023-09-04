@@ -21,25 +21,12 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class CodecMap<V extends CodecProvider<? super V>> implements Codec<V> {
 
-    /**
-     * The default codec key.
-     */
-    public static final ResourceLocation DEFAULT = new ResourceLocation("default", "default");
-
-    /**
-     * The name of the object being de/serialized, for logging.
-     */
     protected final String name;
-
-    /**
-     * Internal codec registry.
-     */
     private final BiMap<ResourceLocation, Codec<? extends V>> codecs = HashBiMap.create();
-
-    /**
-     * Cached {@link MapBackedCodec} for the type of this map.
-     */
     private final Codec<V> codec;
+
+    @Nullable
+    protected Codec<? extends V> defaultCodec;
 
     /**
      * Creates a new CodecMap with the given name.
@@ -53,7 +40,15 @@ public class CodecMap<V extends CodecProvider<? super V>> implements Codec<V> {
 
     @Nullable
     public Codec<? extends V> getDefaultCodec() {
-        return getValue(DEFAULT);
+        return this.defaultCodec;
+    }
+
+    public void setDefaultCodec(Codec<? extends V> codec) {
+        synchronized (this.codecs) {
+            if (this.defaultCodec != null) throw new UnsupportedOperationException("Attempted to set the default codec after it has already been set.");
+            if (this.getKey(codec) == null) throw new UnsupportedOperationException("Attempted to set the default codec without registering it first.");
+            this.defaultCodec = codec;
+        }
     }
 
     /**

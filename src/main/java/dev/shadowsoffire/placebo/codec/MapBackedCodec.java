@@ -3,8 +3,6 @@ package dev.shadowsoffire.placebo.codec;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
 import com.google.common.collect.BiMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -27,10 +25,13 @@ public class MapBackedCodec<V extends CodecProvider<? super V>> implements Codec
 
     protected final String name;
     protected final BiMap<ResourceLocation, Codec<? extends V>> registry;
-    @Nullable
-    protected final Supplier<@Nullable Codec<? extends V>> defaultCodec;
+    protected final Supplier<Codec<? extends V>> defaultCodec;
 
-    public MapBackedCodec(String name, BiMap<ResourceLocation, Codec<? extends V>> registry, Supplier<@Nullable Codec<? extends V>> defaultCodec) {
+    /**
+     * @see PlaceboCodecs#mapBacked(String, BiMap)
+     * @param defaultCodec A supplier for the default codec. The supplier may not be null, but may return null.
+     */
+    public MapBackedCodec(String name, BiMap<ResourceLocation, Codec<? extends V>> registry, Supplier<Codec<? extends V>> defaultCodec) {
         this.name = name;
         this.registry = registry;
         this.defaultCodec = defaultCodec;

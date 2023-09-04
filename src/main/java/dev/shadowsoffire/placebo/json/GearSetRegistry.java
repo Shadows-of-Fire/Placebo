@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.json.GearSet.SetPredicate;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry.Wrapper;
 import net.minecraft.util.random.WeightedRandom;
@@ -44,8 +45,8 @@ public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
     }
 
     @Override
-    protected void registerBuiltinSerializers() {
-        this.registerCodec(DEFAULT, GearSet.CODEC);
+    protected void registerBuiltinCodecs() {
+        this.registerCodec(new ResourceLocation(Placebo.MODID, "default"), GearSet.CODEC);
     }
 
 }
