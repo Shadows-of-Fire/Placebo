@@ -37,8 +37,8 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
         .group(
             ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ItemStack::getItem),
             PlaceboCodecs.nullableField(Codec.intRange(0, 64), "count", 1).forGetter(ItemStack::getCount),
-            PlaceboCodecs.nullableField(CompoundTag.CODEC, "nbt").forGetter(stack -> Optional.ofNullable(stack.getTag())),
-            PlaceboCodecs.nullableField(CompoundTag.CODEC, "cap_nbt").forGetter(ItemAdapter::getCapNBT))
+            PlaceboCodecs.nullableField(NBTAdapter.EITHER_CODEC, "nbt").forGetter(stack -> Optional.ofNullable(stack.getTag())),
+            PlaceboCodecs.nullableField(NBTAdapter.EITHER_CODEC, "cap_nbt").forGetter(ItemAdapter::getCapNBT))
         .apply(inst, (item, count, nbt, capNbt) -> {
             var stack = new ItemStack(item, count, capNbt.orElse(null));
             stack.setTag(nbt.orElse(null));
