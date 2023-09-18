@@ -1,3 +1,7 @@
+## 8.5.4
+* Made `ChancedEffectInstance`, `RandomAttributeModifier`, and `StepFunction` records, and added constant codecs which remove random values.
+* Deprecated some old GSON code that should no longer be used.
+
 ## 8.5.3
 * Fixed `ItemAdapter`'s item stack codec using `CompoundTag.CODEC` instead of `NBTAdapter.EITHER_CODEC`.
   * This meant that nothing was able to use legacy nbt-strings, which isn't entirely a bad thing, but not something that should be enforced yet.
