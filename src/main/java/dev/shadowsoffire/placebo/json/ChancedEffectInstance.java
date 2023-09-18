@@ -19,52 +19,42 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
- * Represents a potion with a chance to receive this potion.
+ * Primer for creating a {@link MobEffectInstance} with a random application chance and random amplifier.
+ * <p>
+ * Duration is determined by the caller when creating the real MobEffectInstance.
  */
-public class ChancedEffectInstance {
+public record ChancedEffectInstance(float chance, MobEffect effect, StepFunction amplifier, boolean ambient, boolean visible) {
 
     public static Codec<ChancedEffectInstance> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            Codec.FLOAT.fieldOf("chance").forGetter(a -> a.chance),
-            ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(a -> a.effect),
-            PlaceboCodecs.nullableField(StepFunction.CODEC, "amplifier", StepFunction.constant(0)).forGetter(a -> a.amp),
-            PlaceboCodecs.nullableField(Codec.BOOL, "ambient", true).forGetter(a -> a.ambient),
-            PlaceboCodecs.nullableField(Codec.BOOL, "visible", false).forGetter(a -> a.visible))
+            PlaceboCodecs.nullableField(Codec.floatRange(0, 1), "chance", 1F).forGetter(ChancedEffectInstance::chance),
+            ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(ChancedEffectInstance::effect),
+            PlaceboCodecs.nullableField(StepFunction.CODEC, "amplifier", StepFunction.constant(0)).forGetter(ChancedEffectInstance::amplifier),
+            PlaceboCodecs.nullableField(Codec.BOOL, "ambient", true).forGetter(ChancedEffectInstance::ambient),
+            PlaceboCodecs.nullableField(Codec.BOOL, "visible", false).forGetter(ChancedEffectInstance::visible))
         .apply(inst, ChancedEffectInstance::new));
 
-    protected final float chance;
-    protected final MobEffect effect;
-    protected final StepFunction amp;
-    protected final boolean ambient;
-    protected final boolean visible;
-
     /**
-     * Creates a Chanced Effect Instance.
-     *
-     * @param chance The chance this potion is received.
-     * @param effect The effect.
-     * @param amp    A random range of possible amplifiers.
+     * Special codec that makes the created effect instance deterministic.
      */
-    public ChancedEffectInstance(float chance, MobEffect effect, StepFunction amp, boolean ambient, boolean visible) {
-        this.chance = chance;
-        this.effect = effect;
-        this.amp = amp;
-        this.ambient = ambient;
-        this.visible = visible;
+    public static Codec<ChancedEffectInstance> CONSTANT_CODEC = RecordCodecBuilder.create(inst -> inst
+        .group(
+            Codec.unit(1F).optionalFieldOf("chance", 1F).forGetter(a -> 1F),
+            ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(ChancedEffectInstance::effect),
+            PlaceboCodecs.nullableField(Codec.intRange(0, 255), "amplifier", 0).xmap(i -> StepFunction.constant(i), sf -> (int) sf.min()).forGetter(ChancedEffectInstance::amplifier),
+            PlaceboCodecs.nullableField(Codec.BOOL, "ambient", true).forGetter(ChancedEffectInstance::ambient),
+            PlaceboCodecs.nullableField(Codec.BOOL, "visible", false).forGetter(ChancedEffectInstance::visible))
+        .apply(inst, ChancedEffectInstance::new));
+
+    public MobEffectInstance create(RandomSource rand, int duration) {
+        return new MobEffectInstance(this.effect, duration, this.amplifier.getInt(rand.nextFloat()), this.ambient, this.visible);
     }
 
-    public float getChance() {
-        return this.chance;
+    public MobEffectInstance createDeterministic(int duration) {
+        return new MobEffectInstance(this.effect, duration, this.amplifier.getInt(0), this.ambient, this.visible);
     }
 
-    public MobEffect getEffect() {
-        return this.effect;
-    }
-
-    public MobEffectInstance createInstance(RandomSource rand, int duration) {
-        return new MobEffectInstance(this.effect, duration, this.amp.getInt(rand.nextFloat()), this.ambient, this.visible);
-    }
-
+    @Deprecated(forRemoval = true)
     public static class Deserializer implements JsonDeserializer<ChancedEffectInstance> {
 
         @Override

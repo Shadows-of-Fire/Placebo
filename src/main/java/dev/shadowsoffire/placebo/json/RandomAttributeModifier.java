@@ -18,6 +18,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.util.StepFunction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -29,7 +30,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class RandomAttributeModifier {
+public record RandomAttributeModifier(Attribute attribute, Operation op, StepFunction value, UUID id) {
 
     public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
@@ -38,30 +39,27 @@ public class RandomAttributeModifier {
             StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
         .apply(inst, RandomAttributeModifier::new));
 
-    protected final Attribute attribute;
-    protected final Operation op;
-    protected final StepFunction value;
-    protected final UUID id;
+    public static Codec<RandomAttributeModifier> CONSTANT_CODEC = RecordCodecBuilder.create(inst -> inst
+        .group(
+            ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
+            PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.op),
+            StepFunction.CONSTANT_CODEC.fieldOf("value").forGetter(a -> a.value))
+        .apply(inst, RandomAttributeModifier::new));
 
     /**
-     * Creates a Chanced Effect Instance.
+     * Creates a Chanced Effect Instance. A UUID will be deterministically generated from the other parameters.
      *
      * @param chance The chance this potion is received.
      * @param effect The effect.
      * @param amp    A random range of possible amplifiers.
      */
     public RandomAttributeModifier(Attribute attribute, Operation op, StepFunction value) {
-        this.attribute = attribute;
-        this.op = op;
-        this.value = value;
-        Random rand = new Random();
-        rand.setSeed(Objects.hash(attribute, op, value));
-        this.id = new UUID(rand.nextLong(), rand.nextLong());
+        this(attribute, op, value, createRandomUUID(attribute, op, value));
     }
 
     public void apply(RandomSource rand, LivingEntity entity) {
         if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
-        AttributeModifier modif = this.genModifier(rand);
+        AttributeModifier modif = this.create(rand);
         AttributeInstance inst = entity.getAttribute(this.attribute);
         if (inst == null) {
             Placebo.LOGGER
@@ -71,12 +69,20 @@ public class RandomAttributeModifier {
         inst.addPermanentModifier(modif);
     }
 
-    public AttributeModifier genModifier(RandomSource rand) {
+    public AttributeModifier create(RandomSource rand) {
         return new AttributeModifier(this.id, "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.get(rand.nextFloat()), this.op);
     }
 
-    public AttributeModifier genModifier(String name, RandomSource rand) {
+    public AttributeModifier create(String name, RandomSource rand) {
         return new AttributeModifier(name, this.value.get(rand.nextFloat()), this.op);
+    }
+
+    public AttributeModifier createDeterministic() {
+        return new AttributeModifier(this.id, "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.min(), this.op);
+    }
+
+    public AttributeModifier createDeterministic(String name) {
+        return new AttributeModifier(this.id, name, this.value.min(), this.op);
     }
 
     public Attribute getAttribute() {
@@ -89,6 +95,13 @@ public class RandomAttributeModifier {
 
     public StepFunction getValue() {
         return this.value;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static UUID createRandomUUID(Attribute attribute, Operation op, StepFunction value) {
+        Random rand = new Random();
+        rand.setSeed(Objects.hash(BuiltInRegistries.ATTRIBUTE.getKey(attribute), op, value));
+        return new UUID(rand.nextLong(), rand.nextLong());
     }
 
     public static class Deserializer implements JsonDeserializer<RandomAttributeModifier>, JsonSerializer<RandomAttributeModifier> {
