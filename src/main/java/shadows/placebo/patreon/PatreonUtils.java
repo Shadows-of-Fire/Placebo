@@ -3,11 +3,8 @@ package shadows.placebo.patreon;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.google.common.base.Suppliers;
 
-import net.minecraft.client.KeyMapping;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
