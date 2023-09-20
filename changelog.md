@@ -1,3 +1,6 @@
+## 7.3.3
+* Fixed supporter keybinds (root caused by RoyalReject).
+
 ## 7.3.2
 * Un roman: Updated Ukranaian translation.
 * Excaliburns: Added a config option to control first-person trails.
