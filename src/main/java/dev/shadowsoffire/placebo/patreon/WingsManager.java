@@ -12,6 +12,8 @@ import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
@@ -23,8 +25,9 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.EntityRenderersEvent.AddLayers;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -65,12 +68,15 @@ public class WingsManager {
                 // not possible
             }
             Placebo.LOGGER.info("Loaded {} patreon wings.", WINGS.size());
-            if (WINGS.size() > 0) MinecraftForge.EVENT_BUS.addListener(WingsManager::clientTick);
+            if (WINGS.size() > 0) MinecraftForge.EVENT_BUS.register(WingsManager.class);
         }, "Placebo Patreon Wing Loader").start();
     }
 
-    public static void clientTick(ClientTickEvent e) {
-        if (TOGGLE.consumeClick()) Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(1));
+    @SubscribeEvent
+    public static void keys(InputEvent.Key e) {
+        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode())) {
+            Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(1));
+        }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })

@@ -12,6 +12,8 @@ import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.PatreonParticleType;
@@ -21,9 +23,11 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class TrailsManager {
 
@@ -57,12 +61,12 @@ public class TrailsManager {
                 // not possible
             }
             Placebo.LOGGER.info("Loaded {} patreon trails.", TRAILS.size());
-            if (TRAILS.size() > 0) MinecraftForge.EVENT_BUS.addListener(TrailsManager::clientTick);
+            if (TRAILS.size() > 0) MinecraftForge.EVENT_BUS.register(TrailsManager.class);
         }, "Placebo Patreon Trail Loader").start();
     }
 
+    @SubscribeEvent
     public static void clientTick(ClientTickEvent e) {
-        if (TOGGLE.consumeClick()) Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(0));
         PatreonParticleType t = null;
         if (e.phase == Phase.END && Minecraft.getInstance().level != null) {
             for (Player player : Minecraft.getInstance().level.players()) {
@@ -74,6 +78,12 @@ public class TrailsManager {
                 }
             }
         }
+    }
 
+    @SubscribeEvent
+    public static void keys(InputEvent.Key e) {
+        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode())) {
+            Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(0));
+        }
     }
 }

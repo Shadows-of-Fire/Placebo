@@ -18,9 +18,6 @@ import net.minecraft.world.entity.player.Player;
 
 public class PatreonUtils {
 
-    public static final KeyMapping TOGGLE_T = new KeyMapping("placebo.toggleTrails", GLFW.GLFW_KEY_KP_8, "key.categories.placebo");
-    public static final KeyMapping TOGGLE_W = new KeyMapping("placebo.toggleWings", GLFW.GLFW_KEY_KP_9, "key.categories.placebo");
-
     public static enum PatreonParticleType {
         ASH(() -> ParticleTypes.ASH),
         CAMPFIRE_SMOKE(() -> ParticleTypes.CAMPFIRE_COSY_SMOKE),
