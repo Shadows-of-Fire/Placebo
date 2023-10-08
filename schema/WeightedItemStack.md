@@ -9,9 +9,9 @@ This object references the following objects:
 # Schema
 ```js
 {
-    "stack": ItemStack,   // [Mandatory] || See ItemStack.json
-    "weight": integer     // [Mandatory] || Weight (relative to other weighted entries in the same list) of this object.,
-    "drop_chance": float  // [Optional, defaults to -1] || Drop chance of this stack, if used in a context where it will be equipped by an entity.
+    "stack": ItemStack,   // [Mandatory] || The stack being provided.
+    "weight": integer     // [Mandatory] || Weight (relative to other weighted entries in the same list) of this object.
+    "drop_chance": float  // [Optional]  || Drop chance of this stack, if used in a context where it will be equipped by an entity. Default value = -1.
 }
 ```
 

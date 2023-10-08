@@ -4,7 +4,7 @@ Compound Tags are part of Vanilla Minecraft and are not supplied by a mod.
 
 # Schema
 ```js
-Object // [Mandatory] || Object representation of a Compound Tag, which is just write a JSON object that maps to your desired nbt.
+Object  // [Mandatory] || Object representation of a Compound Tag, which is just write a JSON object that maps to your desired nbt.
 
 OR
 
