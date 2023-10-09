@@ -1,3 +1,6 @@
+## 8.5.5
+* Fixed supporter keybinds not working.
+
 ## 8.5.4
 * Made `ChancedEffectInstance`, `RandomAttributeModifier`, and `StepFunction` records, and added constant codecs which remove random values.
 * Deprecated some old GSON code that should no longer be used.
