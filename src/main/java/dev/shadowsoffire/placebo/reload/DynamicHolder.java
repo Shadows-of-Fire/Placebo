@@ -12,6 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * A Dynamic Holder is an implementation of {@link Holder} for {@link DynamicRegistry}.<br>
  * As compared with normal holders, it can be invalidated, as the reload listeners can reload at runtime.
+ * <p>
+ * Dynamic Holders are interned, and as such are reference (==) comparable with others from the same registry.
  *
  * @param <T> The type of the target value.
  */

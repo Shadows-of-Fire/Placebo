@@ -3,14 +3,11 @@ package dev.shadowsoffire.placebo.patreon;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.google.common.base.Suppliers;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.patreon.wings.IWingModel;
 import dev.shadowsoffire.placebo.patreon.wings.Wing;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
