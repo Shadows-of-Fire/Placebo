@@ -1,3 +1,6 @@
+## 8.5.6
+* Fixed an issue with RandomAttributeModifier encountering UUID collisions.
+
 ## 8.5.5
 * Fixed supporter keybinds not working.
 
