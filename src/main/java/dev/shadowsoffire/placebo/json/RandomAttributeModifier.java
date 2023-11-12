@@ -1,8 +1,6 @@
 package dev.shadowsoffire.placebo.json;
 
 import java.lang.reflect.Type;
-import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 
 import com.google.gson.JsonDeserializationContext;
@@ -18,7 +16,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.util.StepFunction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -47,14 +44,14 @@ public record RandomAttributeModifier(Attribute attribute, Operation op, StepFun
         .apply(inst, RandomAttributeModifier::new));
 
     /**
-     * Creates a Chanced Effect Instance. A UUID will be deterministically generated from the other parameters.
+     * Creates a Random Attribute Modifier. A UUID will be randomly generated.
      *
-     * @param chance The chance this potion is received.
-     * @param effect The effect.
-     * @param amp    A random range of possible amplifiers.
+     * @param attribute The attribute the generated modifier will be applicable to.
+     * @param op        The operation of the generated modifier.
+     * @param value     The value range for the generated modifier.
      */
     public RandomAttributeModifier(Attribute attribute, Operation op, StepFunction value) {
-        this(attribute, op, value, createRandomUUID(attribute, op, value));
+        this(attribute, op, value, UUID.randomUUID());
     }
 
     public void apply(RandomSource rand, LivingEntity entity) {
@@ -95,13 +92,6 @@ public record RandomAttributeModifier(Attribute attribute, Operation op, StepFun
 
     public StepFunction getValue() {
         return this.value;
-    }
-
-    @SuppressWarnings("deprecation")
-    public static UUID createRandomUUID(Attribute attribute, Operation op, StepFunction value) {
-        Random rand = new Random();
-        rand.setSeed(Objects.hash(BuiltInRegistries.ATTRIBUTE.getKey(attribute), op, value));
-        return new UUID(rand.nextLong(), rand.nextLong());
     }
 
     public static class Deserializer implements JsonDeserializer<RandomAttributeModifier>, JsonSerializer<RandomAttributeModifier> {
