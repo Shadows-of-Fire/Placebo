@@ -1,3 +1,7 @@
+## 8.5.7
+* Fixed `ChatComponentMixin` not being in the client mixin package.
+* Fixed the Supporter Trail / Wing keybinds causing a crash if pressed before entering the world.
+
 ## 8.5.6
 * Fixed an issue with RandomAttributeModifier encountering UUID collisions.
 
