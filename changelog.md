@@ -1,3 +1,6 @@
+## 7.3.4
+* Fixed the Supporter Trail / Wing keybinds causing a crash if pressed before entering the world.
+
 ## 7.3.3
 * Fixed supporter keybinds (root caused by RoyalReject).
 
