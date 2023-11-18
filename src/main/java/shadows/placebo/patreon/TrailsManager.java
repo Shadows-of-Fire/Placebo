@@ -85,7 +85,7 @@ public class TrailsManager {
 
 	@SubscribeEvent
 	public static void keys(InputEvent.Key e) {
-		if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode())) {
+		if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
 			Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(0));
 		}
 	}

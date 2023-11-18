@@ -15,6 +15,7 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -72,7 +73,7 @@ public class WingsManager {
 
 	@SubscribeEvent
 	public static void keys(InputEvent.Key e) {
-		if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode())) {
+		if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
 			Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(1));
 		}
 	}
