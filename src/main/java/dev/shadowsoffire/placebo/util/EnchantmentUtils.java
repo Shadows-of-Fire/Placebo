@@ -1,102 +1,95 @@
 package dev.shadowsoffire.placebo.util;
 
-import java.util.List;
-
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import net.minecraft.world.level.Level;
 
 /**
- * Enchantment Utility class used by OpenMods. Replicated here under the permissions of the MIT Licenses.
- *
- * @author boq
+ * Lightly stolen from Bookshelf
  */
 public class EnchantmentUtils {
 
     /**
-     * Be warned, minecraft doesn't update experienceTotal properly, so we have
-     * to do this.
+     * Attempts to charge the player an experience point cost. If the player can not afford the full amount they will
+     * not be charged and false will be returned.
      *
-     * @param player
-     * @return
+     * @param player The player to charge.
+     * @param cost   The amount to charge the player in experience points.
+     * @return True if the amount was paid.
      */
-    public static int getPlayerXP(Player player) {
-        return (int) (EnchantmentUtils.getExperienceForLevel(player.experienceLevel) + player.experienceProgress * player.getXpNeededForNextLevel());
+    public static boolean chargeExperience(Player player, int cost) {
+        final int playerExperience = getExperience(player);
+
+        if (playerExperience >= cost) {
+            player.giveExperiencePoints(-cost);
+
+            // Due to rounding errors, the bar can get stuck displaying nothing when it should be empty.
+            if (getExperience(player) <= 0) player.experienceProgress = 0F;
+            return true;
+        }
+        return false;
     }
 
-    public static void addPlayerXP(Player player, int amount) {
-        int experience = getPlayerXP(player) + amount;
-        player.totalExperience = experience;
-        player.experienceLevel = EnchantmentUtils.getLevelForExperience(experience);
-        int expForLevel = EnchantmentUtils.getExperienceForLevel(player.experienceLevel);
-        player.experienceProgress = (float) (experience - expForLevel) / (float) player.getXpNeededForNextLevel();
+    /**
+     * Calculates the amount of experience points the player currently has. This should be used in favour of {@link
+     * Player#totalExperience} which deceptively does not track the amount of experience the player currently has.
+     * <p>
+     * Contrary to popular belief the {@link Player#totalExperience} value actually loosely represents how much
+     * experience points the player has earned during their current life. This value is akin to the old player score
+     * metric and appears to be predominantly legacy code. Relying on this value is often incorrect as negative changes
+     * to the player level such as enchanting, the anvil, and the level command will not reduce this value.
+     *
+     * @param player The player to calculate the total experience points of.
+     * @return The amount of experience points held by the player.
+     */
+    public static int getExperience(Player player) {
+        // Start by calculating how many EXP points the player's current level is worth.
+        int exp = getTotalExperienceForLevel(player.experienceLevel);
+
+        // Add the amount of experience points the player has earned towards their next level.
+        exp += player.experienceProgress * getTotalExperienceForLevel(player.experienceLevel + 1);
+
+        return exp;
     }
 
-    public static int xpBarCap(int level) {
-        if (level >= 30) return 112 + (level - 30) * 9;
-
-        if (level >= 15) return 37 + (level - 15) * 5;
-
-        return 7 + level * 2;
-    }
-
-    private static int sum(int n, int a0, int d) {
-        return n * (2 * a0 + (n - 1) * d) / 2;
-    }
-
+    /**
+     * Calculates the amount of experience the passed level is worth.<br>
+     * Reference: https://minecraft.wiki/w/Experience#Leveling_up
+     *
+     * @param level The target level.
+     * @return The amount of experience required to reach the given level when starting from the previous level.
+     */
     public static int getExperienceForLevel(int level) {
         if (level == 0) return 0;
-        if (level <= 15) return sum(level, 7, 2);
-        if (level <= 30) return 315 + sum(level - 15, 37, 5);
-        return 1395 + sum(level - 30, 112, 9);
+        if (level > 30) return 112 + (level - 31) * 9;
+        if (level > 15) return 37 + (level - 16) * 5;
+        return 7 + (level - 1) * 2;
     }
 
-    public static int getXpToNextLevel(int level) {
-        int levelXP = EnchantmentUtils.getLevelForExperience(level);
-        int nextXP = EnchantmentUtils.getExperienceForLevel(level + 1);
-        return nextXP - levelXP;
-    }
+    /**
+     * Calculates the difference in experience points between the start and target levels.
+     *
+     * @param start  The starting level.
+     * @param target The target level.
+     * @return The amount of experience required to go from the starting level to the target level.
+     */
+    public static int getExperienceDifference(int start, int target) {
+        if (target < start || start < 0) throw new IllegalArgumentException("Invalid start/target");
 
-    public static int getLevelForExperience(int targetXp) {
-        int level = 0;
-        while (true) {
-            final int xpToNextLevel = xpBarCap(level);
-            if (targetXp < xpToNextLevel) return level;
-            level++;
-            targetXp -= xpToNextLevel;
+        if (target == start) return 0;
+
+        int expReq = 0;
+        for (int lvl = start + 1; lvl <= target; lvl++) {
+            expReq += getExperienceForLevel(lvl);
         }
+        return expReq;
     }
 
-    public static float getPower(Level world, BlockPos position) {
-        float power = 0;
-
-        for (int deltaZ = -1; deltaZ <= 1; ++deltaZ) {
-            for (int deltaX = -1; deltaX <= 1; ++deltaX) {
-                if ((deltaZ != 0 || deltaX != 0) && world.isEmptyBlock(position.offset(deltaX, 0, deltaZ)) && world.isEmptyBlock(position.offset(deltaX, 1, deltaZ))) {
-                    power += getEnchantPower(world, position.offset(deltaX * 2, 0, deltaZ * 2));
-                    power += getEnchantPower(world, position.offset(deltaX * 2, 1, deltaZ * 2));
-                    if (deltaX != 0 && deltaZ != 0) {
-                        power += getEnchantPower(world, position.offset(deltaX * 2, 0, deltaZ));
-                        power += getEnchantPower(world, position.offset(deltaX * 2, 1, deltaZ));
-                        power += getEnchantPower(world, position.offset(deltaX, 0, deltaZ * 2));
-                        power += getEnchantPower(world, position.offset(deltaX, 1, deltaZ * 2));
-                    }
-                }
-            }
-        }
-        return power;
-    }
-
-    static float getEnchantPower(Level world, BlockPos pos) {
-        return world.getBlockState(pos).getEnchantPowerBonus(world, pos);
-    }
-
-    public static void addAllBooks(Enchantment enchantment, List<ItemStack> items) {
-        for (int i = enchantment.getMinLevel(); i <= enchantment.getMaxLevel(); i++)
-            items.add(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, i)));
+    /**
+     * Calculates the total experience required to reach the given level when starting at level 0.
+     *
+     * @param level The target level.
+     * @return The amount of experience required to reach the target level.
+     */
+    public static int getTotalExperienceForLevel(int level) {
+        return getExperienceDifference(0, level);
     }
 }
