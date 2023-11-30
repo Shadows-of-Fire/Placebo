@@ -1,3 +1,7 @@
+## 8.5.9
+* Updated EnchantmentUtils to be more useful.
+  * New version is based on Bookshelf, old version was based on OpenBlocks.
+
 ## 8.5.8
 * Fixed RandomAttributeModifier not being re-applicable.
 
