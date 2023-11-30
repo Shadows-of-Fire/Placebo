@@ -1,3 +1,6 @@
+## 8.6.0
+* Added back `EnchantmentUtils.getLevelForExperience` which was missed in 8.5.9.
+
 ## 8.5.9
 * Updated EnchantmentUtils to be more useful.
   * New version is based on Bookshelf, old version was based on OpenBlocks.
