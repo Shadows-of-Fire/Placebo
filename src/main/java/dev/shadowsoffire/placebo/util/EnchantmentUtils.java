@@ -92,4 +92,20 @@ public class EnchantmentUtils {
     public static int getTotalExperienceForLevel(int level) {
         return getExperienceDifference(0, level);
     }
+
+    /**
+     * Computes the level that the given amount of experience would result in, starting with no experience.
+     * 
+     * @param experience The amount of experience.
+     * @return The level resulting from gaining this much experience, if at level zero.
+     */
+    public static int getLevelForExperience(int experience) {
+        int level = 0;
+        while (true) {
+            final int xpToNextLevel = getExperienceForLevel(level + 1);
+            if (experience < xpToNextLevel) return level;
+            level++;
+            experience -= xpToNextLevel;
+        }
+    }
 }
