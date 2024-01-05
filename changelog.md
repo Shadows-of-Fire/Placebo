@@ -1,3 +1,6 @@
+## 7.3.5
+* Made CachedObject lazy-init the ConcurrentHashMap stored on ItemStack.
+
 ## 7.3.4
 * Fixed the Supporter Trail / Wing keybinds causing a crash if pressed before entering the world.
 
