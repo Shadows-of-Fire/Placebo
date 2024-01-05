@@ -34,8 +34,8 @@ public final class CachedObject<T> {
 	protected final Function<ItemStack, T> deserializer;
 	protected final ToIntFunction<ItemStack> hasher;
 
-	protected T data = null;
-	protected int lastNbtHash = HAS_NEVER_BEEN_INITIALIZED;
+	protected volatile T data = null;
+	protected volatile int lastNbtHash = HAS_NEVER_BEEN_INITIALIZED;
 
 	/**
 	 * Creates a new CachedObject.
