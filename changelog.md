@@ -1,3 +1,6 @@
+## 8.6.1
+* Added `speed` param to `GradientColor`.
+
 ## 8.6.0
 * Added back `EnchantmentUtils.getLevelForExperience` which was missed in 8.5.9.
 
