@@ -24,7 +24,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
-import shadows.placebo.codec.EnumCodec;
 import shadows.placebo.codec.PlaceboCodecs;
 import shadows.placebo.util.StepFunction;
 
@@ -40,7 +39,7 @@ public record RandomAttributeModifier(Attribute attribute, Operation op, StepFun
 	public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
 		.group(
 			ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
-			new EnumCodec<>(Operation.class).fieldOf("operation").forGetter(a -> a.op),
+			PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.op),
 			StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
 			.apply(inst, RandomAttributeModifier::new)
 		);

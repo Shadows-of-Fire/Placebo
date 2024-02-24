@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 
+@Deprecated(forRemoval = true)
 public class EnumCodec<E extends Enum<E>> implements Codec<E> {
 	private final Function<String, E> decoder;
 	private final Function<E, String> encoder;
