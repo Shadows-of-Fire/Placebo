@@ -1,11 +1,6 @@
 package shadows.placebo.codec;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nullable;
 
@@ -19,6 +14,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.crafting.CraftingHelper;
@@ -47,6 +43,13 @@ public class PlaceboCodecs {
 
 	public static <V> Codec<Set<V>> setFromList(Codec<List<V>> listCodec) {
 		return listCodec.<Set<V>>xmap(HashSet::new, ArrayList::new);
+	}
+
+	/**
+	 * Creates an enum codec using the lowercase name of the enum values as the keys.
+	 */
+	public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> clazz) {
+		return ExtraCodecs.stringResolverCodec(e -> e.name().toLowerCase(Locale.ROOT), name -> Enum.valueOf(clazz, name.toUpperCase(Locale.ROOT)));
 	}
 
 	/**
