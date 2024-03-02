@@ -1,12 +1,11 @@
 plugins {
+    id 'java-library'
     id 'idea'
     id 'eclipse'
     id 'maven-publish'
-    id 'net.neoforged.gradle' version '[6.0.18, 6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.gradle.userdev' version '7.0.96'
     id 'com.diffplug.eclipse.apt' version '3.42.2'
-    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
-    id 'net.darkhax.curseforgegradle' version '1.1.15'
+    id 'net.darkhax.curseforgegradle' version '1.1.18'
 }
 
 base {
@@ -16,32 +15,35 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(project.properties.javaVersion)
 
 minecraft {
-    mappings channel: 'parchment', version: project.properties.parchmentVersion
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    enableEclipsePrepareRuns = true
-    copyIdeResources = true
-    generateRunFolders = true
-    runs {
-        configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.logging.console.level', 'debug'
-            mods {
-                "${modid}" {
-                    source sourceSets.main
-                }
-            }
-        }
+    accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
+}
 
-        client = {
-        }
-        server = {
-            args "--nogui"
-        }
-        data = {
-            workingDirectory project.file('run-data')
-            args '--mod', "${modid}", '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-        }
+subsystems {
+    parchment {
+        def split = "${parchmentVersion}".split('-')
+        minecraftVersion = split[1]
+        mappingsVersion = split[0]
+    }
+}
+
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', ''
+        systemProperty 'forge.logging.console.level', 'debug'
+        modSource project.sourceSets.main
+    }
+
+    client {
+        systemProperty 'forge.enabledGameTestNamespaces', "${modid}"
+    }
+
+    server {
+        systemProperty 'forge.enabledGameTestNamespaces', "${modid}"
+        programArgument '--nogui'
+    }
+
+    data {
+        programArguments.addAll '--mod', "${modid}", '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
 }
 
@@ -92,28 +94,18 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.neoforged:forge:${mcVersion}-${forgeVersion}"
-    if(project.mixin.toBoolean())                   annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
-    if(project.hasProperty('placeboVersion'))       implementation fg.deobf("dev.shadowsoffire:Placebo:${mcVersion}-${placeboVersion}")
-    if(project.hasProperty('jeiVersion'))           implementation fg.deobf("mezz.jei:jei-${mcVersion}-forge:${jeiVersion}")
-    if(project.hasProperty('jadeFileId'))           implementation fg.deobf("curse.maven:jade-324717:${jadeFileId}")
-    if(project.hasProperty('curiosVersion'))        implementation fg.deobf("top.theillusivec4.curios:curios-forge:${curiosVersion}")
-    if(project.hasProperty('patchouliVersion'))     implementation fg.deobf("vazkii.patchouli:Patchouli:${patchouliVersion}")
-    if(project.hasProperty('topVersion'))           implementation fg.deobf(project.dependencies.create("mcjty.theoneprobe:theoneprobe:${topVersion}") {
-            transitive = false
-    })
-    if(project.hasProperty('bookshelfVersion'))     compileOnly    fg.deobf("net.darkhax.bookshelf:Bookshelf-Forge-${mcVersion}:${bookshelfVersion}")
-    if(project.hasProperty('gamestagesVersion'))    compileOnly    fg.deobf("net.darkhax.gamestages:GameStages-Forge-${mcVersion}:${gamestagesVersion}")
-    if(project.hasProperty('twilightFileId'))       implementation fg.deobf("curse.maven:the-twilight-forest-227639:${twilightFileId}")
-    if(project.hasProperty('gatewaysVersion'))      implementation fg.deobf("dev.shadowsoffire:GatewaysToEternity:${mcVersion}-${gatewaysVersion}")
-    if(project.hasProperty('attributeslibVersion')) implementation fg.deobf("dev.shadowsoffire:ApothicAttributes:${mcVersion}-${attributeslibVersion}")
-}
-
-mixin {
-    if (project.mixin.toBoolean()) {
-        config "${modid}.mixins.json"
-        add sourceSets.main, "${modid}.refmap.json"
-    }
+    implementation "net.neoforged:neoforge:${forgeVersion}"
+    //if(project.mixin.toBoolean())                   annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
+    if(project.hasProperty('placeboVersion'))       implementation "dev.shadowsoffire:Placebo:${mcVersion}-${placeboVersion}"
+    if(project.hasProperty('jeiVersion'))           implementation "mezz.jei:jei-${mcVersion}-neoforge:${jeiVersion}"
+    if(project.hasProperty('jadeFileId'))           implementation "curse.maven:jade-324717:${jadeFileId}"
+    if(project.hasProperty('curiosVersion'))        implementation "top.theillusivec4.curios:curios-neoforge:${curiosVersion}"
+    if(project.hasProperty('patchouliVersion'))     implementation "vazkii.patchouli:Patchouli:${patchouliVersion}"
+    if(project.hasProperty('bookshelfVersion'))     compileOnly    "net.darkhax.bookshelf:Bookshelf-Forge-${mcVersion}:${bookshelfVersion}"
+    if(project.hasProperty('gamestagesVersion'))    compileOnly    "net.darkhax.gamestages:GameStages-Forge-${mcVersion}:${gamestagesVersion}"
+    if(project.hasProperty('twilightFileId'))       implementation "curse.maven:the-twilight-forest-227639:${twilightFileId}"
+    if(project.hasProperty('gatewaysVersion'))      implementation "dev.shadowsoffire:GatewaysToEternity:${mcVersion}-${gatewaysVersion}"
+    if(project.hasProperty('attributeslibVersion')) implementation "dev.shadowsoffire:ApothicAttributes:${mcVersion}-${attributeslibVersion}"
 }
 
 tasks.named('processResources', ProcessResources).configure {
@@ -128,6 +120,12 @@ tasks.named('processResources', ProcessResources).configure {
         javaVersion: javaVersion,
         forgeVersion: forgeVersion
     ]
+
+    def licenseFile = file('LICENSE')
+    if (!licenseFile.exists()) {
+        throw new Exception('Missing LICENSE file in repository root.')
+    }
+    replaceProperties.put 'license', file('LICENSE').readLines().get(0)
 
     if (project.hasProperty('placeboVersion'))       replaceProperties.put 'placeboVersion', placeboVersion
     if (project.hasProperty('attributeslibVersion')) replaceProperties.put 'attributeslibVersion', attributeslibVersion
@@ -233,8 +231,6 @@ tasks.named('jar', Jar).configure {
             "MixinConfigs": project.mixin.toBoolean() ? "${modid}.mixins.json" : ""
         ])
     }
-
-    finalizedBy 'reobfJar'
 }
 
 java {

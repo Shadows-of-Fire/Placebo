@@ -1,24 +1,31 @@
-modLoader="javafml" #mandatory
+modLoader="javafml"
 
-loaderVersion="[32,)" #mandatory
+loaderVersion="[2,)"
 
-authors="${author}" #optional
-
-license="MIT License" #mandatory
+license="${license}"
 
 [[mods]] #mandatory
 
-modId="${modid}" #mandatory
+modId="${modid}"
 
-version="${version}" #mandatory
+version="${version}"
 
-displayName="${modName}" #mandatory
+displayName="${modName}"
+
+authors="${author}"
 
 description='''${desc}'''
 
 [[dependencies.${modid}]]
     modId="minecraft"
-    mandatory=true
+    type="required"
     versionRange="[${mcVersion},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${modid}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${forgeVersion},)"
     ordering="NONE"
     side="BOTH"
