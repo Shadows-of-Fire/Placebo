@@ -9,7 +9,7 @@ import com.mojang.datafixers.util.Either;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
-import dev.shadowsoffire.placebo.network.MessageHelper;
+import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry.SyncManagement;
 import net.minecraft.network.ConnectionProtocol;
@@ -50,7 +50,7 @@ public class ReloadListenerPackets {
 
             @Override
             public void handle(Start msg, PlayPayloadContext ctx) {
-                MessageHelper.handle(() -> SyncManagement.initSync(msg.path), ctx);
+                PayloadHelper.handle(() -> SyncManagement.initSync(msg.path), ctx);
             }
 
             @Override
@@ -120,7 +120,7 @@ public class ReloadListenerPackets {
 
             @Override
             public void handle(Content<V> msg, PlayPayloadContext ctx) {
-                MessageHelper.handle(() -> SyncManagement.acceptItem(msg.path, msg.key, msg.readItem()), ctx);
+                PayloadHelper.handle(() -> SyncManagement.acceptItem(msg.path, msg.key, msg.readItem()), ctx);
             }
 
             @Override
@@ -163,7 +163,7 @@ public class ReloadListenerPackets {
 
             @Override
             public void handle(End msg, PlayPayloadContext ctx) {
-                MessageHelper.handle(() -> SyncManagement.endSync(msg.path), ctx);
+                PayloadHelper.handle(() -> SyncManagement.endSync(msg.path), ctx);
             }
 
             @Override

@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
 import dev.shadowsoffire.placebo.json.GearSetRegistry;
-import dev.shadowsoffire.placebo.network.MessageHelper;
+import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.packets.ButtonClickMessage;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
 import dev.shadowsoffire.placebo.reload.ReloadListenerPackets;
@@ -39,16 +39,16 @@ public class Placebo {
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
         bus.addListener(TabFillingRegistry::fillTabs);
-        bus.addListener(MessageHelper::registerProviders);
+        bus.addListener(PayloadHelper::registerProviders);
     }
 
     @SubscribeEvent
     public void setup(FMLCommonSetupEvent e) {
-        MessageHelper.registerMessage(new ButtonClickMessage.Provider());
-        MessageHelper.registerMessage(new PatreonDisableMessage.Provider());
-        MessageHelper.registerMessage(new ReloadListenerPackets.Start.Provider());
-        MessageHelper.registerMessage(new ReloadListenerPackets.Content.Provider<>());
-        MessageHelper.registerMessage(new ReloadListenerPackets.End.Provider());
+        PayloadHelper.registerPayload(new ButtonClickMessage.Provider());
+        PayloadHelper.registerPayload(new PatreonDisableMessage.Provider());
+        PayloadHelper.registerPayload(new ReloadListenerPackets.Start.Provider());
+        PayloadHelper.registerPayload(new ReloadListenerPackets.Content.Provider<>());
+        PayloadHelper.registerPayload(new ReloadListenerPackets.End.Provider());
         e.enqueueWork(() -> {
             PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
         });

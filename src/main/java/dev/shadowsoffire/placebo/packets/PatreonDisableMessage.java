@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.network.MessageHelper;
+import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.network.PacketDistro;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import dev.shadowsoffire.placebo.patreon.TrailsManager;
@@ -65,11 +65,11 @@ public class PatreonDisableMessage implements CustomPacketPayload {
         @Override
         public void handle(PatreonDisableMessage msg, PlayPayloadContext ctx) {
             if (ctx.flow() == PacketFlow.SERVERBOUND) {
-                MessageHelper.handle(() -> {
+                PayloadHelper.handle(() -> {
                     PacketDistro.sendToAll(new PatreonDisableMessage(msg.type, ctx.player().get().getUUID()));
                 }, ctx);
             }
-            else MessageHelper.handle(() -> {
+            else PayloadHelper.handle(() -> {
                 Set<UUID> set = msg.type == 0 ? TrailsManager.DISABLED : WingsManager.DISABLED;
                 if (set.contains(msg.id)) {
                     set.remove(msg.id);

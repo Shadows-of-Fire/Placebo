@@ -34,13 +34,18 @@ public interface PayloadProvider<T extends CustomPacketPayload, C extends IPaylo
 
     /**
      * Handle the payload.
-     * See {@link MessageHelper#handlePacket(Supplier, Supplier)}
+     * See {@link PayloadHelper#handlePacket(Supplier, Supplier)}
      *
      * @param msg The messsage to handle.
      * @param ctx Relevant network context information.
      */
     void handle(T msg, C ctx);
 
+    /**
+     * Gets a list of all supported connection protocols. This method may allocated a new list, as it is only called once.
+     * 
+     * @apiNote Currently, only {@link ConnectionProtocol#CONFIGURATION} and {@link ConnectionProtocol#PLAY} are supported.
+     */
     List<ConnectionProtocol> getSupportedProtocols();
 
     /**
@@ -51,12 +56,20 @@ public interface PayloadProvider<T extends CustomPacketPayload, C extends IPaylo
      */
     Optional<PacketFlow> getFlow();
 
-    default Optional<String> getVersion() {
-        return Optional.empty();
+    /**
+     * The version of this payload. If a version is provided, the versions must match on both sides, or the connection will fail.
+     * <p>
+     * You should always change the payload's version if the serialization changes.
+     */
+    default String getVersion() {
+        return "1";
     }
 
+    /**
+     * {@return true if this payload is optional, and does not need to be present on the other side}
+     */
     default boolean isOptional() {
-        return getVersion().isEmpty();
+        return true;
     }
 
 }

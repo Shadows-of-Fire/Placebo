@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.network.MessageHelper;
+import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.network.ConnectionProtocol;
@@ -60,7 +60,7 @@ public class ButtonClickMessage implements CustomPacketPayload {
 
         @Override
         public void handle(ButtonClickMessage msg, PlayPayloadContext ctx) {
-            MessageHelper.handle(() -> {
+            PayloadHelper.handle(() -> {
                 if (ctx.player().get().containerMenu instanceof IButtonContainer) {
                     ((IButtonContainer) ctx.player().get().containerMenu).onButtonClick(msg.button);
                 }

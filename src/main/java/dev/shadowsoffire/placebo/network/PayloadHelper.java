@@ -17,20 +17,20 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
-public class MessageHelper {
+public class PayloadHelper {
 
     private static final Map<String, List<PayloadProvider<?, ?>>> ALL_PROVIDERS = new HashMap<>();
     private static boolean locked = false;
 
     /**
-     * Registers a message using {@link PayloadProvider}.
+     * Registers a payload using {@link PayloadProvider}.
      *
      * @param channel Channel to register for.
-     * @param id      Message id.
-     * @param prov    An instance of the message provider. Note that this object will be kept around, so try to keep all fields uninitialized if possible.
+     * @param id      The ID of the payload being registered.
+     * @param prov    An instance of the payload provider.
      */
     @SuppressWarnings("unchecked")
-    public static <T extends CustomPacketPayload, C extends IPayloadContext> void registerMessage(PayloadProvider<T, C> prov) {
+    public static <T extends CustomPacketPayload, C extends IPayloadContext> void registerPayload(PayloadProvider<T, C> prov) {
         synchronized (ALL_PROVIDERS) {
             if (locked) throw new UnsupportedOperationException("Attempted to register a payload provider after registration has finished.");
             ALL_PROVIDERS.computeIfAbsent(prov.getMsgId().getNamespace(), k -> new ArrayList<>()).add(prov);
@@ -58,9 +58,8 @@ public class MessageHelper {
                         reg = reg.optional();
                     }
 
-                    if (prov.getVersion().isPresent()) {
-                        reg = reg.versioned(prov.getVersion().get().toString()); // Using a rawtype also rawtypes the Optional
-                    }
+                    reg = reg.versioned(prov.getVersion()); // Using a rawtype also rawtypes the Optional
+
                     reg.common(prov.getMsgId(), prov::read, new PayloadHandler(prov));
                 }
             }
