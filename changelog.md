@@ -1,3 +1,6 @@
+## 9.0.3
+* Eagerly prevent registration of duplicate payload providers.
+
 ## 9.0.2
 * Fixed PayloadProvider(s) not being registered.
 * Made PayloadProvider versions mandatory, starting at `1` for all payloads.
