@@ -49,7 +49,7 @@ public class ButtonClickMessage implements CustomPacketPayload {
     public static class Provider implements PayloadProvider<ButtonClickMessage, PlayPayloadContext> {
 
         @Override
-        public ResourceLocation getMsgId() {
+        public ResourceLocation id() {
             return ID;
         }
 

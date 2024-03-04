@@ -1,6 +1,5 @@
 package dev.shadowsoffire.placebo.network;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import dev.shadowsoffire.placebo.Placebo;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
@@ -19,7 +19,7 @@ import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
 public class PayloadHelper {
 
-    private static final Map<String, List<PayloadProvider<?, ?>>> ALL_PROVIDERS = new HashMap<>();
+    private static final Map<ResourceLocation, PayloadProvider<?, ?>> ALL_PROVIDERS = new HashMap<>();
     private static boolean locked = false;
 
     /**
@@ -31,9 +31,11 @@ public class PayloadHelper {
      */
     @SuppressWarnings("unchecked")
     public static <T extends CustomPacketPayload, C extends IPayloadContext> void registerPayload(PayloadProvider<T, C> prov) {
+        Preconditions.checkNotNull(prov);
         synchronized (ALL_PROVIDERS) {
             if (locked) throw new UnsupportedOperationException("Attempted to register a payload provider after registration has finished.");
-            ALL_PROVIDERS.computeIfAbsent(prov.getMsgId().getNamespace(), k -> new ArrayList<>()).add(prov);
+            if (ALL_PROVIDERS.containsKey(prov.id())) throw new UnsupportedOperationException("Attempted to register payload provider with duplicate ID: " + prov.id());
+            ALL_PROVIDERS.put(prov.id(), prov);
         }
     }
 
@@ -50,18 +52,16 @@ public class PayloadHelper {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void registerProviders(RegisterPayloadHandlerEvent event) {
         synchronized (ALL_PROVIDERS) {
-            for (Map.Entry<String, List<PayloadProvider<?, ?>>> entry : ALL_PROVIDERS.entrySet()) {
-                for (PayloadProvider prov : entry.getValue()) {
-                    IPayloadRegistrar reg = event.registrar(entry.getKey());
+            for (PayloadProvider prov : ALL_PROVIDERS.values()) {
+                IPayloadRegistrar reg = event.registrar(prov.id().getNamespace());
 
-                    if (prov.isOptional()) {
-                        reg = reg.optional();
-                    }
-
-                    reg = reg.versioned(prov.getVersion()); // Using a rawtype also rawtypes the Optional
-
-                    reg.common(prov.getMsgId(), prov::read, new PayloadHandler(prov));
+                if (prov.isOptional()) {
+                    reg = reg.optional();
                 }
+
+                reg = reg.versioned(prov.getVersion()); // Using a rawtype also rawtypes the Optional
+
+                reg.common(prov.id(), prov::read, new PayloadHandler(prov));
             }
             locked = true;
         }
@@ -77,7 +77,7 @@ public class PayloadHelper {
             this.provider = provider;
             this.flow = provider.getFlow();
             this.protocols = provider.getSupportedProtocols();
-            Preconditions.checkArgument(!this.protocols.isEmpty(), "The payload registration for " + provider.getMsgId() + " must specify at least one valid protocol.");
+            Preconditions.checkArgument(!this.protocols.isEmpty(), "The payload registration for " + provider.id() + " must specify at least one valid protocol.");
         }
 
         @Override

@@ -49,7 +49,7 @@ public class PatreonDisableMessage implements CustomPacketPayload {
     public static class Provider implements PayloadProvider<PatreonDisableMessage, PlayPayloadContext> {
 
         @Override
-        public ResourceLocation getMsgId() {
+        public ResourceLocation id() {
             return ID;
         }
 

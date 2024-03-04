@@ -22,7 +22,7 @@ public interface PayloadProvider<T extends CustomPacketPayload, C extends IPaylo
     /**
      * @return The ID of the payload registration being provided. Must match {@link CustomPacketPayload#id()}.
      */
-    ResourceLocation getMsgId();
+    ResourceLocation id();
 
     /**
      * Reads the message from a byte buffer. Must construct a new message object.

@@ -39,7 +39,7 @@ public class ReloadListenerPackets {
         public static class Provider implements PayloadProvider<Start, PlayPayloadContext> {
 
             @Override
-            public ResourceLocation getMsgId() {
+            public ResourceLocation id() {
                 return ID;
             }
 
@@ -107,7 +107,7 @@ public class ReloadListenerPackets {
         public static class Provider<V extends CodecProvider<? super V>> implements PayloadProvider<Content<V>, PlayPayloadContext> {
 
             @Override
-            public ResourceLocation getMsgId() {
+            public ResourceLocation id() {
                 return ID;
             }
 
@@ -137,7 +137,7 @@ public class ReloadListenerPackets {
 
     public static record End(String path) implements CustomPacketPayload {
 
-        public static final ResourceLocation ID = Placebo.loc("reload_sync_start");
+        public static final ResourceLocation ID = Placebo.loc("reload_sync_end");
 
         @Override
         public ResourceLocation id() {
@@ -152,7 +152,7 @@ public class ReloadListenerPackets {
         public static class Provider implements PayloadProvider<End, PlayPayloadContext> {
 
             @Override
-            public ResourceLocation getMsgId() {
+            public ResourceLocation id() {
                 return ID;
             }
 
