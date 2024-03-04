@@ -1,3 +1,7 @@
+## 9.0.2
+* Fixed PayloadProvider(s) not being registered.
+* Made PayloadProvider versions mandatory, starting at `1` for all payloads.
+
 ## 9.0.1
 * Fixed mixins not loading.
 
