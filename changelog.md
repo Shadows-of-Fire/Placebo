@@ -1,3 +1,9 @@
+## 9.0.1
+* Fixed mixins not loading.
+
+## 9.0.0
+* Initial port to 1.20.4.
+
 ## 8.6.1
 * Added `speed` param to `GradientColor`.
 
