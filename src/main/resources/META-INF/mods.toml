@@ -16,6 +16,8 @@ authors="${author}"
 
 description='''${desc}'''
 
+${mixinConfig}
+
 [[dependencies.${modid}]]
     modId="minecraft"
     type="required"

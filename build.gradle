@@ -95,7 +95,7 @@ repositories {
 
 dependencies {
     implementation "net.neoforged:neoforge:${forgeVersion}"
-    //if(project.mixin.toBoolean())                   annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
+    if(project.mixin.toBoolean())                   annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
     if(project.hasProperty('placeboVersion'))       implementation "dev.shadowsoffire:Placebo:${mcVersion}-${placeboVersion}"
     if(project.hasProperty('jeiVersion'))           implementation "mezz.jei:jei-${mcVersion}-neoforge:${jeiVersion}"
     if(project.hasProperty('jadeFileId'))           implementation "curse.maven:jade-324717:${jadeFileId}"
@@ -132,6 +132,8 @@ tasks.named('processResources', ProcessResources).configure {
     if (project.hasProperty('curiosVersion'))        replaceProperties.put 'curiosVersion', curiosVersion
     if (project.hasProperty('topVersion'))           replaceProperties.put 'topVersion', topVersion
     if (project.hasProperty('patchouliVersion'))     replaceProperties.put 'patchouliVersion', patchouliVersion
+
+    replaceProperties.put 'mixinConfig', project.mixin.toBoolean() ? "[[mixins]]\nconfig=\"${modid}.mixins.json\"" : ""
 
     inputs.properties replaceProperties
 

@@ -16,7 +16,7 @@ import net.neoforged.neoforge.common.NeoForge;
 @Mixin(AnvilBlock.class)
 public class AnvilBlockMixin {
 
-    @Inject(at = @At("TAIL"), method = "onLand", require = 1)
+    @Inject(at = @At("TAIL"), method = "onLand", require = 1, remap = false)
     public void onLand(Level level, BlockPos pos, BlockState newState, BlockState oldState, FallingBlockEntity entity, CallbackInfo ci) {
         NeoForge.EVENT_BUS.post(new AnvilLandEvent(level, pos, newState, oldState, entity));
     }

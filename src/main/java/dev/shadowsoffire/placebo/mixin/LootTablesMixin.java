@@ -23,13 +23,14 @@ import net.minecraft.world.level.storage.loot.LootDataType;
 @Mixin(LootDataManager.class)
 public class LootTablesMixin {
 
-    @Shadow
+    @Shadow(remap = false)
     private Map<LootDataId<?>, ?> elements;
-    @Shadow
+
+    @Shadow(remap = false)
     private Multimap<LootDataType<?>, ResourceLocation> typeKeys;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Inject(method = "apply(Ljava/util/Map;)V", at = @At(value = "TAIL"), require = 1)
+    @Inject(method = "apply(Ljava/util/Map;)V", at = @At(value = "TAIL"), require = 1, remap = false)
     protected void apply(Map<ResourceLocation, JsonElement> pObject, CallbackInfo ci) {
         if (LootSystem.PLACEBO_TABLES.isEmpty()) return;
         this.elements = new HashMap<>(this.elements);

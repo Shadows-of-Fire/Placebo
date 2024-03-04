@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 @Mixin(AbstractContainerMenu.class)
 public interface AbstractContainerMenuInvoker {
 
-    @Invoker("moveItemStackTo")
+    @Invoker(value = "moveItemStackTo", remap = false)
     public boolean _moveItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection);
 
 }
