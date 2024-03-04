@@ -6,15 +6,15 @@ import dev.shadowsoffire.placebo.patreon.WingsManager;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TextColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent.ClientTickEvent;
+import net.neoforged.neoforge.event.TickEvent.Phase;
 
 @EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD, modid = Placebo.MODID)
 public class PlaceboClient {
@@ -23,7 +23,7 @@ public class PlaceboClient {
     public static void setup(FMLClientSetupEvent e) {
         TrailsManager.init();
         WingsManager.init(e);
-        MinecraftForge.EVENT_BUS.addListener(PlaceboClient::tick);
+        NeoForge.EVENT_BUS.addListener(PlaceboClient::tick);
     }
 
     @SubscribeEvent

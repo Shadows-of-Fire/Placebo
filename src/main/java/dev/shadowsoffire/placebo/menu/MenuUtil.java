@@ -1,7 +1,6 @@
 package dev.shadowsoffire.placebo.menu;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -9,8 +8,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.MenuType.MenuSupplier;
-import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.network.IContainerFactory;
 
 public class MenuUtil {
 
@@ -43,7 +41,7 @@ public class MenuUtil {
      */
     public static <M extends AbstractContainerMenu> InteractionResult openGui(Player player, BlockPos pos, PosFactory<M> factory) {
         if (player.level().isClientSide) return InteractionResult.SUCCESS;
-        NetworkHooks.openScreen((ServerPlayer) player, new SimplerMenuProvider<>(player.level(), pos, factory), pos);
+        player.openMenu(new SimplerMenuProvider<>(player.level(), pos, factory), pos);
         return InteractionResult.CONSUME;
     }
 

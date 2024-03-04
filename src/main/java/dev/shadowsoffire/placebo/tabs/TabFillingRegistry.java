@@ -12,8 +12,7 @@ import org.jetbrains.annotations.ApiStatus;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 /**
  * Class for managing the new method of filling creative tabs,
@@ -65,20 +64,6 @@ public class TabFillingRegistry {
      */
     public static void registerSimple(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
         for (var item : items) registerInternal(tab, ITabFiller.simple(item));
-    }
-
-    /**
-     * Registers an item-like supplier, such as {@link RegistryObject}, as {@linkplain ITabFiller#delegating(Supplier) a delegating tab filler} to multiple
-     * tabs.<br>
-     * A delegating tab filler will invoke {@link ITabFiller#fillItemCategory} if the supplied object is a tab filler, but otherwise
-     * behave similar to {@link #registerSimple}.
-     *
-     * @param item An item-like supplier.
-     * @param tabs A list of creative tabs to register the item to.
-     */
-    @SafeVarargs
-    public static void register(Supplier<? extends ItemLike> item, ResourceKey<CreativeModeTab>... tabs) {
-        for (var tab : tabs) registerInternal(tab, ITabFiller.delegating(item));
     }
 
     /**

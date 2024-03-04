@@ -7,7 +7,7 @@ import com.google.common.base.Predicates;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 /**
  * Extension of {@link SlotItemHandler} which takes a filter on what may enter the slot.

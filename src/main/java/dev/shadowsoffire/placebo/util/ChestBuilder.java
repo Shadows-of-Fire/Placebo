@@ -6,7 +6,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
-import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 
 /**
  * Utils for loot chests. Helps with placing and
@@ -31,7 +30,7 @@ public class ChestBuilder {
     }
 
     public void fill(ResourceLocation loot) {
-        RandomizableContainerBlockEntity.setLootTable(this.iWorld, this.iWorld.getRandom(), this.position, loot);
+        chest.setLootTable(loot);
     }
 
     public static void place(LevelAccessor world, BlockPos pos, ResourceLocation loot) {

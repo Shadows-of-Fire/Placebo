@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.recipe;
+package dev.shadowsoffire.placebo.network;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

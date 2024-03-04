@@ -1,6 +1,6 @@
 package dev.shadowsoffire.placebo.cap;
 
-import net.minecraftforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.EnergyStorage;
 
 public class ModifiableEnergyStorage extends EnergyStorage {
 

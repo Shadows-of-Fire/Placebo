@@ -23,14 +23,16 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.PlayerSkin.Model;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.EntityRenderersEvent.AddLayers;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent.AddLayers;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class WingsManager {
 
@@ -41,7 +43,7 @@ public class WingsManager {
 
     public static void init(FMLClientSetupEvent e) {
         e.enqueueWork(() -> {
-            ForgeHooksClient.registerLayerDefinition(WING_LOC, Wing::createLayer);
+            ClientHooks.registerLayerDefinition(WING_LOC, Wing::createLayer);
         });
         FMLJavaModLoadingContext.get().getModEventBus().addListener(WingsManager::addLayers);
         new Thread(() -> {
@@ -69,21 +71,21 @@ public class WingsManager {
                 // not possible
             }
             Placebo.LOGGER.info("Loaded {} patreon wings.", WINGS.size());
-            if (WINGS.size() > 0) MinecraftForge.EVENT_BUS.register(WingsManager.class);
+            if (WINGS.size() > 0) NeoForge.EVENT_BUS.register(WingsManager.class);
         }, "Placebo Patreon Wing Loader").start();
     }
 
     @SubscribeEvent
     public static void keys(InputEvent.Key e) {
         if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
-            Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(1));
+            PacketDistributor.SERVER.noArg().send(new PatreonDisableMessage(1));
         }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void addLayers(AddLayers e) {
         Wing.INSTANCE = new Wing(e.getEntityModels().bakeLayer(WING_LOC));
-        for (String s : e.getSkins()) {
+        for (Model s : e.getSkins()) {
             LivingEntityRenderer skin = e.getSkin(s);
             skin.addLayer(new WingLayer(skin));
         }

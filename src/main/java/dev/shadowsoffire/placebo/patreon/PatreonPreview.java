@@ -9,11 +9,11 @@ import dev.shadowsoffire.placebo.patreon.PatreonUtils.PatreonParticleType;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.PlayerTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod.EventBusSubscriber;
+import net.neoforged.neoforge.event.TickEvent.Phase;
+import net.neoforged.neoforge.event.TickEvent.PlayerTickEvent;
 
 @SuppressWarnings("deprecation")
 @EventBusSubscriber(value = Dist.CLIENT, modid = Placebo.MODID)

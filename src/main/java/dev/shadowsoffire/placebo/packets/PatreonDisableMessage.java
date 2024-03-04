@@ -1,20 +1,26 @@
 package dev.shadowsoffire.placebo.packets;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.network.MessageHelper;
-import dev.shadowsoffire.placebo.network.MessageProvider;
 import dev.shadowsoffire.placebo.network.PacketDistro;
+import dev.shadowsoffire.placebo.network.PayloadProvider;
 import dev.shadowsoffire.placebo.patreon.TrailsManager;
 import dev.shadowsoffire.placebo.patreon.WingsManager;
+import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
-public class PatreonDisableMessage {
+public class PatreonDisableMessage implements CustomPacketPayload {
+
+    public static final ResourceLocation ID = Placebo.loc("patreon_disable");
 
     private int type;
     private UUID id;
@@ -28,18 +34,23 @@ public class PatreonDisableMessage {
         this.id = id;
     }
 
-    public static class Provider implements MessageProvider<PatreonDisableMessage> {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeByte(this.type);
+        buf.writeByte(this.id == null ? 0 : 1);
+        if (this.id != null) buf.writeUUID(this.id);
+    }
+
+    public static class Provider implements PayloadProvider<PatreonDisableMessage, PlayPayloadContext> {
 
         @Override
-        public Class<PatreonDisableMessage> getMsgClass() {
-            return PatreonDisableMessage.class;
-        }
-
-        @Override
-        public void write(PatreonDisableMessage msg, FriendlyByteBuf buf) {
-            buf.writeByte(msg.type);
-            buf.writeByte(msg.id == null ? 0 : 1);
-            if (msg.id != null) buf.writeUUID(msg.id);
+        public ResourceLocation getMsgId() {
+            return ID;
         }
 
         @Override
@@ -52,19 +63,29 @@ public class PatreonDisableMessage {
         }
 
         @Override
-        public void handle(PatreonDisableMessage msg, Supplier<Context> ctx) {
-            if (ctx.get().getDirection() == NetworkDirection.PLAY_TO_SERVER) {
-                MessageHelper.handlePacket(() -> {
-                    PacketDistro.sendToAll(Placebo.CHANNEL, new PatreonDisableMessage(msg.type, ctx.get().getSender().getUUID()));
+        public void handle(PatreonDisableMessage msg, PlayPayloadContext ctx) {
+            if (ctx.flow() == PacketFlow.SERVERBOUND) {
+                MessageHelper.handle(() -> {
+                    PacketDistro.sendToAll(new PatreonDisableMessage(msg.type, ctx.player().get().getUUID()));
                 }, ctx);
             }
-            else MessageHelper.handlePacket(() -> {
+            else MessageHelper.handle(() -> {
                 Set<UUID> set = msg.type == 0 ? TrailsManager.DISABLED : WingsManager.DISABLED;
                 if (set.contains(msg.id)) {
                     set.remove(msg.id);
                 }
                 else set.add(msg.id);
             }, ctx);
+        }
+
+        @Override
+        public List<ConnectionProtocol> getSupportedProtocols() {
+            return List.of(ConnectionProtocol.PLAY);
+        }
+
+        @Override
+        public Optional<PacketFlow> getFlow() {
+            return Optional.empty();
         }
 
     }

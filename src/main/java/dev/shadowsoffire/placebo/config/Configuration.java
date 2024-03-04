@@ -58,7 +58,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Floats;
 
 import dev.shadowsoffire.placebo.Placebo;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.FMLPaths;
 
 /**
  * This class offers advanced configurations capabilities, allowing to provide

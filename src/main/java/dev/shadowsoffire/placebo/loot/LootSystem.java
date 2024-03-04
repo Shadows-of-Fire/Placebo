@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import dev.shadowsoffire.placebo.Placebo;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -12,8 +13,7 @@ import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 /**
  * In-Code LootTables. This allows for the creation and automatic registration of tables without JSON files.
@@ -62,7 +62,7 @@ public class LootSystem {
     public static void defaultBlockTable(Block b) {
         LootTable.Builder builder = tableBuilder();
         builder.withPool(poolBuilder(1, 1).addEntries(new StackLootEntry(new ItemStack(b))).when(ExplosionCondition.survivesExplosion()));
-        registerLootTable(new ResourceLocation(ForgeRegistries.BLOCKS.getKey(b).getNamespace(), "blocks/" + ForgeRegistries.BLOCKS.getKey(b).getPath()), builder.build());
+        registerLootTable(new ResourceLocation(BuiltInRegistries.BLOCK.getKey(b).getNamespace(), "blocks/" + BuiltInRegistries.BLOCK.getKey(b).getPath()), builder.build());
     }
 
 }

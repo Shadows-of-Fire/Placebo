@@ -1,29 +1,19 @@
 package dev.shadowsoffire.placebo.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
-import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.recipe.RecipeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.ItemLike;
 
 /**
  * Collection of misc util stuff.
@@ -48,39 +38,26 @@ public class PlaceboUtil {
         return tag;
     }
 
+    /**
+     * Creates an ItemStack out of an appropriate stack-like object.<br>
+     * An {@link ItemLike} returns a new itemstack with a size of 1.<br>
+     * An {@link ItemStack} will a itself.
+     *
+     * @param thing An {@link ItemLike} or {@link ItemStack}
+     * @return An ItemStack representing <code>thing</code>.
+     * @throws IllegalArgumentException if <code>thing</code> is not a valid type.
+     */
+    public static ItemStack makeStack(Object thing) {
+        if (thing instanceof ItemStack stack) return stack;
+        if (thing instanceof ItemLike il) return new ItemStack(il);
+        throw new IllegalArgumentException("Attempted to create an ItemStack from something that cannot be converted: " + thing);
+    }
+
     public static ItemStack[] toStackArray(Object... args) {
         ItemStack[] out = new ItemStack[args.length];
         for (int i = 0; i < args.length; i++)
-            out[i] = RecipeHelper.makeStack(args[i]);
+            out[i] = makeStack(args[i]);
         return out;
-    }
-
-    /**
-     * Replaces a block and item and provides the original states to the new block.
-     * States are updated such that the old state references are still valid.
-     */
-    @Deprecated
-    public static <B extends Block & IReplacementBlock> void registerOverride(Block old, B block, String modid) {
-        ResourceLocation key = ForgeRegistries.BLOCKS.getKey(old);
-        ForgeRegistries.BLOCKS.register(key, block);
-        ForgeRegistries.ITEMS.register(key, new BlockItem(block, new Item.Properties()){
-            @Override
-            public String getCreatorModId(ItemStack itemStack) {
-                return modid;
-            }
-        });
-        overrideStates(old, block);
-    }
-
-    /**
-     * Updates the references for a replaced block such that original BlockState objects are still valid.
-     */
-    @Deprecated
-    public static <B extends Block & IReplacementBlock> void overrideStates(Block old, B block) {
-        block.setStateContainer(old.getStateDefinition());
-        block._setDefaultState(old.defaultBlockState());
-        block.getStateDefinition().getPossibleStates().forEach(b -> b.owner = block);
-        block.getStateDefinition().owner = block;
     }
 
     /**
@@ -116,31 +93,6 @@ public class PlaceboUtil {
         ListTag tag = display.getList("Lore", 8);
         tag.add(StringTag.valueOf(Component.Serializer.toJson(lore)));
         display.put("Lore", tag);
-    }
-
-    static boolean late = false;
-    static Map<ResourceLocation, RecipeType<?>> unregisteredTypes = new HashMap<>();
-
-    @SuppressWarnings("unchecked")
-    @Deprecated // Use defreg
-    public static <T extends Recipe<?>> RecipeType<T> makeRecipeType(final String pIdentifier) {
-        if (late) throw new RuntimeException("Attempted to register a recipe type after the registration period closed.");
-        RecipeType<T> type = new RecipeType<>(){
-            @Override
-            public String toString() {
-                return pIdentifier;
-            }
-        };
-        unregisteredTypes.put(new ResourceLocation(pIdentifier), type);
-        return type;
-    }
-
-    @Deprecated
-    public static void registerTypes() {
-        unregisteredTypes.forEach((key, type) -> ForgeRegistries.RECIPE_TYPES.register(key, type));
-        Placebo.LOGGER.debug("Registered {} recipe types.", unregisteredTypes.size());
-        unregisteredTypes.clear();
-        late = true;
     }
 
     /**

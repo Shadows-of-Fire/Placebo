@@ -15,7 +15,6 @@ public abstract class PlaceboContainerScreen<T extends AbstractContainerMenu> ex
 
     @Override
     public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(graphics);
         super.render(graphics, pMouseX, pMouseY, pPartialTick);
         this.renderTooltip(graphics, pMouseX, pMouseY);
     }

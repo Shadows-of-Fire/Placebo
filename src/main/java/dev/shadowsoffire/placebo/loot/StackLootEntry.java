@@ -1,18 +1,16 @@
 package dev.shadowsoffire.placebo.loot;
 
+import java.util.List;
 import java.util.function.Consumer;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.json.ItemAdapter;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -28,14 +26,22 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
  * ItemStack that can hold NBT data.
  */
 public class StackLootEntry extends LootPoolSingletonContainer {
-    public static final Serializer SERIALIZER = new Serializer();
-    public static final LootPoolEntryType STACKLOOTENTRYTYPE = Registry.register(BuiltInRegistries.LOOT_POOL_ENTRY_TYPE, new ResourceLocation(Placebo.MODID, "stack_entry"), new LootPoolEntryType(SERIALIZER));
+
+    public static final Codec<StackLootEntry> CODEC = RecordCodecBuilder.create(inst -> inst
+        .group(
+            ItemAdapter.CODEC.fieldOf("stack").forGetter(e -> e.stack),
+            Codec.intRange(0, 64).fieldOf("min").forGetter(e -> e.min),
+            Codec.intRange(0, 64).fieldOf("max").forGetter(e -> e.max))
+        .and(singletonFields(inst))
+        .apply(inst, StackLootEntry::new));
+
+    public static final LootPoolEntryType TYPE = Registry.register(BuiltInRegistries.LOOT_POOL_ENTRY_TYPE, new ResourceLocation(Placebo.MODID, "stack_entry"), new LootPoolEntryType(CODEC));
 
     private final ItemStack stack;
     private final int min;
     private final int max;
 
-    public StackLootEntry(ItemStack stack, int min, int max, int weight, int quality, LootItemCondition[] conditions, LootItemFunction[] functions) {
+    public StackLootEntry(ItemStack stack, int min, int max, int weight, int quality, List<LootItemCondition> conditions, List<LootItemFunction> functions) {
         super(weight, quality, conditions, functions);
         this.stack = stack;
         this.min = min;
@@ -43,7 +49,7 @@ public class StackLootEntry extends LootPoolSingletonContainer {
     }
 
     public StackLootEntry(ItemStack stack, int min, int max, int weight, int quality) {
-        this(stack, min, max, weight, quality, new LootItemCondition[0], new LootItemFunction[0]);
+        this(stack, min, max, weight, quality, List.of(), List.of());
     }
 
     public StackLootEntry(ItemLike item, int min, int max, int weight, int quality) {
@@ -63,26 +69,7 @@ public class StackLootEntry extends LootPoolSingletonContainer {
 
     @Override
     public LootPoolEntryType getType() {
-        return STACKLOOTENTRYTYPE;
+        return TYPE;
     }
 
-    public static class Serializer extends LootPoolSingletonContainer.Serializer<StackLootEntry> {
-
-        @Override
-        protected StackLootEntry deserialize(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, LootItemCondition[] lootConditions, LootItemFunction[] lootFunctions) {
-            int min = GsonHelper.getAsInt(jsonObject, "min", 1);
-            int max = GsonHelper.getAsInt(jsonObject, "max", 1);
-            ItemStack stack = ItemAdapter.CODEC.decode(JsonOps.INSTANCE, GsonHelper.getAsJsonObject(jsonObject, "stack")).getOrThrow(false, Placebo.LOGGER::error).getFirst();
-            return new StackLootEntry(stack, min, max, weight, quality, lootConditions, lootFunctions);
-        }
-
-        @Override
-        public void serializeCustom(JsonObject object, StackLootEntry e, JsonSerializationContext conditions) {
-            super.serializeCustom(object, e, conditions);
-            object.addProperty("min", e.min);
-            object.addProperty("max", e.max);
-            object.add("stack", ItemAdapter.CODEC.encodeStart(JsonOps.INSTANCE, e.stack).getOrThrow(false, Placebo.LOGGER::error));
-        }
-
-    }
 }

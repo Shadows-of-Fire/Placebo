@@ -32,20 +32,22 @@ import dev.shadowsoffire.placebo.json.JsonUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.common.crafting.conditions.ICondition.IContext;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ICondition.IContext;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor.PacketTarget;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 /**
  * A Dynamic Registry is a reload listener which acts like a registry. Unlike datapack registries, it can reload.
@@ -133,9 +135,10 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     @Override
     protected final void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         this.beginReload();
+        var ops = ConditionalOps.create(RegistryOps.create(JsonOps.INSTANCE, registryAccess), conditionContext);
         objects.forEach((key, ele) -> {
             try {
-                if (JsonUtil.checkAndLogEmpty(ele, key, this.path, this.logger) && JsonUtil.checkConditions(ele, key, this.path, this.logger, this.getContext())) {
+                if (JsonUtil.checkAndLogEmpty(ele, key, this.path, this.logger) && JsonUtil.checkConditions(ele, key, this.path, this.logger, ops)) {
                     JsonObject obj = ele.getAsJsonObject();
                     R deserialized = this.codecs.decode(JsonOps.INSTANCE, obj).getOrThrow(false, this::logCodecError).getFirst();
                     Preconditions.checkNotNull(deserialized.getCodec(), "A " + this.path + " with id " + key + " is not declaring a codec.");
@@ -221,7 +224,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      */
     public void registerToBus() {
         if (this.synced) SyncManagement.registerForSync(this);
-        MinecraftForge.EVENT_BUS.addListener(this::addReloader);
+        NeoForge.EVENT_BUS.addListener(this::addReloader);
     }
 
     /**
@@ -370,13 +373,13 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      */
     private void sync(OnDatapackSyncEvent e) {
         ServerPlayer player = e.getPlayer();
-        PacketTarget target = player == null ? PacketDistributor.ALL.noArg() : PacketDistributor.PLAYER.with(() -> player);
+        PacketTarget target = player == null ? PacketDistributor.ALL.noArg() : PacketDistributor.PLAYER.with(player);
 
-        Placebo.CHANNEL.send(target, new ReloadListenerPacket.Start(this.path));
+        target.send(new ReloadListenerPackets.Start(this.path));
         this.registry.forEach((k, v) -> {
-            Placebo.CHANNEL.send(target, new ReloadListenerPacket.Content<>(this.path, k, v));
+            target.send(new ReloadListenerPackets.Content<>(this.path, k, v));
         });
-        Placebo.CHANNEL.send(target, new ReloadListenerPacket.End(this.path));
+        target.send(new ReloadListenerPackets.End(this.path));
     }
 
     /**
@@ -398,7 +401,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
             if (!listener.synced) throw new UnsupportedOperationException("Attempted to register the non-synced JSON Reload Listener " + listener.path + " as a synced listener!");
             synchronized (SYNC_REGISTRY) {
                 if (SYNC_REGISTRY.containsKey(listener.path)) throw new UnsupportedOperationException("Attempted to register the JSON Reload Listener for syncing " + listener.path + " but one already exists!");
-                if (SYNC_REGISTRY.isEmpty()) MinecraftForge.EVENT_BUS.addListener(SyncManagement::syncAll);
+                if (SYNC_REGISTRY.isEmpty()) NeoForge.EVENT_BUS.addListener(SyncManagement::syncAll);
                 SYNC_REGISTRY.put(listener.path, listener);
             }
         }

@@ -80,10 +80,11 @@ public class PlaceboCodecs {
      * <p>
      * Used to avoid swallowing exceptions during parse errors.
      * 
-     * @see NullableFieldCodec
+     * @deprecated Use {@link ExtraCodecs#strictOptionalField(Codec, String)}
      */
+    @Deprecated
     public static <A> MapCodec<Optional<A>> nullableField(Codec<A> elementCodec, String name) {
-        return new NullableFieldCodec<>(name, elementCodec);
+        return ExtraCodecs.strictOptionalField(elementCodec, name);
     }
 
     /**
@@ -91,10 +92,10 @@ public class PlaceboCodecs {
      * <p>
      * Used to avoid swallowing exceptions during parse errors.
      * 
-     * @see NullableFieldCodec
+     * @deprecated Use {@link ExtraCodecs#strictOptionalField(Codec, String, Object)}
      */
     public static <A> MapCodec<A> nullableField(Codec<A> elementCodec, String name, A defaultValue) {
-        return nullableField(elementCodec, name).xmap(o -> o.orElse(defaultValue), Optional::ofNullable);
+        return ExtraCodecs.strictOptionalField(elementCodec, name, defaultValue);
     }
 
 }

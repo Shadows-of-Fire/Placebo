@@ -1,23 +1,14 @@
 package dev.shadowsoffire.placebo.json;
 
-import java.lang.reflect.Type;
 import java.util.UUID;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.util.StepFunction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +16,6 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Creates a Random Attribute Modifier. A UUID will be randomly generated.
@@ -38,14 +28,14 @@ public record RandomAttributeModifier(Attribute attribute, Operation op, StepFun
 
     public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
+            BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(a -> a.attribute),
             PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.op),
             StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
         .apply(inst, RandomAttributeModifier::new));
 
     public static Codec<RandomAttributeModifier> CONSTANT_CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
+            BuiltInRegistries.ATTRIBUTE.byNameCodec().fieldOf("attribute").forGetter(a -> a.attribute),
             PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.op),
             StepFunction.CONSTANT_CODEC.fieldOf("value").forGetter(a -> a.value))
         .apply(inst, RandomAttributeModifier::new));
@@ -56,7 +46,7 @@ public record RandomAttributeModifier(Attribute attribute, Operation op, StepFun
         AttributeInstance inst = entity.getAttribute(this.attribute);
         if (inst == null) {
             Placebo.LOGGER
-                .trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", EntityType.getKey(entity.getType()), ForgeRegistries.ATTRIBUTES.getKey(this.attribute)));
+                .trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", EntityType.getKey(entity.getType()), BuiltInRegistries.ATTRIBUTE.getKey(this.attribute)));
             return;
         }
         inst.addPermanentModifier(modif);
@@ -88,43 +78,5 @@ public record RandomAttributeModifier(Attribute attribute, Operation op, StepFun
 
     public StepFunction getValue() {
         return this.value;
-    }
-
-    @Deprecated(forRemoval = true) // Use codecs
-    public static class Deserializer implements JsonDeserializer<RandomAttributeModifier>, JsonSerializer<RandomAttributeModifier> {
-
-        @Override
-        public RandomAttributeModifier deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext ctx) throws JsonParseException {
-            JsonObject obj = json.getAsJsonObject();
-            String _attribute = obj.get("attribute").getAsString();
-            Operation op = ctx.deserialize(obj.get("operation"), Operation.class);
-            StepFunction value;
-            if (obj.get("value").isJsonObject()) {
-                JsonObject valueObj = GsonHelper.getAsJsonObject(obj, "value");
-                value = ctx.deserialize(valueObj, StepFunction.class);
-            }
-            else {
-                float v = GsonHelper.getAsFloat(obj, "value");
-                value = new StepFunction(v, 1, 0);
-            }
-            Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(_attribute));
-            if (attribute == null || value == null || op == null) throw new JsonParseException("Attempted to deserialize invalid RandomAttributeModifier: " + json.toString());
-            return new RandomAttributeModifier(attribute, op, value);
-        }
-
-        @Override
-        public JsonElement serialize(RandomAttributeModifier src, Type typeOfSrc, JsonSerializationContext context) {
-            JsonObject obj = new JsonObject();
-            obj.addProperty("attribute", ForgeRegistries.ATTRIBUTES.getKey(src.attribute).toString());
-            obj.addProperty("operation", src.op.name());
-            StepFunction range = src.value;
-            if (range.min() == range.max()) {
-                obj.addProperty("value", range.min());
-            }
-            else {
-                obj.add("value", context.serialize(src.value));
-            }
-            return obj;
-        }
     }
 }

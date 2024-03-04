@@ -2,8 +2,8 @@ package dev.shadowsoffire.placebo.color;
 
 import dev.shadowsoffire.placebo.PlaceboClient;
 import net.minecraft.network.chat.TextColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 public class GradientColor extends TextColor {
 

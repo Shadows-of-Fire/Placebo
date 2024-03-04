@@ -23,11 +23,12 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent.ClientTickEvent;
+import net.neoforged.neoforge.event.TickEvent.Phase;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class TrailsManager {
 
@@ -61,7 +62,7 @@ public class TrailsManager {
                 // not possible
             }
             Placebo.LOGGER.info("Loaded {} patreon trails.", TRAILS.size());
-            if (TRAILS.size() > 0) MinecraftForge.EVENT_BUS.register(TrailsManager.class);
+            if (TRAILS.size() > 0) NeoForge.EVENT_BUS.register(TrailsManager.class);
         }, "Placebo Patreon Trail Loader").start();
     }
 
@@ -83,7 +84,7 @@ public class TrailsManager {
     @SubscribeEvent
     public static void keys(InputEvent.Key e) {
         if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
-            Placebo.CHANNEL.sendToServer(new PatreonDisableMessage(0));
+            PacketDistributor.SERVER.noArg().send(new PatreonDisableMessage(0));
         }
     }
 }
