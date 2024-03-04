@@ -12,7 +12,6 @@ import dev.shadowsoffire.placebo.Placebo;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
@@ -48,9 +47,8 @@ public class MessageHelper {
         ctx.workHandler().execute(r);
     }
 
-    @SubscribeEvent
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void registerProviders(RegisterPayloadHandlerEvent event) {
+    public static void registerProviders(RegisterPayloadHandlerEvent event) {
         synchronized (ALL_PROVIDERS) {
             for (Map.Entry<String, List<PayloadProvider<?, ?>>> entry : ALL_PROVIDERS.entrySet()) {
                 for (PayloadProvider prov : entry.getValue()) {

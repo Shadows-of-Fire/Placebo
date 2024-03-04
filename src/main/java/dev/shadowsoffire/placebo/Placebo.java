@@ -39,6 +39,7 @@ public class Placebo {
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
         bus.addListener(TabFillingRegistry::fillTabs);
+        bus.addListener(MessageHelper::registerProviders);
     }
 
     @SubscribeEvent
