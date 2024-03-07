@@ -1,6 +1,5 @@
 package dev.shadowsoffire.placebo.reload;
 
-import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,8 +40,6 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
-import net.neoforged.neoforge.common.conditions.ICondition;
-import net.neoforged.neoforge.common.conditions.ICondition.IContext;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -94,12 +91,6 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @see #removeCallback(RegistryCallback)
      */
     private final Set<RegistryCallback<R>> callbacks = new HashSet<>();
-
-    /**
-     * Reference to the reload context, if available.<br>
-     * Set when the reload event fires, and good for the reload process.
-     */
-    private WeakReference<ICondition.IContext> context;
 
     /**
      * Constructs a new dynamic registry.
@@ -337,19 +328,10 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     protected void validateItem(ResourceLocation key, R value) {}
 
     /**
-     * @return The context object held in this listener, or {@link IContext.EMPTY} if it is unavailable.
-     */
-    protected final ICondition.IContext getContext() {
-        return this.context.get() != null ? this.context.get() : IContext.EMPTY;
-    }
-
-    /**
-     * Adds this reload listener to the {@link ReloadableServerResources}.<br>
-     * Also records the {@linkplain ICondition.IContext condition context} for use in deserialization.
+     * Adds this reload listener to the {@link ReloadableServerResources}.
      */
     private void addReloader(AddReloadListenerEvent e) {
         e.addListener(this);
-        this.context = new WeakReference<>(e.getConditionContext());
     }
 
     /**

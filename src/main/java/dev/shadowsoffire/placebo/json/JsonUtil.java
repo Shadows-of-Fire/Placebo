@@ -24,7 +24,7 @@ public class JsonUtil {
 
     /**
      * Checks the conditions on a Json, and returns true if they are met.
-     * Checks both 'conditions' and 'forge:conditions'
+     * Only checks 'neoforge:conditions' as of 1.20.4.
      *
      * @param e       The Json being checked.
      * @param id      The ID of that json.
