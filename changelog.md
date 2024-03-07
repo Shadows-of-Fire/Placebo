@@ -1,3 +1,6 @@
+## 9.0.4
+* Fixed an incompatibility with newer neo versions.
+
 ## 9.0.3
 * Eagerly prevent registration of duplicate payload providers.
 
