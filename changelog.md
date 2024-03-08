@@ -1,3 +1,7 @@
+## 9.0.5
+* Added the `ResourceReloadEvent`, which fires on both client and server resource reload.
+* Made the `NeoForge.EVENT_BUS` initialized at mod construction.
+
 ## 9.0.4
 * Fixed an incompatibility with newer neo versions.
 
