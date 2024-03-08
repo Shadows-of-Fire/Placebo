@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
+import dev.shadowsoffire.placebo.events.ResourceReloadEvent;
 import dev.shadowsoffire.placebo.json.GearSetRegistry;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.packets.ButtonClickMessage;
@@ -16,13 +17,17 @@ import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.neoforged.bus.EventBus;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.IExtensionPoint.DisplayTest;
+import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 @Mod(Placebo.MODID)
@@ -37,9 +42,11 @@ public class Placebo {
         String version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
         ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> version, (remoteVer, isNetwork) -> remoteVer == null || version.equals(remoteVer)));
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
+        NeoForge.EVENT_BUS.addListener(this::serverReload);
         TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
         bus.addListener(TabFillingRegistry::fillTabs);
         bus.addListener(PayloadHelper::registerProviders);
+        ((EventBus) NeoForge.EVENT_BUS).start();
     }
 
     @SubscribeEvent
@@ -57,6 +64,10 @@ public class Placebo {
 
     public void registerCommands(RegisterCommandsEvent e) {
         PlaceboCommand.register(e.getDispatcher(), e.getBuildContext());
+    }
+
+    public void serverReload(AddReloadListenerEvent e) {
+        e.addListener((ResourceManagerReloadListener) res -> NeoForge.EVENT_BUS.post(new ResourceReloadEvent(res, LogicalSide.SERVER)));
     }
 
     public static ResourceLocation loc(String path) {
