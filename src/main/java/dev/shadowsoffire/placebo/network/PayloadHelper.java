@@ -12,6 +12,7 @@ import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
@@ -49,8 +50,9 @@ public class PayloadHelper {
         ctx.workHandler().execute(r);
     }
 
+    @SubscribeEvent
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void registerProviders(RegisterPayloadHandlerEvent event) {
+    public void registerProviders(RegisterPayloadHandlerEvent event) {
         synchronized (ALL_PROVIDERS) {
             for (PayloadProvider prov : ALL_PROVIDERS.values()) {
                 IPayloadRegistrar reg = event.registrar(prov.id().getNamespace());
