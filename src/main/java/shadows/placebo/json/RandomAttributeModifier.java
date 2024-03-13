@@ -1,8 +1,6 @@
 package shadows.placebo.json;
 
 import java.lang.reflect.Type;
-import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 
 import com.google.gson.JsonDeserializationContext;
@@ -26,44 +24,36 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraftforge.registries.ForgeRegistries;
 import shadows.placebo.Placebo;
-import shadows.placebo.codec.EnumCodec;
+import shadows.placebo.codec.PlaceboCodecs;
 import shadows.placebo.util.StepFunction;
 
-public class RandomAttributeModifier {
+/**
+ * Creates a Random Attribute Modifier. A UUID will be randomly generated.
+ *
+ * @param attribute The attribute the generated modifier will be applicable to.
+ * @param op        The operation of the generated modifier.
+ * @param value     The value range for the generated modifier.
+ */
+public record RandomAttributeModifier(Attribute attribute, Operation op, StepFunction value) {
 
-	//Formatter::off
 	public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
 		.group(
 			ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
-			new EnumCodec<>(Operation.class).fieldOf("operation").forGetter(a -> a.op),
+			PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.op),
 			StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
 			.apply(inst, RandomAttributeModifier::new)
 		);
-	//Formatter::on
 
-	protected final Attribute attribute;
-	protected final Operation op;
-	protected final StepFunction value;
-	protected final UUID id;
-
-	/**
-	 * Creates a Chanced Effect Instance.
-	 * @param chance The chance this potion is received.
-	 * @param effect The effect.
-	 * @param amp A random range of possible amplifiers.
-	 */
-	public RandomAttributeModifier(Attribute attribute, Operation op, StepFunction value) {
-		this.attribute = attribute;
-		this.op = op;
-		this.value = value;
-		Random rand = new Random();
-		rand.setSeed(Objects.hash(attribute, op, value));
-		this.id = new UUID(rand.nextLong(), rand.nextLong());
-	}
+	public static Codec<RandomAttributeModifier> CONSTANT_CODEC = RecordCodecBuilder.create(inst -> inst
+			.group(
+					ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(a -> a.attribute),
+					PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.op),
+					StepFunction.CONSTANT_CODEC.fieldOf("value").forGetter(a -> a.value))
+			.apply(inst, RandomAttributeModifier::new));
 
 	public void apply(RandomSource rand, LivingEntity entity) {
 		if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
-		AttributeModifier modif = genModifier(rand);
+		AttributeModifier modif = this.create(rand);
 		AttributeInstance inst = entity.getAttribute(this.attribute);
 		if (inst == null) {
 			Placebo.LOGGER.trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", EntityType.getKey(entity.getType()), ForgeRegistries.ATTRIBUTES.getKey(this.attribute)));
@@ -72,12 +62,20 @@ public class RandomAttributeModifier {
 		inst.addPermanentModifier(modif);
 	}
 
-	public AttributeModifier genModifier(RandomSource rand) {
-		return new AttributeModifier(this.id, "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.get(rand.nextFloat()), this.op);
+	public AttributeModifier create(RandomSource rand) {
+		return new AttributeModifier(UUID.randomUUID(), "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.get(rand.nextFloat()), this.op);
 	}
 
-	public AttributeModifier genModifier(String name, RandomSource rand) {
+	public AttributeModifier create(String name, RandomSource rand) {
 		return new AttributeModifier(name, this.value.get(rand.nextFloat()), this.op);
+	}
+
+	public AttributeModifier createDeterministic() {
+		return new AttributeModifier(UUID.randomUUID(), "placebo_random_modifier_" + this.attribute.getDescriptionId(), this.value.min(), this.op);
+	}
+
+	public AttributeModifier createDeterministic(String name) {
+		return new AttributeModifier(UUID.randomUUID(), name, this.value.min(), this.op);
 	}
 
 	public Attribute getAttribute() {
@@ -92,6 +90,7 @@ public class RandomAttributeModifier {
 		return this.value;
 	}
 
+	@Deprecated(forRemoval = true) // Use codecs
 	public static class Deserializer implements JsonDeserializer<RandomAttributeModifier>, JsonSerializer<RandomAttributeModifier> {
 
 		@Override

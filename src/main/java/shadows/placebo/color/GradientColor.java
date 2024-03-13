@@ -16,16 +16,22 @@ public class GradientColor extends TextColor {
 	public static final GradientColor RAINBOW = new GradientColor(RAINBOW_GRADIENT, "rainbow");
 
 	protected final int[] gradient;
+	protected final float speed;
 
-	public GradientColor(int[] gradient, String id) {
+	public GradientColor(int[] gradient, String id, float speed) {
 		super(gradient[0], id);
 		this.gradient = gradient;
+		this.speed = speed;
+	}
+
+	public GradientColor(int[] gradient, String id) {
+		this(gradient, id, 1);
 	}
 
 	@Override
 	public int getValue() {
 		if (FMLEnvironment.dist == Dist.CLIENT) {
-			return gradient[(int) (PlaceboClient.getColorTicks() % gradient.length)];
+			return this.gradient[(int) ((PlaceboClient.getColorTicks() * speed) % this.gradient.length)];
 		}
 		return super.getValue();
 	}

@@ -6,6 +6,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -69,7 +70,7 @@ public class StackLootEntry extends LootPoolSingletonContainer {
 		protected StackLootEntry deserialize(JsonObject jsonObject, JsonDeserializationContext context, int weight, int quality, LootItemCondition[] lootConditions, LootItemFunction[] lootFunctions) {
 			int min = GsonHelper.getAsInt(jsonObject, "min", 1);
 			int max = GsonHelper.getAsInt(jsonObject, "max", 1);
-			ItemStack stack = ItemAdapter.ITEM_READER.fromJson(jsonObject.get("stack"), ItemStack.class);
+			ItemStack stack = ItemAdapter.CODEC.decode(JsonOps.INSTANCE, GsonHelper.getAsJsonObject(jsonObject, "stack")).getOrThrow(false, Placebo.LOGGER::error).getFirst();
 			return new StackLootEntry(stack, min, max, weight, quality, lootConditions, lootFunctions);
 		}
 
@@ -78,7 +79,7 @@ public class StackLootEntry extends LootPoolSingletonContainer {
 			super.serializeCustom(object, e, conditions);
 			object.addProperty("min", e.min);
 			object.addProperty("max", e.max);
-			object.add("stack", ItemAdapter.ITEM_READER.toJsonTree(e.stack));
+			object.add("stack", ItemAdapter.CODEC.encodeStart(JsonOps.INSTANCE, e.stack).getOrThrow(false, Placebo.LOGGER::error));
 		}
 
 	}

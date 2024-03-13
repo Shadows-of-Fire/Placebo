@@ -24,6 +24,7 @@ public class JsonUtil {
 		return regObj;
 	}
 
+	@Deprecated
 	public static <T> Object makeSerializer(IForgeRegistry<T> reg) {
 		return new SDS<>(reg);
 	}
@@ -31,6 +32,7 @@ public class JsonUtil {
 	/**
 	 * Short for Serializer/Deserializer
 	 */
+	@Deprecated
 	private static class SDS<T> implements com.google.gson.JsonDeserializer<T>, com.google.gson.JsonSerializer<T> {
 
 		private final IForgeRegistry<T> reg;
@@ -53,18 +55,22 @@ public class JsonUtil {
 
 	}
 
+	@Deprecated
 	public static interface JsonSerializer<V> {
 		public JsonObject write(V src);
 	}
 
+	@Deprecated
 	public static interface JsonDeserializer<V> {
 		public V read(JsonObject json);
 	}
 
+	@Deprecated
 	public static interface NetSerializer<V> {
 		public void write(V src, FriendlyByteBuf buf);
 	}
 
+	@Deprecated
 	public static interface NetDeserializer<V> {
 		public V read(FriendlyByteBuf buf);
 	}
@@ -83,6 +89,7 @@ public class JsonUtil {
 
 	}
 
+	@Deprecated
 	public static <T> Object makeSerializer(com.google.gson.JsonDeserializer<T> jds, com.google.gson.JsonSerializer<T> js) {
 		return new SDS2<>(jds, js);
 	}

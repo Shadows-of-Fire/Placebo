@@ -29,6 +29,7 @@ public class ItemAdapter implements JsonDeserializer<ItemStack>, JsonSerializer<
 
 	public static final ItemAdapter INSTANCE = new ItemAdapter();
 
+	@Deprecated
 	public static final Gson ITEM_READER = new GsonBuilder().registerTypeAdapter(ItemStack.class, INSTANCE).registerTypeAdapter(CompoundTag.class, NBTAdapter.INSTANCE).registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer()).create();
 
 	//Formatter::off
