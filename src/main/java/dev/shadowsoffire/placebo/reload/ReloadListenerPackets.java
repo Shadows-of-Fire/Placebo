@@ -5,8 +5,6 @@ import java.util.Optional;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.mojang.datafixers.util.Either;
-
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
@@ -65,17 +63,9 @@ public class ReloadListenerPackets {
         }
     }
 
-    public static record Content<V extends CodecProvider<? super V>>(String path, ResourceLocation key, Either<V, FriendlyByteBuf> data) implements CustomPacketPayload {
+    public static record Content<V extends CodecProvider<? super V>>(String path, ResourceLocation key, V item) implements CustomPacketPayload {
 
         public static final ResourceLocation ID = Placebo.loc("reload_sync_content");
-
-        public Content(String path, ResourceLocation key, V item) {
-            this(path, key, Either.left(item));
-        }
-
-        private Content(String path, ResourceLocation key, FriendlyByteBuf buf) {
-            this(path, key, Either.right(buf));
-        }
 
         @Override
         public ResourceLocation id() {
@@ -86,22 +76,7 @@ public class ReloadListenerPackets {
         public void write(FriendlyByteBuf buf) {
             buf.writeUtf(this.path, 50);
             buf.writeResourceLocation(this.key);
-            SyncManagement.writeItem(this.path, this.data.left().get(), buf);
-        }
-
-        private V readItem() {
-            FriendlyByteBuf buf = this.data.right().get();
-            try {
-                return SyncManagement.readItem(path, buf);
-            }
-            catch (Exception ex) {
-                Placebo.LOGGER.error("Failure when deserializing a dynamic registry object via network: Registry: {}, Object ID: {}", path, key);
-                ex.printStackTrace();
-                throw new RuntimeException(ex);
-            }
-            finally {
-                buf.release();
-            }
+            SyncManagement.writeItem(this.path, item, buf);
         }
 
         public static class Provider<V extends CodecProvider<? super V>> implements PayloadProvider<Content<V>, PlayPayloadContext> {
@@ -115,12 +90,12 @@ public class ReloadListenerPackets {
             public Content<V> read(FriendlyByteBuf buf) {
                 String path = buf.readUtf(50);
                 ResourceLocation key = buf.readResourceLocation();
-                return new Content<>(path, key, new FriendlyByteBuf(buf.copy()));
+                return new Content<>(path, key, readItem(path, key, buf));
             }
 
             @Override
             public void handle(Content<V> msg, PlayPayloadContext ctx) {
-                PayloadHelper.handle(() -> SyncManagement.acceptItem(msg.path, msg.key, msg.readItem()), ctx);
+                PayloadHelper.handle(() -> SyncManagement.acceptItem(msg.path, msg.key, msg.item), ctx);
             }
 
             @Override
@@ -131,6 +106,17 @@ public class ReloadListenerPackets {
             @Override
             public Optional<PacketFlow> getFlow() {
                 return Optional.of(PacketFlow.CLIENTBOUND);
+            }
+
+            private V readItem(String path, ResourceLocation key, FriendlyByteBuf buf) {
+                try {
+                    return SyncManagement.readItem(path, buf);
+                }
+                catch (Exception ex) {
+                    Placebo.LOGGER.error("Failure when deserializing a dynamic registry object via network: Registry: {}, Object ID: {}", path, key);
+                    ex.printStackTrace();
+                    throw new RuntimeException(ex);
+                }
             }
         }
     }
