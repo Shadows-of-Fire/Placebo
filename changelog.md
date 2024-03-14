@@ -1,3 +1,7 @@
+## 9.0.6
+* Fixed synced dynamic registries not working in singleplayer.
+* Fixed placebo's primary itemstack codec not functioning.
+
 ## 9.0.5
 * Added the `ResourceReloadEvent`, which fires on both client and server resource reload.
 * Made the `NeoForge.EVENT_BUS` initialized at mod construction.
