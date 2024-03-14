@@ -1,5 +1,8 @@
+## 7.4.0
+* Cadentem: Partial backport of 1.20.1 changes necessary to support Apotheosis 6.5.0
+
 ## 7.3.5
-* Made CachedObject lazy-init the ConcurrentHashMap stored on ItemStack.
+* embeddedt: Made CachedObject lazy-init the ConcurrentHashMap stored on ItemStack.
 
 ## 7.3.4
 * Fixed the Supporter Trail / Wing keybinds causing a crash if pressed before entering the world.
