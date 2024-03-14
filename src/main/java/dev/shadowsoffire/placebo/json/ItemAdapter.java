@@ -1,11 +1,14 @@
 package dev.shadowsoffire.placebo.json;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.Placebo;
@@ -21,7 +24,7 @@ public class ItemAdapter {
 
     public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            new OptionalItemCodec().fieldOf("item").forGetter(ItemStack::getItem),
+            new OptionalItemMapCodec().forGetter(ItemStack::getItem),
             ExtraCodecs.strictOptionalField(Codec.intRange(1, 64), "count", 1).forGetter(ItemStack::getCount),
             ExtraCodecs.strictOptionalField(NBTAdapter.EITHER_CODEC, "nbt").forGetter(stack -> Optional.ofNullable(stack.getTag())),
             ExtraCodecs.strictOptionalField(NBTAdapter.EITHER_CODEC, AttachmentHolder.ATTACHMENTS_NBT_KEY).forGetter(s -> Optional.ofNullable(s.serializeAttachments())))
@@ -31,20 +34,30 @@ public class ItemAdapter {
             return stack;
         }));
 
-    public static class OptionalItemCodec implements Codec<Item> {
+    private static class OptionalItemMapCodec extends MapCodec<Item> {
+
+        private final MapCodec<Item> encoder = BuiltInRegistries.ITEM.byNameCodec().fieldOf("item");
+        private final MapCodec<ResourceLocation> idDecoder = ResourceLocation.CODEC.fieldOf("item");
+        private final MapCodec<Boolean> optDecoder = ExtraCodecs.strictOptionalField(Codec.BOOL, "optional", false);
 
         @Override
-        public <T> DataResult<T> encode(Item input, DynamicOps<T> ops, T prefix) {
-            return BuiltInRegistries.ITEM.byNameCodec().encode(input, ops, prefix);
+        public <T> DataResult<Item> decode(DynamicOps<T> ops, MapLike<T> input) {
+            ResourceLocation id = idDecoder.decode(ops, input).getOrThrow(false, Placebo.LOGGER::error);
+            boolean optional = optDecoder.decode(ops, input).getOrThrow(false, Placebo.LOGGER::error);
+
+            Item item = BuiltInRegistries.ITEM.get(id);
+            if (!optional && item == Items.AIR && !id.equals(BuiltInRegistries.ITEM.getKey(Items.AIR))) return DataResult.error(() -> "Failed to read non-optional item " + id);
+            return DataResult.success(item);
         }
 
         @Override
-        public <T> DataResult<Pair<Item, T>> decode(DynamicOps<T> ops, T input) {
-            ResourceLocation id = ResourceLocation.CODEC.decode(ops, ops.get(input, "item").getOrThrow(false, Placebo.LOGGER::error)).getOrThrow(false, Placebo.LOGGER::error).getFirst();
-            Item item = BuiltInRegistries.ITEM.get(id);
-            boolean optional = ops.get(input, "optional").result().map(j -> Codec.BOOL.decode(ops, j).map(Pair::getFirst).result()).map(o -> o.orElse(false)).orElse(false);
-            if (!optional && item == Items.AIR && !id.equals(BuiltInRegistries.ITEM.getKey(Items.AIR))) return DataResult.error(() -> "Failed to read non-optional item " + id);
-            return DataResult.success(Pair.of(item, input));
+        public <T> RecordBuilder<T> encode(Item input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
+            return this.encoder.encode(input, ops, prefix);
+        }
+
+        @Override
+        public <T> Stream<T> keys(DynamicOps<T> ops) {
+            return Stream.of(ops.createString("item"), ops.createString("optional"));
         }
 
     }
