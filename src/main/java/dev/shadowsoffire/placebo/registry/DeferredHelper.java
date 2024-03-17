@@ -20,6 +20,7 @@ import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -95,6 +96,14 @@ public class DeferredHelper {
 
     public <T extends Potion> DeferredHolder<Potion, T> potion(String path, Supplier<T> factory) {
         return this.registerDH(path, Registries.POTION, factory);
+    }
+
+    public DeferredHolder<Potion, Potion> singlePotion(String path, Supplier<MobEffectInstance> factory) {
+        return this.registerDH(path, Registries.POTION, () -> new Potion(path, factory.get()));
+    }
+
+    public DeferredHolder<Potion, Potion> multiPotion(String path, Supplier<List<MobEffectInstance>> factory) {
+        return this.registerDH(path, Registries.POTION, () -> new Potion(path, factory.get().toArray(new MobEffectInstance[0])));
     }
 
     public <T extends Enchantment> DeferredHolder<Enchantment, T> enchant(String path, Supplier<T> factory) {
