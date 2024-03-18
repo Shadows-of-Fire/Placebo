@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.json;
+package dev.shadowsoffire.placebo.systems.gear;
 
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
+import dev.shadowsoffire.placebo.json.WeightedItemStack;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
