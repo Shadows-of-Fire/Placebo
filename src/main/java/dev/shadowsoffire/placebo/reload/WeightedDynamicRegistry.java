@@ -134,7 +134,10 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
         @Nullable
         Set<ResourceLocation> getDimensions();
 
-        public static <T extends IDimensional> Predicate<T> matches(ResourceLocation dimId) {
+        /**
+         * Creates a new predicate matching objects limited to the passed dimension.
+         */
+        public static <T extends IDimensional> Predicate<T> createPredicate(ResourceLocation dimId) {
             return obj -> {
                 Set<ResourceLocation> dims = obj.getDimensions();
                 return dims == null || dims.isEmpty() || dims.contains(dimId);
@@ -142,7 +145,7 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
         }
 
         public static <T extends IDimensional> Predicate<T> matches(Level level) {
-            return matches(level.dimension().location());
+            return createPredicate(level.dimension().location());
         }
     }
 

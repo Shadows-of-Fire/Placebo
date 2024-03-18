@@ -47,6 +47,7 @@ public class Placebo {
         bus.addListener(TabFillingRegistry::fillTabs);
         bus.register(new PayloadHelper());
         ((EventBus) NeoForge.EVENT_BUS).start();
+        PlaceboConfig.load();
     }
 
     @SubscribeEvent
