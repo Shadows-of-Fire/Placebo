@@ -1,3 +1,6 @@
+## 9.1.2
+* Fixed `brewing_mixes` not loading.
+
 ## 9.1.1
 * Added the `brewing_mixes` json loader, which requires less boilerplate to add brewing recipes.
 
