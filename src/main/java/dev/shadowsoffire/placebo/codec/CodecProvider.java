@@ -7,14 +7,14 @@ import com.mojang.serialization.Codec;
  * <p>
  * Primarily for use by elements in {@link MapBackedCodec} and {@link CodecMap}.
  *
- * @param <T> This
+ * @param <R> The registry (base) type of the object
  */
-public interface CodecProvider<T> {
+public interface CodecProvider<R> {
 
     /**
      * @return The codec used to de/serialize this object to/from disk.
      * @implNote The return value of this method must be invariant.
      */
-    Codec<? extends T> getCodec();
+    Codec<? extends R> getCodec();
 
 }
