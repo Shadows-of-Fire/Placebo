@@ -11,6 +11,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -99,11 +100,15 @@ public class DeferredHelper {
     }
 
     public DeferredHolder<Potion, Potion> singlePotion(String path, Supplier<MobEffectInstance> factory) {
-        return this.registerDH(path, Registries.POTION, () -> new Potion(path, factory.get()));
+        return this.registerDH(path, Registries.POTION, () -> {
+            MobEffectInstance inst = factory.get();
+            ResourceLocation key = BuiltInRegistries.MOB_EFFECT.getKey(inst.getEffect());
+            return new Potion(key.toLanguageKey(), inst);
+        });
     }
 
     public DeferredHolder<Potion, Potion> multiPotion(String path, Supplier<List<MobEffectInstance>> factory) {
-        return this.registerDH(path, Registries.POTION, () -> new Potion(path, factory.get().toArray(new MobEffectInstance[0])));
+        return this.registerDH(path, Registries.POTION, () -> new Potion(this.modid + "." + path, factory.get().toArray(new MobEffectInstance[0])));
     }
 
     public <T extends Enchantment> DeferredHolder<Enchantment, T> enchant(String path, Supplier<T> factory) {
