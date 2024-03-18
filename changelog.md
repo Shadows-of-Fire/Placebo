@@ -1,3 +1,9 @@
+## 9.1.0
+* Added more `DeferredHelper` methods for creating potions.
+* Removed the deprecated `collections` package.
+* Added the `wanderer_trades` json loader, and config options to remove all non-json trades.
+* Added the `brewing_recipes` json loader. Does not permit adjusting vanilla recipes or other mods' recipes.
+
 ## 9.0.6
 * Fixed synced dynamic registries not working in singleplayer.
 * Fixed placebo's primary itemstack codec not functioning.
