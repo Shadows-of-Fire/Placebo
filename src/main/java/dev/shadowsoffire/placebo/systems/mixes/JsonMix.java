@@ -22,7 +22,7 @@ public class JsonMix<T> extends PotionBrewing.Mix<T> implements CodecProvider<Js
 
     @Override
     public Codec<? extends JsonMix<?>> getCodec() {
-        return null;
+        return CODEC;
     }
 
     public Type getMixType() {
