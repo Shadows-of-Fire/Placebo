@@ -15,6 +15,7 @@ import dev.shadowsoffire.placebo.reload.ReloadListenerPackets;
 import dev.shadowsoffire.placebo.systems.brewing.BrewingRecipeRegistry;
 import dev.shadowsoffire.placebo.systems.brewing.PotionIngredient;
 import dev.shadowsoffire.placebo.systems.gear.GearSetRegistry;
+import dev.shadowsoffire.placebo.systems.mixes.MixRegistry;
 import dev.shadowsoffire.placebo.systems.wanderer.WandererTradesRegistry;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
@@ -69,6 +70,7 @@ public class Placebo {
         GearSetRegistry.INSTANCE.registerToBus();
         WandererTradesRegistry.INSTANCE.registerToBus();
         BrewingRecipeRegistry.INSTANCE.registerToBus();
+        MixRegistry.INSTANCE.registerToBus();
     }
 
     @SubscribeEvent
