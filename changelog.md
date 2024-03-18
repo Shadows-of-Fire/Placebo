@@ -1,3 +1,6 @@
+## 9.1.3
+* Updated the generated unlocalized name for the new `singlePotion` / `multiPotion` helpers.
+
 ## 9.1.2
 * Fixed `brewing_mixes` not loading.
 
