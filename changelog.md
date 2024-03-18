@@ -1,3 +1,6 @@
+## 9.1.1
+* Added the `brewing_mixes` json loader, which requires less boilerplate to add brewing recipes.
+
 ## 9.1.0
 * Added more `DeferredHelper` methods for creating potions.
 * Removed the deprecated `collections` package.
