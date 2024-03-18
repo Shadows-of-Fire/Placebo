@@ -18,18 +18,13 @@ import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
 import dev.shadowsoffire.placebo.patreon.wings.Wing;
-import dev.shadowsoffire.placebo.patreon.wings.WingLayer;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.resources.PlayerSkin.Model;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.client.ClientHooks;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent.AddLayers;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -45,7 +40,6 @@ public class WingsManager {
         e.enqueueWork(() -> {
             ClientHooks.registerLayerDefinition(WING_LOC, Wing::createLayer);
         });
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(WingsManager::addLayers);
         new Thread(() -> {
             Placebo.LOGGER.info("Loading patreon wing data...");
             try {
@@ -79,15 +73,6 @@ public class WingsManager {
     public static void keys(InputEvent.Key e) {
         if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
             PacketDistributor.SERVER.noArg().send(new PatreonDisableMessage(1));
-        }
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void addLayers(AddLayers e) {
-        Wing.INSTANCE = new Wing(e.getEntityModels().bakeLayer(WING_LOC));
-        for (Model s : e.getSkins()) {
-            LivingEntityRenderer skin = e.getSkin(s);
-            skin.addLayer(new WingLayer(skin));
         }
     }
 
