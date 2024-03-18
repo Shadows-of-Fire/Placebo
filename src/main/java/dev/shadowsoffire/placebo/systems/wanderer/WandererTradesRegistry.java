@@ -1,19 +1,15 @@
 package dev.shadowsoffire.placebo.systems.wanderer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.PlaceboConfig;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod.EventBusSubscriber;
 import net.neoforged.fml.common.Mod.EventBusSubscriber.Bus;
-import net.neoforged.neoforge.common.BasicItemListing;
 import net.neoforged.neoforge.event.village.WandererTradesEvent;
 
 /**
@@ -26,7 +22,6 @@ public class WandererTradesRegistry extends DynamicRegistry<WandererTrade> {
 
     public static final WandererTradesRegistry INSTANCE = new WandererTradesRegistry();
 
-    protected final Map<ResourceLocation, BasicItemListing> registry = new HashMap<>();
     protected final List<ItemListing> normTrades = new ArrayList<>();
     protected final List<ItemListing> rareTrades = new ArrayList<>();
 

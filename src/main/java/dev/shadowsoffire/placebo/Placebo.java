@@ -12,7 +12,10 @@ import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.packets.ButtonClickMessage;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
 import dev.shadowsoffire.placebo.reload.ReloadListenerPackets;
+import dev.shadowsoffire.placebo.systems.brewing.BrewingRecipeRegistry;
+import dev.shadowsoffire.placebo.systems.brewing.PotionIngredient;
 import dev.shadowsoffire.placebo.systems.gear.GearSetRegistry;
+import dev.shadowsoffire.placebo.systems.wanderer.WandererTradesRegistry;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
 import net.minecraft.network.chat.TextColor;
@@ -27,8 +30,11 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod(Placebo.MODID)
 @SuppressWarnings("deprecation")
@@ -61,6 +67,15 @@ public class Placebo {
             PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
         });
         GearSetRegistry.INSTANCE.registerToBus();
+        WandererTradesRegistry.INSTANCE.registerToBus();
+        BrewingRecipeRegistry.INSTANCE.registerToBus();
+    }
+
+    @SubscribeEvent
+    public void register(RegisterEvent e) {
+        e.register(NeoForgeRegistries.Keys.INGREDIENT_TYPES, helper -> {
+            helper.register(loc("potion"), new IngredientType<>(PotionIngredient.CODEC, PotionIngredient.CODEC_NONEMPTY));
+        });
     }
 
     public void registerCommands(RegisterCommandsEvent e) {
