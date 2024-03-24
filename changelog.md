@@ -1,3 +1,6 @@
+## 9.2.1
+* Fixed the name of `QuickMoveMenu#moveItemStackTo` being incorrect.
+
 ## 9.2.0
 * Fixed `StackLootEntry.TYPE` using static registration.
 * Added datagen helper classes `RuntimeDatagenHelpers` and `DynamicRegistryProvider`.
