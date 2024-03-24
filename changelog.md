@@ -1,3 +1,11 @@
+## 9.2.0
+* Fixed `StackLootEntry.TYPE` using static registration.
+* Added datagen helper classes `RuntimeDatagenHelpers` and `DynamicRegistryProvider`.
+* Removed `MenuUtil.merge` and `MenuUtil.split`.
+  * After https://github.com/neoforged/NeoForge/pull/599 a single dataslot can sync a full int.
+* Made `TickingBlockEntityType` use a `TickSide` enum instead of two booleans.
+* Updated and/or added documentation for various objects.
+
 ## 9.1.3
 * Updated the generated unlocalized name for the new `singlePotion` / `multiPotion` helpers.
 
