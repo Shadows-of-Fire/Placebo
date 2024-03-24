@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
  * <p>
  * The intended usage is to have a codec map stored as a field where new sub-codecs may be registered,
  * without needing a separate codec field or separate registration handling code.
- * 
+ *
  * @param <V> The type of the codec.
  */
 public class CodecMap<V extends CodecProvider<? super V>> implements Codec<V> {

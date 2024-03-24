@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
  * Changes to the ItemStack's NBT will result in the object being deserialized again.
  * <p>
  * Note: Will be removed in 1.20.5 in favor of Data Components.
- * 
+ *
  * @param <T> The type of object being cached.
  */
 public final class CachedObject<T> {

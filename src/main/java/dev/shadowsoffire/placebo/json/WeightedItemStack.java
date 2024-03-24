@@ -23,7 +23,7 @@ public class WeightedItemStack extends WeightedEntry.IntrusiveBase {
 
     public static final Codec<WeightedItemStack> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         ItemAdapter.CODEC.fieldOf("stack").forGetter(w -> w.stack),
-        Weight.CODEC.fieldOf("weight").forGetter(w -> w.getWeight()),
+        Weight.CODEC.fieldOf("weight").forGetter(WeightedItemStack::getWeight),
         ExtraCodecs.strictOptionalField(Codec.FLOAT, "drop_chance", -1F).forGetter(w -> w.dropChance))
         .apply(inst, WeightedItemStack::new));
 

@@ -42,8 +42,8 @@ public class ItemAdapter {
 
         @Override
         public <T> DataResult<Item> decode(DynamicOps<T> ops, MapLike<T> input) {
-            ResourceLocation id = idDecoder.decode(ops, input).getOrThrow(false, Placebo.LOGGER::error);
-            boolean optional = optDecoder.decode(ops, input).getOrThrow(false, Placebo.LOGGER::error);
+            ResourceLocation id = this.idDecoder.decode(ops, input).getOrThrow(false, Placebo.LOGGER::error);
+            boolean optional = this.optDecoder.decode(ops, input).getOrThrow(false, Placebo.LOGGER::error);
 
             Item item = BuiltInRegistries.ITEM.get(id);
             if (!optional && item == Items.AIR && !id.equals(BuiltInRegistries.ITEM.getKey(Items.AIR))) return DataResult.error(() -> "Failed to read non-optional item " + id);

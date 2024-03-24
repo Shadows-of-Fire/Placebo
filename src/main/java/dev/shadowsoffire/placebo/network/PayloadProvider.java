@@ -43,7 +43,7 @@ public interface PayloadProvider<T extends CustomPacketPayload, C extends IPaylo
 
     /**
      * Gets a list of all supported connection protocols. This method may allocated a new list, as it is only called once.
-     * 
+     *
      * @apiNote Currently, only {@link ConnectionProtocol#CONFIGURATION} and {@link ConnectionProtocol#PLAY} are supported.
      */
     List<ConnectionProtocol> getSupportedProtocols();
@@ -51,7 +51,7 @@ public interface PayloadProvider<T extends CustomPacketPayload, C extends IPaylo
     /**
      * Gets the network direction in which this payload may be sent.<br>
      * {@link Optional#empty()} means both directions are supported.
-     * 
+     *
      * @return The optional containing the valid network direction, or empty if both directions are supported.
      */
     Optional<PacketFlow> getFlow();

@@ -29,7 +29,7 @@ public class RuntimeDatagenHelpers {
 
     /**
      * Converts an object to json via codec.
-     * 
+     *
      * @throws IllegalStateException if the serialization fails
      */
     public static <T> JsonElement toJson(T object, Codec<T> codec) {
@@ -63,7 +63,7 @@ public class RuntimeDatagenHelpers {
      * Writes json to the specified location.
      * <p>
      * The path will be constructed as if it were the expected data path of the object: namespace/type/path.json
-     * 
+     *
      * @throws IllegalStateException if the disk write fails
      */
     public static void write(JsonElement json, String type, ResourceLocation key) {

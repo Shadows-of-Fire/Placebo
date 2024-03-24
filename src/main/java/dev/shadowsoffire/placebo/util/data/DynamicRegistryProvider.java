@@ -44,12 +44,12 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
         this.futures = new ArrayList<>();
         this.cachedOutput = pOutput;
         this.generate();
-        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
+        return CompletableFuture.allOf(this.futures.toArray(CompletableFuture[]::new));
     }
 
     /**
      * Adds an individual object to this provider.
-     * 
+     *
      * @param id     The id of the object
      * @param object The object
      */

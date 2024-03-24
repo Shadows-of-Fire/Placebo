@@ -60,8 +60,7 @@ public class DeferredHelper {
      * @return A new DeferredHelper.
      */
     public static DeferredHelper create(String modid) {
-        DeferredHelper helper = new DeferredHelper(modid);
-        return helper;
+        return new DeferredHelper(modid);
     }
 
     protected DeferredHelper(String modid) {
@@ -71,7 +70,7 @@ public class DeferredHelper {
 
     public <T extends Block> DeferredBlock<T> block(String path, Supplier<T> factory) {
         this.register(path, Registries.BLOCK, factory);
-        return DeferredBlock.createBlock(new ResourceLocation(modid, path));
+        return DeferredBlock.createBlock(new ResourceLocation(this.modid, path));
     }
 
     public <T extends Fluid> DeferredHolder<Fluid, T> fluid(String path, Supplier<T> factory) {
@@ -80,7 +79,7 @@ public class DeferredHelper {
 
     public <T extends Item> DeferredItem<T> item(String path, Supplier<T> factory) {
         this.register(path, Registries.ITEM, factory);
-        return DeferredItem.createItem(new ResourceLocation(modid, path));
+        return DeferredItem.createItem(new ResourceLocation(this.modid, path));
     }
 
     public <T extends MobEffect> DeferredHolder<MobEffect, T> effect(String path, Supplier<T> factory) {
@@ -92,7 +91,7 @@ public class DeferredHelper {
     }
 
     public Holder<SoundEvent> sound(String path) {
-        return sound(path, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(modid, path)));
+        return this.sound(path, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(this.modid, path)));
     }
 
     public <T extends Potion> DeferredHolder<Potion, T> potion(String path, Supplier<T> factory) {
@@ -190,7 +189,7 @@ public class DeferredHelper {
      * Stages the supplier for registration and creates a {@link DeferredHolder} pointing to it.
      */
     protected <R, T extends R> DeferredHolder<R, T> registerDH(String path, ResourceKey<Registry<R>> regKey, Supplier<T> factory) {
-        register(path, regKey, factory);
+        this.register(path, regKey, factory);
         return DeferredHolder.create(regKey, new ResourceLocation(this.modid, path));
     }
 

@@ -85,17 +85,17 @@ public class PayloadHelper {
         @Override
         @SuppressWarnings("unchecked")
         public void handle(T payload, IPayloadContext context) {
-            if (flow.isPresent() && flow.get() != context.flow()) {
+            if (this.flow.isPresent() && this.flow.get() != context.flow()) {
                 Placebo.LOGGER.error("Received a payload {} on the incorrect side.", payload.id());
                 return;
             }
 
-            if (!protocols.contains(context.protocol())) {
+            if (!this.protocols.contains(context.protocol())) {
                 Placebo.LOGGER.error("Received a payload {} on the incorrect protocol.", payload.id());
                 return;
             }
 
-            provider.handle(payload, (C) context);
+            this.provider.handle(payload, (C) context);
         }
     }
 

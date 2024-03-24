@@ -79,7 +79,7 @@ public class PlaceboCodecs {
      * Creates a nullable field codec for use in {@link RecordCodecBuilder}.
      * <p>
      * Used to avoid swallowing exceptions during parse errors.
-     * 
+     *
      * @deprecated Use {@link ExtraCodecs#strictOptionalField(Codec, String)}
      */
     @Deprecated
@@ -91,9 +91,10 @@ public class PlaceboCodecs {
      * Creates a nullable field codec with the given default value for use in {@link RecordCodecBuilder}.
      * <p>
      * Used to avoid swallowing exceptions during parse errors.
-     * 
+     *
      * @deprecated Use {@link ExtraCodecs#strictOptionalField(Codec, String, Object)}
      */
+    @Deprecated
     public static <A> MapCodec<A> nullableField(Codec<A> elementCodec, String name, A defaultValue) {
         return ExtraCodecs.strictOptionalField(elementCodec, name, defaultValue);
     }

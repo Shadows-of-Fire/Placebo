@@ -19,7 +19,7 @@ public class FilteredSlot extends SlotItemHandler {
 
     /**
      * Creates a new filtered slot
-     * 
+     *
      * @param handler The backing item handler
      * @param index   The slot index
      * @param x       The x coordinate

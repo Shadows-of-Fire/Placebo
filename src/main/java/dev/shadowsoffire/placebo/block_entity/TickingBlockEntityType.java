@@ -26,7 +26,7 @@ public class TickingBlockEntityType<T extends BlockEntity & TickingBlockEntity> 
 
     /**
      * Returns the ticker for the given side, or null if the block entity does not tick on the specified side.
-     * 
+     *
      * @param client True if the ticker for the client side is being requested
      */
     @Nullable

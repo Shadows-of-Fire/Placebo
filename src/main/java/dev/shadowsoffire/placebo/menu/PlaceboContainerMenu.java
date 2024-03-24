@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * Implmentation of {@link AbstractContainerMenu} which has utilities for quick move and 
+ * Implmentation of {@link AbstractContainerMenu} which has utilities for quick move and
  */
 public abstract class PlaceboContainerMenu extends AbstractContainerMenu implements QuickMoveMenu {
 
@@ -87,7 +87,7 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
 
     /**
      * Adds a data update listener. These are invoked on both sides, whenever data changes.
-     * 
+     *
      * @param listener
      */
     public void addDataListener(IDataUpdateListener listener) {
@@ -107,7 +107,7 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
     /**
      * Adds a slot update listener, which is only invoked on the server, when it feels like it™
      * Probably best to avoid this...
-     * 
+     *
      * @param listener
      */
     public void addSlotListener(SlotUpdateListener listener) {

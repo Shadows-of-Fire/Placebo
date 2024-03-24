@@ -76,7 +76,7 @@ public class ReloadListenerPackets {
         public void write(FriendlyByteBuf buf) {
             buf.writeUtf(this.path, 50);
             buf.writeResourceLocation(this.key);
-            SyncManagement.writeItem(this.path, item, buf);
+            SyncManagement.writeItem(this.path, this.item, buf);
         }
 
         public static class Provider<V extends CodecProvider<? super V>> implements PayloadProvider<Content<V>, PlayPayloadContext> {
@@ -90,7 +90,7 @@ public class ReloadListenerPackets {
             public Content<V> read(FriendlyByteBuf buf) {
                 String path = buf.readUtf(50);
                 ResourceLocation key = buf.readResourceLocation();
-                return new Content<>(path, key, readItem(path, key, buf));
+                return new Content<>(path, key, this.readItem(path, key, buf));
             }
 
             @Override

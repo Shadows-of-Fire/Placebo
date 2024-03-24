@@ -95,7 +95,7 @@ public class EnchantmentUtils {
 
     /**
      * Computes the level that the given amount of experience would result in, starting with no experience.
-     * 
+     *
      * @param experience The amount of experience.
      * @return The level resulting from gaining this much experience, if at level zero.
      */

@@ -17,7 +17,7 @@ public interface TickingBlockEntity {
      * Ticks this block entity on the logical server.
      * <p>
      * Only called if the block entity type {@linkplain TickSide#ticksOnServer() ticks on the server}.
-     * 
+     *
      * @param level The level the block entity is in
      * @param pos   The position of the block entity
      * @param state The block state of the block entity
@@ -28,7 +28,7 @@ public interface TickingBlockEntity {
      * Ticks this block entity on the logical client.
      * <p>
      * Only called if the block entity type {@linkplain TickSide#ticksOnClient() ticks on the client}.
-     * 
+     *
      * @param level The level the block entity is in
      * @param pos   The position of the block entity
      * @param state The block state of the block entity

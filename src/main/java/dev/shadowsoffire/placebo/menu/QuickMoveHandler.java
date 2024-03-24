@@ -97,7 +97,7 @@ public class QuickMoveHandler {
 
         /**
          * Called when an item is succesfully removed from a slot via quick move.
-         * 
+         *
          * @param original  A copy of the original stack
          * @param remaining The remaining stack, may be {@link ItemStack#EMPTY}
          * @param slot      The slot that was removed from

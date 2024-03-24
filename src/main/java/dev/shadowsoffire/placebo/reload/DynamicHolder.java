@@ -21,7 +21,7 @@ public class DynamicHolder<T> implements Supplier<T> {
 
     /**
      * The ID of an "empty" holder.
-     * 
+     *
      * @see DynamicRegistry#emptyHolder()
      */
     public static final ResourceLocation EMPTY = new ResourceLocation("empty", "empty");
@@ -45,17 +45,17 @@ public class DynamicHolder<T> implements Supplier<T> {
 
     /**
      * Checks if the target value is present in the registry, resolving it if possible.
-     * 
+     *
      * @return True, if the value is present, and {@link #get()} may be called.
      */
     public boolean isBound() {
-        bind();
+        this.bind();
         return this.value != null;
     }
 
     /**
      * Gets the value, if available. This method will resolve the value if possible.
-     * 
+     *
      * @return The target value.
      * @throws NullPointerException if the value is not {@linkplain #isPresent() present}.
      */
@@ -82,7 +82,7 @@ public class DynamicHolder<T> implements Supplier<T> {
 
     /**
      * Checks if this holder is targetting the value with the specified id.
-     * 
+     *
      * @param id The id to check against.
      * @return True, if the passed id equals the target id.
      */

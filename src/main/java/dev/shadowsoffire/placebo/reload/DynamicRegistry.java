@@ -28,7 +28,6 @@ import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.json.JsonUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.RegistryOps;
@@ -86,7 +85,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
     /**
      * List of callbacks attached to this registry.
-     * 
+     *
      * @see #addCallback(RegistryCallback)
      * @see #removeCallback(RegistryCallback)
      */
@@ -126,7 +125,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     @Override
     protected final void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         this.beginReload();
-        var ops = ConditionalOps.create(RegistryOps.create(JsonOps.INSTANCE, registryAccess), conditionContext);
+        var ops = ConditionalOps.create(RegistryOps.create(JsonOps.INSTANCE, this.registryAccess), this.conditionContext);
         objects.forEach((key, ele) -> {
             try {
                 if (JsonUtil.checkAndLogEmpty(ele, key, this.path, this.logger) && JsonUtil.checkConditions(ele, key, this.path, this.logger, ops)) {
@@ -234,27 +233,27 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * Gets the {@link DynamicHolder} associated with a particular value if it exists.
      * <p>
      * If the value is not present in the registry, instead returns {@linkplain #emptyHolder() the empty holder}.
-     * 
+     *
      * @see #holder(ResourceLocation)
      */
     public <T extends R> DynamicHolder<T> holder(T t) {
-        ResourceLocation key = getKey(t);
-        return holder(key == null ? DynamicHolder.EMPTY : key);
+        ResourceLocation key = this.getKey(t);
+        return this.holder(key == null ? DynamicHolder.EMPTY : key);
     }
 
     /**
      * Gets the empty {@link DynamicHolder}.
-     * 
+     *
      * @see #holder(ResourceLocation)
      */
     public DynamicHolder<R> emptyHolder() {
-        return holder(DynamicHolder.EMPTY);
+        return this.holder(DynamicHolder.EMPTY);
     }
 
     /**
      * Returns a {@link Codec} that can handle {@link DynamicHolder}s for this registry.<br>
      * The serialized form is {@link ResourceLocation}.
-     * 
+     *
      * @return The Dynamic Holder Codec for this registry.
      */
     public Codec<DynamicHolder<R>> holderCodec() {
@@ -417,7 +416,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         static <V extends CodecProvider<? super V>> void writeItem(String path, V value, FriendlyByteBuf buf) {
             ifPresent(path, registry -> {
                 Codec<V> c = (Codec<V>) registry.codecs;
-                buf.writeNbt((CompoundTag) c.encodeStart(NbtOps.INSTANCE, value).getOrThrow(false, registry::logCodecError));
+                buf.writeNbt(c.encodeStart(NbtOps.INSTANCE, value).getOrThrow(false, registry::logCodecError));
             });
         }
 

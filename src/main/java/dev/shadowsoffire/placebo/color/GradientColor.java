@@ -43,7 +43,7 @@ public class GradientColor extends TextColor {
     @Override
     public int getValue() {
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            return this.gradient[(int) ((PlaceboClient.getColorTicks() * speed) % this.gradient.length)];
+            return this.gradient[(int) (PlaceboClient.getColorTicks() * this.speed % this.gradient.length)];
         }
         return super.getValue();
     }

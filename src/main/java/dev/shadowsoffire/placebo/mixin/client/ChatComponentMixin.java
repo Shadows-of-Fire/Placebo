@@ -14,7 +14,7 @@ public class ChatComponentMixin {
      */
     @ModifyConstant(method = "logChatMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/GuiMessageTag;)V", remap = false)
     public String placebo_unEscapeChatLogNewlines(String old) {
-        if (old.equals("\\\\n")) return "\n";
+        if ("\\\\n".equals(old)) return "\n";
         return old;
     }
 

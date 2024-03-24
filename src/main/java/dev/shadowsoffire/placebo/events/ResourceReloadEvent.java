@@ -23,11 +23,11 @@ public class ResourceReloadEvent extends Event {
     }
 
     public ResourceManager getResourceManager() {
-        return resourceManager;
+        return this.resourceManager;
     }
 
     public LogicalSide getSide() {
-        return side;
+        return this.side;
     }
 
 }

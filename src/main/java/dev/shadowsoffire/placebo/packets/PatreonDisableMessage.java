@@ -6,8 +6,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.network.PacketDistro;
+import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import dev.shadowsoffire.placebo.patreon.TrailsManager;
 import dev.shadowsoffire.placebo.patreon.WingsManager;
