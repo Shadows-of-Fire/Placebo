@@ -1,3 +1,6 @@
+## 9.2.2
+* Fixed `ButtonClickMessage`'s ID being null.
+
 ## 9.2.1
 * Fixed the name of `QuickMoveMenu#moveItemStackTo` being incorrect.
 
