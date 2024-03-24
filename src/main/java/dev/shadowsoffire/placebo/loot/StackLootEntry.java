@@ -6,11 +6,7 @@ import java.util.function.Consumer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.json.ItemAdapter;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -35,7 +31,7 @@ public class StackLootEntry extends LootPoolSingletonContainer {
         .and(singletonFields(inst))
         .apply(inst, StackLootEntry::new));
 
-    public static final LootPoolEntryType TYPE = Registry.register(BuiltInRegistries.LOOT_POOL_ENTRY_TYPE, new ResourceLocation(Placebo.MODID, "stack_entry"), new LootPoolEntryType(CODEC));
+    public static final LootPoolEntryType TYPE = new LootPoolEntryType(CODEC);
 
     private final ItemStack stack;
     private final int min;

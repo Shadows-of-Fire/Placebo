@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
 import dev.shadowsoffire.placebo.events.ResourceReloadEvent;
+import dev.shadowsoffire.placebo.loot.StackLootEntry;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.packets.ButtonClickMessage;
 import dev.shadowsoffire.placebo.packets.PatreonDisableMessage;
@@ -19,6 +20,7 @@ import dev.shadowsoffire.placebo.systems.mixes.MixRegistry;
 import dev.shadowsoffire.placebo.systems.wanderer.WandererTradesRegistry;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -77,6 +79,10 @@ public class Placebo {
     public void register(RegisterEvent e) {
         e.register(NeoForgeRegistries.Keys.INGREDIENT_TYPES, helper -> {
             helper.register(loc("potion"), new IngredientType<>(PotionIngredient.CODEC, PotionIngredient.CODEC_NONEMPTY));
+        });
+
+        e.register(Registries.LOOT_POOL_ENTRY_TYPE, helper -> {
+            helper.register(loc("stack_entry"), StackLootEntry.TYPE);
         });
     }
 
