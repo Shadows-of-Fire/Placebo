@@ -36,8 +36,8 @@ public class QuickMoveHandler {
             boolean matched = false;
             for (QuickMoveRule rule : this.rules) {
                 if (rule.req.test(slotStack, index)) {
-                    // moveMenuItemStackTo returns true if it successfully moved any amount of the item.
-                    if (!container.moveMenuItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) {
+                    // moveItemStackTo returns true if it successfully moved any amount of the item.
+                    if (!container.moveItemStackTo(slotStack, rule.startIdx, rule.endIdx, rule.reversed)) {
                         return ItemStack.EMPTY; // Aborting here means the move is impossible, as no transfer was accomplished with the matched rule.
                     }
                     container.onQuickMove(slotStackCopy, slotStack, slot);
@@ -86,9 +86,9 @@ public class QuickMoveHandler {
     public interface QuickMoveMenu {
 
         /**
-         * Public version of {@link AbstractContainerMenu#moveMenuItemStackTo}. Should just call super.
+         * Public version of {@link AbstractContainerMenu#moveItemStackTo}. Should just call super.
          */
-        boolean moveMenuItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection);
+        boolean moveItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection);
 
         /**
          * Gets the slot at the given index.
