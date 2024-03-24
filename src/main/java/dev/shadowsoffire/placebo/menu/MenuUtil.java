@@ -1,6 +1,7 @@
 package dev.shadowsoffire.placebo.menu;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -46,39 +47,20 @@ public class MenuUtil {
     }
 
     /**
-     * IIntArray can only send shorts, so we need to split int values in two.
-     *
-     * @param value The int to split
-     * @param upper If sending the upper bits or not.
-     * @return The appropriate half of the integer.
+     * Conversion helper that allows using {@link PosFactory} as a lambda to create an {@link IContainerFactory}.
      */
-    public static int split(int value, boolean upper) {
-        return upper ? value >> 16 : value & 0xFFFF;
-    }
-
-    /**
-     * IIntArray can only send shorts, so we need to split int values in two.
-     *
-     * @param current The current value
-     * @param value   The split integer, recieved from network
-     * @param upper   If receiving the upper bits or not.
-     * @return The updated value.
-     */
-    public static int merge(int current, int value, boolean upper) {
-        if (upper) {
-            return current & 0x0000FFFF | value << 16;
-        }
-        else {
-            return current & 0xFFFF0000 | value & 0x0000FFFF;
-        }
-    }
-
     public static <T extends AbstractContainerMenu> IContainerFactory<T> factory(PosFactory<T> factory) {
-        return (id, inv, buf) -> factory.create(id, inv, buf.readBlockPos());
+        return factory;
     }
 
-    public static interface PosFactory<T> {
+    @FunctionalInterface
+    public static interface PosFactory<T extends AbstractContainerMenu> extends IContainerFactory<T> {
         T create(int id, Inventory pInv, BlockPos pos);
+
+        @Override
+        default T create(int id, Inventory inv, FriendlyByteBuf buf) {
+            return this.create(id, inv, buf.readBlockPos());
+        }
     }
 
 }

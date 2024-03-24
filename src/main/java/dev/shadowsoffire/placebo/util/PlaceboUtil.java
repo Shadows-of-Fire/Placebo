@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -41,7 +42,7 @@ public class PlaceboUtil {
     /**
      * Creates an ItemStack out of an appropriate stack-like object.<br>
      * An {@link ItemLike} returns a new itemstack with a size of 1.<br>
-     * An {@link ItemStack} will a itself.
+     * An {@link ItemStack} will return itself.
      *
      * @param thing An {@link ItemLike} or {@link ItemStack}
      * @return An ItemStack representing <code>thing</code>.
@@ -50,6 +51,7 @@ public class PlaceboUtil {
     public static ItemStack makeStack(Object thing) {
         if (thing instanceof ItemStack stack) return stack;
         if (thing instanceof ItemLike il) return new ItemStack(il);
+        if (thing instanceof Holder h) return makeStack(h.value());
         throw new IllegalArgumentException("Attempted to create an ItemStack from something that cannot be converted: " + thing);
     }
 

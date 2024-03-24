@@ -10,6 +10,7 @@ import java.util.function.IntSupplier;
 import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.world.inventory.DataSlot;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * Simple DataSlot implementation that allows for lambda registration.
@@ -40,11 +41,10 @@ public class SimpleDataSlots {
     }
 
     /**
-     * Registers an energy storage for tracking. Note that an energy storage uses two slots!
+     * Registers an energy storage for tracking.
      */
     public void addEnergy(ModifiableEnergyStorage energy) {
-        this.addSlot(new EnergyDataSlot(energy, false));
-        this.addSlot(new EnergyDataSlot(energy, true));
+        this.addSlot(new EnergyDataSlot(energy));
     }
 
     public class LambdaDataSlot extends DataSlot {
@@ -71,11 +71,15 @@ public class SimpleDataSlots {
 
     public class EnergyDataSlot extends LambdaDataSlot {
 
-        public EnergyDataSlot(ModifiableEnergyStorage energy, boolean upper) {
-            super(() -> MenuUtil.split(energy.getEnergyStored(), upper), v -> energy.setEnergy(MenuUtil.merge(energy.getEnergyStored(), v, upper)));
+        public EnergyDataSlot(ModifiableEnergyStorage energy) {
+            super(energy::getEnergyStored, energy::setEnergy);
         }
     }
 
+    /**
+     * Implement this interface on a {@link BlockEntity} to allow it to automatically register data slots
+     * to any {@link BlockEntityMenu}s that are opened with it.
+     */
     public interface IDataAutoRegister {
         public void registerSlots(Consumer<DataSlot> consumer);
     }

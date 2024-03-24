@@ -17,6 +17,15 @@ public class FilteredSlot extends SlotItemHandler {
     protected final Predicate<ItemStack> filter;
     protected final int index;
 
+    /**
+     * Creates a new filtered slot
+     * 
+     * @param handler The backing item handler
+     * @param index   The slot index
+     * @param x       The x coordinate
+     * @param y       The y coordinate
+     * @param filter  A filter controlling what items may be placed in the slot by a player
+     */
     public FilteredSlot(InternalItemHandler handler, int index, int x, int y, Predicate<ItemStack> filter) {
         super(handler, index, x, y);
         this.filter = filter;

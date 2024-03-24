@@ -17,19 +17,47 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
  */
 public class TickingBlockEntityType<T extends BlockEntity & TickingBlockEntity> extends BlockEntityType<T> {
 
-    protected final boolean clientTick, serverTick;
+    protected final TickSide side;
 
-    public TickingBlockEntityType(BlockEntitySupplier<? extends T> pFactory, Set<Block> pValidBlocks, boolean clientTick, boolean serverTick) {
+    public TickingBlockEntityType(BlockEntitySupplier<? extends T> pFactory, Set<Block> pValidBlocks, TickSide side) {
         super(pFactory, pValidBlocks, null);
-        this.clientTick = clientTick;
-        this.serverTick = serverTick;
+        this.side = side;
     }
 
+    /**
+     * Returns the ticker for the given side, or null if the block entity does not tick on the specified side.
+     * 
+     * @param client True if the ticker for the client side is being requested
+     */
     @Nullable
     public BlockEntityTicker<T> getTicker(boolean client) {
-        if (client && this.clientTick) return (level, pos, state, entity) -> entity.clientTick(level, pos, state);
-        else if (!client && this.serverTick) return (level, pos, state, entity) -> entity.serverTick(level, pos, state);
+        if (client && this.side.ticksOnClient()) {
+            return (level, pos, state, entity) -> entity.clientTick(level, pos, state);
+        }
+        else if (!client && this.side.ticksOnServer()) {
+            return (level, pos, state, entity) -> entity.serverTick(level, pos, state);
+        }
         return null;
+    }
+
+    public static enum TickSide {
+        CLIENT,
+        SERVER,
+        CLIENT_AND_SERVER;
+
+        /**
+         * {@return true if this mode should tick on the client}
+         */
+        public boolean ticksOnClient() {
+            return this == CLIENT || this == CLIENT_AND_SERVER;
+        }
+
+        /**
+         * {@return true if this mode should tick on the server}
+         */
+        public boolean ticksOnServer() {
+            return this == SERVER || this == CLIENT_AND_SERVER;
+        }
     }
 
 }

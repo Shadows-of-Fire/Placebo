@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.mixin.AbstractContainerMenuInvoker;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -27,10 +26,10 @@ public class QuickMoveHandler {
      * @return An empty itemstack, indicating the move is completed (or impossible), or a copy of the original slot stack, indicating the move is partially
      *         incomplete.
      */
-    public ItemStack quickMoveStack(IExposedContainer container, Player player, int index) {
+    public ItemStack quickMoveStack(QuickMoveMenu container, Player player, int index) {
         if (this.rules.isEmpty()) throw new RuntimeException("Quick Move requires at least one rule to be registered");
         ItemStack slotStackCopy = ItemStack.EMPTY;
-        Slot slot = container.getMenuSlot(index);
+        Slot slot = container.getSlot(index);
         if (slot != null && slot.hasItem()) {
             ItemStack slotStack = slot.getItem();
             slotStackCopy = slotStack.copy();
@@ -81,16 +80,29 @@ public class QuickMoveHandler {
 
     }
 
-    public interface IExposedContainer {
-        public default boolean moveMenuItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection) {
-            return ((AbstractContainerMenuInvoker) this)._moveItemStackTo(pStack, pStartIndex, pEndIndex, pReverseDirection);
-        }
+    /**
+     * Interface that must be implemented by menus that want to use {@link QuickMoveHandler}.
+     */
+    public interface QuickMoveMenu {
 
-        public default Slot getMenuSlot(int index) {
-            return ((AbstractContainerMenu) this).getSlot(index);
-        }
+        /**
+         * Public version of {@link AbstractContainerMenu#moveMenuItemStackTo}. Should just call super.
+         */
+        boolean moveMenuItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection);
 
-        public default void onQuickMove(ItemStack original, ItemStack remaining, Slot slot) {
+        /**
+         * Gets the slot at the given index.
+         */
+        Slot getSlot(int index);
+
+        /**
+         * Called when an item is succesfully removed from a slot via quick move.
+         * 
+         * @param original  A copy of the original stack
+         * @param remaining The remaining stack, may be {@link ItemStack#EMPTY}
+         * @param slot      The slot that was removed from
+         */
+        default void onQuickMove(ItemStack original, ItemStack remaining, Slot slot) {
             slot.setChanged();
         }
     }

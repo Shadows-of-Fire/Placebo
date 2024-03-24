@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.network.FriendlyByteBuf;
 
 /**
- * Level Function that allows for only returning "nice" stepped numbers.
+ * Interpolator that allows for only returning "nice" stepped numbers.
  */
 public record StepFunction(float min, int steps, float step) implements Float2FloatFunction {
 
