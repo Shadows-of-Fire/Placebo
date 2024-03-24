@@ -39,7 +39,7 @@ public class ButtonClickMessage implements CustomPacketPayload {
 
     @Override
     public ResourceLocation id() {
-        return null;
+        return ID;
     }
 
     public static interface IButtonContainer {
