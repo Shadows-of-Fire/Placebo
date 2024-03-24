@@ -303,6 +303,13 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
+     * Returns the path used by this registry.
+     */
+    public final String getPath() {
+        return this.path;
+    }
+
+    /**
      * Registers a single item of this type to the registry during reload.
      * <p>
      * Override {@link #validateItem} to perform additional validation of registered objects.
