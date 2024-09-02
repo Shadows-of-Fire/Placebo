@@ -25,11 +25,13 @@ import dev.shadowsoffire.placebo.menu.MenuUtil;
 import dev.shadowsoffire.placebo.menu.MenuUtil.PosFactory;
 import dev.shadowsoffire.placebo.util.DeferredSet;
 import net.minecraft.core.Holder;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -245,6 +247,7 @@ public class DeferredHelper {
      */
     @SafeVarargs
     public final <T extends BlockEntity> BlockEntityType<T> blockEntity(String path, BlockEntitySupplier<T> factory, Holder<Block>... validBlocks) {
+        unfreezeBETypeRegistry();
         BlockEntityType<T> type = new BlockEntityType<>(factory, new DeferredSet<>(() -> Arrays.stream(validBlocks).map(Holder::value).collect(Collectors.toSet())), null);
         this.register(path, Registries.BLOCK_ENTITY_TYPE, () -> {
             type.getValidBlocks(); // Force resolution of the DeferredSet during registration
@@ -262,6 +265,7 @@ public class DeferredHelper {
      */
     @SafeVarargs
     public final <T extends BlockEntity & TickingBlockEntity> TickingBlockEntityType<T> tickingBlockEntity(String path, BlockEntitySupplier<T> factory, TickSide side, Holder<Block>... validBlocks) {
+        unfreezeBETypeRegistry();
         TickingBlockEntityType<T> type = new TickingBlockEntityType<>(factory, new DeferredSet<>(() -> Arrays.stream(validBlocks).map(Holder::value).collect(Collectors.toSet())), side);
         this.register(path, Registries.BLOCK_ENTITY_TYPE, () -> {
             type.getValidBlocks(); // Force resolution of the DeferredSet during registration
@@ -309,29 +313,30 @@ public class DeferredHelper {
     /**
      * Registers a {@link MenuType} using a supplier.
      */
-    public <U extends AbstractContainerMenu, T extends MenuType<U>> DeferredHolder<MenuType<?>, T> menu(String path, Supplier<T> factory) {
-        return this.registerDH(path, Registries.MENU, factory);
+    public <U extends AbstractContainerMenu, T extends MenuType<U>> T menu(String path, T type) {
+        this.register(path, Registries.MENU, () -> type);
+        return type;
     }
 
     /**
      * Registers a {@link MenuType} for the provided {@link MenuSupplier}.
      */
-    public <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<T>> menu(String path, MenuSupplier<T> factory) {
-        return this.menu(path, () -> MenuUtil.type(factory));
+    public <T extends AbstractContainerMenu> MenuType<T> menu(String path, MenuSupplier<T> factory) {
+        return this.menu(path, MenuUtil.type(factory));
     }
 
     /**
      * Registers a {@link MenuType} for the provided {@link PosFactory}.
      */
-    public <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<T>> menuWithPos(String path, PosFactory<T> factory) {
-        return this.menu(path, () -> MenuUtil.posType(factory));
+    public <T extends AbstractContainerMenu> MenuType<T> menuWithPos(String path, PosFactory<T> factory) {
+        return this.menu(path, MenuUtil.posType(factory));
     }
 
     /**
      * Registers a {@link MenuType} for the provided {@link IContainerFactory}.
      */
-    public <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>, MenuType<T>> menuWithData(String path, IContainerFactory<T> factory) {
-        return this.menu(path, () -> MenuUtil.bufType(factory));
+    public <T extends AbstractContainerMenu> MenuType<T> menuWithData(String path, IContainerFactory<T> factory) {
+        return this.menu(path, MenuUtil.bufType(factory));
     }
 
     /**
@@ -482,6 +487,14 @@ public class DeferredHelper {
             }
         }
         this.objects.remove(e.getRegistryKey());
+    }
+
+    /**
+     * BE Types have an intrusive holder, so on top of {@link DeferredSet}, we also need to unfreeze the registry to construct them.
+     */
+    @SuppressWarnings("deprecation")
+    private static void unfreezeBETypeRegistry() {
+        ((MappedRegistry<BlockEntityType<?>>) BuiltInRegistries.BLOCK_ENTITY_TYPE).unfreeze();
     }
 
     protected static record Registrar<T>(ResourceLocation id, Supplier<T> factory) {
