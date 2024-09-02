@@ -28,6 +28,7 @@ import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.json.JsonUtil;
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.CodecException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -65,6 +66,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     protected final boolean subtypes;
     protected final CodecMap<R> codecs;
     protected final Codec<DynamicHolder<R>> holderCodec;
+    protected final StreamCodec<ByteBuf, DynamicHolder<R>> holderStreamCodec;
     protected final BiMap<ResourceLocation, StreamCodec<RegistryFriendlyByteBuf, ? extends R>> streamCodecs;
 
     /**
@@ -81,10 +83,8 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
     /**
      * Map of all holders that have ever been requested for this registry.
-     * <p>
-     * TODO: Reduce scope of DynamicHolder from ? extends R to strictly R, same as vanilla Holders.
      */
-    private final Map<ResourceLocation, DynamicHolder<? extends R>> holders = new ConcurrentHashMap<>();
+    private final Map<ResourceLocation, DynamicHolder<R>> holders = new ConcurrentHashMap<>();
 
     /**
      * List of callbacks attached to this registry.
@@ -116,6 +116,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
             throw new RuntimeException("Attempted to create a dynamic registry for " + path + " with no built-in codecs!");
         }
         this.holderCodec = ResourceLocation.CODEC.xmap(this::holder, DynamicHolder::getId);
+        this.holderStreamCodec = ResourceLocation.STREAM_CODEC.map(this::holder, DynamicHolder::getId);
     }
 
     /**
@@ -267,6 +268,20 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      */
     public Codec<DynamicHolder<R>> holderCodec() {
         return this.holderCodec;
+    }
+
+    /**
+     * Returns a {@link StreamCodec} that can handle {@link DynamicHolder}s for this registry.<br>
+     * The dynamic holders will be transmitted as {@link ResourceLocation}s using {@link ResourceLocation#STREAM_CODEC}.
+     *
+     * @return The Dynamic Holder Stream Codec for this registry.
+     * @throws UnsupportedOperationException if this is not a synced registry.
+     */
+    public StreamCodec<ByteBuf, DynamicHolder<R>> holderStreamCodec() {
+        if (!this.synced) {
+            throw new UnsupportedOperationException("Cannot retrieve a stream codec for the non-synced DynamicRegistry: " + this.path);
+        }
+        return this.holderStreamCodec;
     }
 
     /**
