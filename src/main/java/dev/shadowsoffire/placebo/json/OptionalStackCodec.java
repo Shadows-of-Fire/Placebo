@@ -1,5 +1,7 @@
 package dev.shadowsoffire.placebo.json;
 
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.mojang.serialization.Codec;
@@ -42,11 +44,11 @@ public class OptionalStackCodec {
             ResourceLocation id = this.idDecoder.decode(ops, input).getOrThrow();
             boolean optional = this.optDecoder.decode(ops, input).getOrThrow();
 
-            Holder<Item> item = BuiltInRegistries.ITEM.getHolder(id).orElseThrow();
-            if (!optional && item.value() == Items.AIR && !id.equals(BuiltInRegistries.ITEM.getKey(Items.AIR))) {
+            Optional<Holder.Reference<Item>> item = BuiltInRegistries.ITEM.getHolder(id);
+            if (!optional && item.isEmpty()) {
                 return DataResult.error(() -> "Failed to read non-optional item id " + id);
             }
-            return DataResult.success(item);
+            return DataResult.success(item.map(Function.<Holder<Item>>identity()).orElse(BuiltInRegistries.ITEM.wrapAsHolder(Items.AIR)));
         }
 
         @Override
