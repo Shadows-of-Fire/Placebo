@@ -1,3 +1,6 @@
+## 9.5.1
+* Renamed `DeferredHelper#menu(String, MenuType)` to `menuType` to resolve a generic inference issue.
+
 ## 9.5.0
 * Added immediate-mode registration helpers for BE and Menu types.
   * The old deferred-mode menu type helpers were removed in favor of the new ones.
