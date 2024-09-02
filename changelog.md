@@ -1,3 +1,13 @@
+## 9.5.0
+* Added immediate-mode registration helpers for BE and Menu types.
+  * The old deferred-mode menu type helpers were removed in favor of the new ones.
+  * The BE type helpers rely on unfreezing the registry due to intrusive holders.
+* Added `DeferredHelper#getRegisteredObjects` and made DH retain a list of registered objects to support this.
+  * The `Registrar` objects are still discarded, and the objects are not accessible until after registration.
+* Added `DynamicRegistry#holderStreamCodec`.
+* Fixed `OptionalStackCodec` crashing when decoding optional values which were not present.
+* Restricted `DynamicHolder` to the registry type `R` instead of `T extends R`.
+
 ## 9.4.1
 * Fixed a dependency configuration issue.
 
