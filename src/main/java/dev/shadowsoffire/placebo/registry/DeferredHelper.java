@@ -313,7 +313,7 @@ public class DeferredHelper {
     /**
      * Registers a {@link MenuType} using a supplier.
      */
-    public <U extends AbstractContainerMenu, T extends MenuType<U>> T menu(String path, T type) {
+    public <U extends AbstractContainerMenu, T extends MenuType<U>> T menuType(String path, T type) {
         this.register(path, Registries.MENU, () -> type);
         return type;
     }
@@ -322,21 +322,21 @@ public class DeferredHelper {
      * Registers a {@link MenuType} for the provided {@link MenuSupplier}.
      */
     public <T extends AbstractContainerMenu> MenuType<T> menu(String path, MenuSupplier<T> factory) {
-        return this.menu(path, MenuUtil.type(factory));
+        return this.menuType(path, MenuUtil.type(factory));
     }
 
     /**
      * Registers a {@link MenuType} for the provided {@link PosFactory}.
      */
     public <T extends AbstractContainerMenu> MenuType<T> menuWithPos(String path, PosFactory<T> factory) {
-        return this.menu(path, MenuUtil.posType(factory));
+        return this.menuType(path, MenuUtil.posType(factory));
     }
 
     /**
      * Registers a {@link MenuType} for the provided {@link IContainerFactory}.
      */
     public <T extends AbstractContainerMenu> MenuType<T> menuWithData(String path, IContainerFactory<T> factory) {
-        return this.menu(path, MenuUtil.bufType(factory));
+        return this.menuType(path, MenuUtil.bufType(factory));
     }
 
     /**
