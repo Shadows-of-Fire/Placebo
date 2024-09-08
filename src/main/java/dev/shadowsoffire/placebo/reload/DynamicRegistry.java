@@ -227,16 +227,14 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * Creates a {@link DynamicHolder} pointing to a value stored in this reload listener.
      *
-     * @param <T> The type of the target value.
-     * @param id  The ID of the target value.
+     * @param id The ID of the target value.
      * @return A dynamic registry object pointing to the target value.
      */
-    @SuppressWarnings("unchecked")
-    public <T extends R> DynamicHolder<T> holder(@Nullable ResourceLocation id) {
+    public DynamicHolder<R> holder(@Nullable ResourceLocation id) {
         if (id == null) {
-            return (DynamicHolder<T>) this.emptyHolder();
+            return this.emptyHolder();
         }
-        return (DynamicHolder<T>) this.holders.computeIfAbsent(id, k -> new DynamicHolder<>(this, k));
+        return this.holders.computeIfAbsent(id, k -> new DynamicHolder<>(this, k));
     }
 
     /**
@@ -246,8 +244,8 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      *
      * @see #holder(ResourceLocation)
      */
-    public <T extends R> DynamicHolder<T> holder(T t) {
-        ResourceLocation key = this.getKey(t);
+    public DynamicHolder<R> holder(R value) {
+        ResourceLocation key = this.getKey(value);
         return this.holder(key == null ? DynamicHolder.EMPTY : key);
     }
 
