@@ -25,19 +25,19 @@ This object references the following objects:
 ```js
 {
     "attribute": "string",    // [Mandatory] || The registry name of the Attribute to modify.
-    "operation": "string",    // [Mandatory] || The operation of the modifier. One of "addition", "multiply_base", or "multiply_total".
+    "operation": "string",    // [Mandatory] || The operation of the modifier. One of "add_value", "add_multiplied_base", or "add_multiplied_total".
     "value": StepFunction     // [Mandatory] || The value of the attribute modifier.
 }
 ```
 
-Consumers of this object may use it in constant mode, in which the `"value"` key only accepts a float.
+Consumers of this object may use it in constant mode, in which the `"value"` key only accepts a float instead of a `StepFunction`.
 
 # Examples
 A step function that may produce a value in the range 1..2 in intervals of 0.25. Meaning one of `[1, 1.25, 1.5, 1.75, 2]`.
 ```json
 {
     "attribute": "minecraft:generic.max_health",
-    "operation": "multiply_total",
+    "operation": "add_multiplied_total",
     "value": {
         "min": 1,
         "steps": 4,

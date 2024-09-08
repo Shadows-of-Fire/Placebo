@@ -29,7 +29,7 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
     public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
             BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(a -> a.attribute),
-            PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.operation),
+            Operation.CODEC.fieldOf("operation").forGetter(a -> a.operation),
             StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
         .apply(inst, RandomAttributeModifier::new));
 
