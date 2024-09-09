@@ -1,3 +1,7 @@
+## 9.5.2
+* Fixed a crash when calling `GearSet#apply` caused by iterating an unsupported equipment slot.
+* RuyaSavascisi: Added Turkish Localization.
+
 ## 9.5.1
 * Renamed `DeferredHelper#menu(String, MenuType)` to `menuType` to resolve a generic inference issue.
 
