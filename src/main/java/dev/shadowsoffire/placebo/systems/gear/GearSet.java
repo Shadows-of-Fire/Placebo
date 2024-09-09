@@ -24,6 +24,8 @@ import net.minecraft.world.entity.LivingEntity;
 public record GearSet(int weight, float quality, List<WeightedItemStack> mainhands, List<WeightedItemStack> offhands, List<WeightedItemStack> boots, List<WeightedItemStack> leggings, List<WeightedItemStack> chestplates,
     List<WeightedItemStack> helmets, List<String> tags) implements CodecProvider<GearSet>, ILuckyWeighted {
 
+    public static EquipmentSlot[] VALID_SLOTS = { EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND, EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD };
+
     public static final Codec<GearSet> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         Codec.intRange(0, Integer.MAX_VALUE).fieldOf("weight").forGetter(ILuckyWeighted::getWeight),
         Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("quality", 0F).forGetter(ILuckyWeighted::getQuality),
@@ -50,7 +52,7 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
      * Makes the entity wear this armor set. Returns the entity for convenience.
      */
     public LivingEntity apply(LivingEntity entity) {
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
+        for (EquipmentSlot slot : VALID_SLOTS) {
             WeightedRandom.getRandomItem(entity.getRandom(), this.getPotentials(slot)).ifPresent(s -> s.apply(entity, slot));
         }
         return entity;
