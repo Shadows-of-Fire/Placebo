@@ -1,0 +1,8 @@
+{
+	"key.categories.placebo": "Placebo",
+	"placebo.toggleTrails": "Destekçi İzlerini Değiştir",
+	"placebo.toggleWings": "Destekçi Kanatlarını Değiştir",
+	"placebo.cmd.serialize_success": "%s eşyası %s konumuna kaydedildi.",
+	"placebo.cmd.serialize_failure": "Dizileştirme işlemi sırasında bir hata oluştu.",
+	"placebo.cmd.not_found": "%s bulunamadı."
+}
