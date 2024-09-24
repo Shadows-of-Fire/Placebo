@@ -1,3 +1,7 @@
+## 9.5.3
+* Fixed json brewing mixes not being applied during initial load of a dedicated server.
+  * This caused json-based brewing recipes (i.e. those from Apothic Attributes) to not work until running `/reload`.
+
 ## 9.5.2
 * Fixed a crash when calling `GearSet#apply` caused by iterating an unsupported equipment slot.
 * RuyaSavascisi: Added Turkish Localization.
