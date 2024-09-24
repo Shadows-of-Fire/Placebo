@@ -11,6 +11,7 @@ import dev.shadowsoffire.placebo.reload.DynamicRegistry;
 import dev.shadowsoffire.placebo.systems.mixes.JsonMix.Type;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class MixRegistry extends DynamicRegistry<JsonMix<?>> {
@@ -40,6 +41,15 @@ public class MixRegistry extends DynamicRegistry<JsonMix<?>> {
             addAll(brewing);
         }
         super.onReload();
+    }
+
+    /**
+     * Called externally during the {@link ServerAboutToStartEvent} since the first reload on dedi is too early.
+     */
+    public static void applyMixes() {
+        for (PotionBrewing brewing : resolveBrewing()) {
+            INSTANCE.addAll(brewing);
+        }
     }
 
     /**

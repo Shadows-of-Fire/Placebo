@@ -31,6 +31,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod(Placebo.MODID)
@@ -44,6 +45,7 @@ public class Placebo {
         bus.register(this);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::serverReload);
+        NeoForge.EVENT_BUS.addListener(this::serverStart);
         TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
         bus.addListener(TabFillingRegistry::fillTabs);
         bus.register(new PayloadHelper());
@@ -79,6 +81,10 @@ public class Placebo {
 
     public void serverReload(AddReloadListenerEvent e) {
         e.addListener((ResourceManagerReloadListener) res -> NeoForge.EVENT_BUS.post(new ResourceReloadEvent(res, LogicalSide.SERVER)));
+    }
+
+    public void serverStart(ServerAboutToStartEvent e) {
+        MixRegistry.applyMixes();
     }
 
     public static ResourceLocation loc(String path) {
