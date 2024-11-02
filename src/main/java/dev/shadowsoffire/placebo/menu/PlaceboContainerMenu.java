@@ -6,6 +6,8 @@ import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import dev.shadowsoffire.placebo.menu.QuickMoveHandler.QuickMoveMenu;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -14,6 +16,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.items.IItemHandler;
 
 /**
  * Implmentation of {@link AbstractContainerMenu} which has utilities for quick move and
@@ -110,6 +113,7 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
      *
      * @param listener
      */
+    @Deprecated(forRemoval = true)
     public void addSlotListener(SlotUpdateListener listener) {
         this.addSlotListener(new ContainerListener(){
 
@@ -122,6 +126,25 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
             public void dataChanged(AbstractContainerMenu pContainerMenu, int pDataSlotIndex, int pValue) {}
 
         });
+    }
+
+    /**
+     * Variant of {@link AbstractContainerMenu#clearContainer(Player, Container)} for {@link IItemHandler}.
+     */
+    protected void clearContainer(Player player, IItemHandler inv) {
+        if (!player.isAlive() || player instanceof ServerPlayer && ((ServerPlayer) player).hasDisconnected()) {
+            for (int slot = 0; slot < inv.getSlots(); slot++) {
+                player.drop(inv.getStackInSlot(slot), false);
+            }
+        }
+        else {
+            for (int slot = 0; slot < inv.getSlots(); slot++) {
+                Inventory inventory = player.getInventory();
+                if (inventory.player instanceof ServerPlayer) {
+                    inventory.placeItemBackInInventory(inv.getStackInSlot(slot));
+                }
+            }
+        }
     }
 
     protected class UpdatingSlot extends FilteredSlot {
