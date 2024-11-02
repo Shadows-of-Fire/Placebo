@@ -1,3 +1,8 @@
+## 9.5.4
+* Added `PlaceboContainerMenu#clearContainer(Player, IItemHandler)`.
+* Added back `GearSetRegistry#getRandomSet`.
+* Added the datagen utils developed in Apothic Enchanting: `DataGenBuilder` and `LegacyRecipeProvider`.
+
 ## 9.5.3
 * Fixed json brewing mixes not being applied during initial load of a dedicated server.
   * This caused json-based brewing recipes (i.e. those from Apothic Attributes) to not work until running `/reload`.
