@@ -40,9 +40,23 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
             StepFunction.CONSTANT_CODEC.fieldOf("value").forGetter(a -> a.value))
         .apply(inst, RandomAttributeModifier::new));
 
-    public void apply(RandomSource rand, LivingEntity entity) {
+    /**
+     * Creates an {@link AttributeModifier} with a set id and randomly-selected value from the {@link #value} function.
+     */
+    public AttributeModifier create(ResourceLocation id, RandomSource rand) {
+        return new AttributeModifier(id, this.value.get(rand.nextFloat()), this.operation);
+    }
+
+    /**
+     * Creates a deterministic {@link AttributeModifier} with a set id, using the minimum value of the {@link #value} function.
+     */
+    public AttributeModifier createDeterministic(ResourceLocation id) {
+        return new AttributeModifier(id, this.value.min(), this.operation);
+    }
+
+    public void apply(ResourceLocation id, RandomSource rand, LivingEntity entity) {
         if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
-        AttributeModifier modif = this.create(rand);
+        AttributeModifier modif = this.create(id, rand);
         AttributeInstance inst = entity.getAttribute(this.attribute);
         if (inst == null) {
             Placebo.LOGGER
@@ -58,15 +72,9 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
      * Two modifiers with the same id for a single attribute will conflict. To avoid conflicts, provide a full id via
      * {@link #create(ResourceLocation, RandomSource)}.
      */
+    @Deprecated(forRemoval = true)
     public AttributeModifier create(RandomSource rand) {
         return new AttributeModifier(Placebo.loc("random_modifier_" + this.attribute.value().getDescriptionId() + rand.nextInt()), this.value.get(rand.nextFloat()), this.operation);
-    }
-
-    /**
-     * Creates an {@link AttributeModifier} with a set id and randomly-selected value from the {@link #value} function.
-     */
-    public AttributeModifier create(ResourceLocation id, RandomSource rand) {
-        return new AttributeModifier(id, this.value.get(rand.nextFloat()), this.operation);
     }
 
     /**
@@ -75,15 +83,22 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
      * Two modifiers with the same id for a single attribute will conflict. To avoid conflicts, provide a full id via
      * {@link #createDeterministic(ResourceLocation)}.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public AttributeModifier createDeterministic() {
         return new AttributeModifier(Placebo.loc("random_modifier_" + this.attribute.value().getDescriptionId()), this.value.min(), this.operation);
     }
 
-    /**
-     * Creates a deterministic {@link AttributeModifier} with a set id, using the minimum value of the {@link #value} function.
-     */
-    public AttributeModifier createDeterministic(ResourceLocation id) {
-        return new AttributeModifier(id, this.value.min(), this.operation);
+    @Deprecated(forRemoval = true)
+    public void apply(RandomSource rand, LivingEntity entity) {
+        if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
+        AttributeModifier modif = this.create(rand);
+        AttributeInstance inst = entity.getAttribute(this.attribute);
+        if (inst == null) {
+            Placebo.LOGGER
+                .trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", EntityType.getKey(entity.getType()), this.attribute.unwrapKey().get()));
+            return;
+        }
+        inst.addPermanentModifier(modif);
     }
+
 }
