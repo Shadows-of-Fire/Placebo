@@ -24,6 +24,7 @@ import dev.shadowsoffire.placebo.block_entity.TickingBlockEntityType.TickSide;
 import dev.shadowsoffire.placebo.menu.MenuUtil;
 import dev.shadowsoffire.placebo.menu.MenuUtil.PosFactory;
 import dev.shadowsoffire.placebo.util.DeferredSet;
+import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -67,13 +68,20 @@ import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplie
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.common.crafting.ICustomIngredient;
+import net.neoforged.neoforge.common.crafting.IngredientType;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 /**
@@ -434,6 +442,60 @@ public class DeferredHelper {
         DataComponentType<T> type = operator.apply(DataComponentType.builder()).build();
         this.register(path, Registries.DATA_COMPONENT_TYPE, () -> type);
         return type;
+    }
+
+    /**
+     * Registers an {@link AttachmentType} with the specified default value, that is configured with the supplied operator.
+     * <p>
+     * Immediately constructs the {@link AttachmentType} and returns it. Registration is deferred until the appropriate time.
+     */
+    public <T> AttachmentType<T> attachment(String path, Supplier<T> defaultValue, UnaryOperator<AttachmentType.Builder<T>> operator) {
+        AttachmentType<T> type = operator.apply(AttachmentType.builder(defaultValue)).build();
+        this.register(path, NeoForgeRegistries.Keys.ATTACHMENT_TYPES, () -> type);
+        return type;
+    }
+
+    /**
+     * Registers an {@link AttachmentType} with the specified default value, that is configured with the supplied operator.
+     * <p>
+     * Immediately constructs the {@link AttachmentType} and returns it. Registration is deferred until the appropriate time.
+     */
+    public <T> AttachmentType<T> attachment(String path, Function<IAttachmentHolder, T> defaultValue, UnaryOperator<AttachmentType.Builder<T>> operator) {
+        AttachmentType<T> type = operator.apply(AttachmentType.builder(defaultValue)).build();
+        this.register(path, NeoForgeRegistries.Keys.ATTACHMENT_TYPES, () -> type);
+        return type;
+    }
+
+    /**
+     * Registers a {@link LootPoolEntryType} and returns it.
+     */
+    public LootPoolEntryType lootPoolEntry(String path, LootPoolEntryType type) {
+        this.register(path, Registries.LOOT_POOL_ENTRY_TYPE, () -> type);
+        return type;
+    }
+
+    /**
+     * Registers a codec for an {@link IGlobalLootModifier} and returns it.
+     */
+    public <T extends IGlobalLootModifier> MapCodec<T> lootModifier(String path, MapCodec<T> codec) {
+        this.register(path, NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, () -> codec);
+        return codec;
+    }
+
+    /**
+     * Registers an {@link IngredientType} and returns it.
+     */
+    public <T extends ICustomIngredient> IngredientType<T> ingredient(String path, IngredientType<T> type) {
+        this.register(path, NeoForgeRegistries.Keys.INGREDIENT_TYPES, () -> type);
+        return type;
+    }
+
+    /**
+     * Registers a {@link CriterionTrigger} and returns it.
+     */
+    public <T extends CriterionTrigger<?>> T criteriaTrigger(String path, T trigger) {
+        this.register(path, Registries.TRIGGER_TYPE, () -> trigger);
+        return trigger;
     }
 
     /**
