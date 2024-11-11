@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
@@ -56,7 +58,8 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
     /**
      * Populated during {@link #run(CachedOutput, Provider)} so that it doesn't need to be passed to each method individually.
      */
-    private RecipeOutput recipeOutput;
+    @Nullable
+    protected RecipeOutput recipeOutput;
 
     public LegacyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modid) {
         super(output, registries);
@@ -152,6 +155,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
     protected final void buildRecipes(RecipeOutput recipeOutput, HolderLookup.Provider registries) {
         this.recipeOutput = recipeOutput;
         this.genRecipes(recipeOutput, registries);
+        this.recipeOutput = null;
     }
 
     @Override
