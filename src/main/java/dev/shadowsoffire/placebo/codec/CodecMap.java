@@ -22,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 public class CodecMap<V extends CodecProvider<? super V>> implements Codec<V> {
 
     protected final String name;
+    // TODO: Strongly type sub-codecs to MapCodec.
     private final BiMap<ResourceLocation, Codec<? extends V>> codecs = HashBiMap.create();
     private final Codec<V> codec;
 
