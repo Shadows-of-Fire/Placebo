@@ -88,6 +88,19 @@ public record StepFunction(float min, int steps, float step) implements Float2Fl
         return new StepFunction(buf.readFloat(), buf.readInt(), buf.readFloat());
     }
 
+    public static StepFunction fromBounds(float min, float max) {
+        return fromBounds(min, max, 0.5F);
+    }
+
+    public static StepFunction fromBounds(float min, float max, float step) {
+        int steps = Math.round((max - min) / step);
+        StepFunction function = new StepFunction(min, steps, step);
+        if (Math.abs(function.max() - max) > 0.001F) {
+            throw new UnsupportedOperationException("Failed to interpolate step function bounds");
+        }
+        return function;
+    }
+
     public static StepFunction constant(float val) {
         return new StepFunction(val, 1, 0);
     }
