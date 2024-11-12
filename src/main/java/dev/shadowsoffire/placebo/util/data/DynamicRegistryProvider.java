@@ -80,7 +80,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     @SuppressWarnings("unchecked")
     protected final void add(ResourceLocation id, R object) {
         this.populator.register(id, object);
-        this.futures.add(DataProvider.saveStable(this.cachedOutput, RuntimeDatagenHelpers.toJson(object), this.pathProvider.json(id)));
+        this.futures.add(DataProvider.saveStable(this.cachedOutput, RuntimeDatagenHelpers.toJson(object, this.registry.elementCodec()), this.pathProvider.json(id)));
     }
 
     /**
@@ -93,7 +93,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     @SuppressWarnings("unchecked")
     protected final void addConditionally(ResourceLocation id, R object, ICondition... conditions) {
         this.populator.register(id, object);
-        Codec<Optional<WithConditions<R>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<R>createConditionalCodecWithConditions((Codec<R>) object.getCodec());
+        Codec<Optional<WithConditions<R>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<R>createConditionalCodecWithConditions(this.registry.elementCodec());
         this.futures.add(this.lookupProvider.thenCompose(regs -> {
             DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
             Optional<WithConditions<R>> withConds = Optional.of(new WithConditions<>(Arrays.asList(conditions), object));

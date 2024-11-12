@@ -37,8 +37,11 @@ public class RuntimeDatagenHelpers {
 
     /**
      * Converts a {@link CodecProvider} object to json via its provided codec.
+     * 
+     * @deprecated Use {@link #toJson(Object, Codec)} and supply an explicit codec. Subtyped objects will not write their type when using this method.
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <T extends CodecProvider<T>> JsonElement toJson(T object) {
         return toJson(object, (Codec<T>) object.getCodec());
     }
@@ -52,8 +55,12 @@ public class RuntimeDatagenHelpers {
 
     /**
      * Writes a {@link CodecProvider} object to the datagen directory.
+     * 
+     * @deprecated Use {@link #write(Object, Codec, String, ResourceLocation)} and supply an explicit codec. Subtyped objects will not write their type when using
+     *             this method.
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static <T extends CodecProvider<T>> void write(T object, String type, ResourceLocation key) {
         write(toJson(object), type, key);
     }

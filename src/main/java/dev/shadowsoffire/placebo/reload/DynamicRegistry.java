@@ -354,6 +354,13 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
+     * Returns the direct element codec, which can be used for de/serializing an element known by this registry.
+     */
+    public final Codec<R> elementCodec() {
+        return this.codecs;
+    }
+
+    /**
      * Registers a single item of this type to the registry during reload.
      * <p>
      * Override {@link #validateItem} to perform additional validation of registered objects.
