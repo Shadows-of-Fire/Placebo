@@ -552,4 +552,39 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         }
     }
 
+    /**
+     * Internal class to handle population of registry entries during data generation.
+     */
+    @ApiStatus.Internal
+    public static class DataGenPopulator<R extends CodecProvider<? super R>> {
+
+        private final DynamicRegistry<R> registry;
+
+        private DataGenPopulator(DynamicRegistry<R> registry) {
+            this.registry = registry;
+        }
+
+        private DataGenPopulator<R> start() {
+            registry.beginReload();
+            return this;
+        }
+
+        public DataGenPopulator<R> register(ResourceLocation id, R object) {
+            registry.register(id, object);
+            return this;
+        }
+
+        private DataGenPopulator<R> end() {
+            registry.onReload();
+            return this;
+        }
+
+        public static <R extends CodecProvider<? super R>> void runScoped(DynamicRegistry<R> registry, Consumer<DataGenPopulator<R>> consumer) {
+            var populator = new DataGenPopulator<>(registry).start();
+            consumer.accept(populator);
+            populator.end();
+        }
+
+    }
+
 }

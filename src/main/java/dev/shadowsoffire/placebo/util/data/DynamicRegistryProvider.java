@@ -13,6 +13,7 @@ import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;
+import dev.shadowsoffire.placebo.reload.DynamicRegistry.DataGenPopulator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -25,14 +26,15 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 /**
  * Data provider for objects registered to a {@link DynamicRegistry}.
  */
-public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implements DataProvider {
+public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implements DataProvider {
 
     protected final CompletableFuture<HolderLookup.Provider> lookupProvider;
     protected final PackOutput.PathProvider pathProvider;
-    protected final DynamicRegistry<T> registry;
+    protected final DynamicRegistry<R> registry;
 
     private List<CompletableFuture<?>> futures;
     private CachedOutput cachedOutput;
+    private DataGenPopulator<R> populator;
 
     /**
      * Creates a new provider. Subclasses should create a public constructor that inlines the registry parameter.
@@ -41,7 +43,7 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
      * @param registries The registry lookup for this datagen instance.
      * @param registry   The registry for which objects are being generated for
      */
-    protected DynamicRegistryProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, DynamicRegistry<T> registry) {
+    protected DynamicRegistryProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, DynamicRegistry<R> registry) {
         this.lookupProvider = registries;
         this.pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
         this.registry = registry;
@@ -51,7 +53,7 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
      * @deprecated Use {@link #DynamicRegistryProvider(PackOutput, CompletableFuture, DynamicRegistry)}
      */
     @Deprecated
-    protected DynamicRegistryProvider(GatherDataEvent event, DynamicRegistry<T> registry) {
+    protected DynamicRegistryProvider(GatherDataEvent event, DynamicRegistry<R> registry) {
         this.lookupProvider = event.getLookupProvider();
         this.pathProvider = event.getGenerator().getPackOutput().createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
         this.registry = registry;
@@ -61,7 +63,11 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
     public final CompletableFuture<?> run(CachedOutput pOutput) {
         this.futures = new ArrayList<>();
         this.cachedOutput = pOutput;
-        this.generate();
+        DataGenPopulator.runScoped(registry, populator -> {
+            this.populator = populator;
+            this.generate();
+            this.populator = null;
+        });
         return CompletableFuture.allOf(this.futures.toArray(CompletableFuture[]::new));
     }
 
@@ -72,7 +78,8 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
      * @param object The object
      */
     @SuppressWarnings("unchecked")
-    protected final void add(ResourceLocation id, T object) {
+    protected final void add(ResourceLocation id, R object) {
+        this.populator.register(id, object);
         this.futures.add(DataProvider.saveStable(this.cachedOutput, RuntimeDatagenHelpers.toJson(object), this.pathProvider.json(id)));
     }
 
@@ -84,11 +91,12 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
      * @param conditions Conditions required for the object to load.
      */
     @SuppressWarnings("unchecked")
-    protected final void addConditionally(ResourceLocation id, T object, ICondition... conditions) {
-        Codec<Optional<WithConditions<T>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<T>createConditionalCodecWithConditions((Codec<T>) object.getCodec());
+    protected final void addConditionally(ResourceLocation id, R object, ICondition... conditions) {
+        this.populator.register(id, object);
+        Codec<Optional<WithConditions<R>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<R>createConditionalCodecWithConditions((Codec<R>) object.getCodec());
         this.futures.add(this.lookupProvider.thenCompose(regs -> {
             DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
-            Optional<WithConditions<T>> withConds = Optional.of(new WithConditions<>(Arrays.asList(conditions), object));
+            Optional<WithConditions<R>> withConds = Optional.of(new WithConditions<>(Arrays.asList(conditions), object));
             return DataProvider.saveStable(this.cachedOutput, conditionalCodec.encodeStart(ops, withConds).getOrThrow(), this.pathProvider.json(id));
         }));
     }
