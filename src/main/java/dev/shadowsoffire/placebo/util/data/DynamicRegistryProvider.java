@@ -26,11 +26,22 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
     private CachedOutput cachedOutput;
 
     /**
-     * Creates a new provider.
+     * Creates a new provider. Subclasses should create a public constructor that inlines the registry parameter.
      *
-     * @param event    The gather data event
-     * @param registry The registry for which objects are being generated for
+     * @param output     The pack output. The final output folder will be for a data pack using the registry path.
+     * @param registries The registry lookup for this datagen instance.
+     * @param registry   The registry for which objects are being generated for
      */
+    protected DynamicRegistryProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, DynamicRegistry<T> registry) {
+        this.lookupProvider = registries;
+        this.pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
+        this.registry = registry;
+    }
+
+    /**
+     * @deprecated Use {@link #DynamicRegistryProvider(PackOutput, CompletableFuture, DynamicRegistry)}
+     */
+    @Deprecated
     protected DynamicRegistryProvider(GatherDataEvent event, DynamicRegistry<T> registry) {
         this.lookupProvider = event.getLookupProvider();
         this.pathProvider = event.getGenerator().getPackOutput().createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
