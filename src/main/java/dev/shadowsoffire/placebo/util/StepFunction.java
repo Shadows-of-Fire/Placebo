@@ -33,7 +33,7 @@ public record StepFunction(float min, int steps, float step) implements Float2Fl
     /**
      * Either codec between {@link STRICT_CODEC} and {@link CONSTANT_CODEC}, producing a step function from either a single float or the full definition.
      */
-    public static final Codec<StepFunction> CODEC = Codec.either(CONSTANT_CODEC, STRICT_CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), Either::right);
+    public static final Codec<StepFunction> CODEC = Codec.either(CONSTANT_CODEC, STRICT_CODEC).xmap(e -> e.map(Function.identity(), Function.identity()), StepFunction::toEither);
 
     /**
      * Create a new StepFunction
@@ -103,6 +103,15 @@ public record StepFunction(float min, int steps, float step) implements Float2Fl
 
     public static StepFunction constant(float val) {
         return new StepFunction(val, 1, 0);
+    }
+
+    /**
+     * Used by {@link #CODEC} to delegate the step function to {@link #CONSTANT_CODEC} or {@link #STRICT_CODEC} appropriately.
+     * <p>
+     * If it is detected the step function is constant (by {@link #step} being zero), it will be serialized as a single float.
+     */
+    private static Either<StepFunction, StepFunction> toEither(StepFunction function) {
+        return function.step == 0 ? Either.left(function) : Either.right(function);
     }
 
 }
