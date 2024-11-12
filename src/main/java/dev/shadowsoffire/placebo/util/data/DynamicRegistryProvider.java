@@ -1,8 +1,15 @@
 package dev.shadowsoffire.placebo.util.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;
@@ -11,6 +18,8 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.WithConditions;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 /**
@@ -65,6 +74,23 @@ public abstract class DynamicRegistryProvider<T extends CodecProvider<T>> implem
     @SuppressWarnings("unchecked")
     protected final void add(ResourceLocation id, T object) {
         this.futures.add(DataProvider.saveStable(this.cachedOutput, RuntimeDatagenHelpers.toJson(object), this.pathProvider.json(id)));
+    }
+
+    /**
+     * Adds an individual object to this provider with a specified list of conditions.
+     *
+     * @param id         The id of the object
+     * @param object     The object
+     * @param conditions Conditions required for the object to load.
+     */
+    @SuppressWarnings("unchecked")
+    protected final void addConditionally(ResourceLocation id, T object, ICondition... conditions) {
+        Codec<Optional<WithConditions<T>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<T>createConditionalCodecWithConditions((Codec<T>) object.getCodec());
+        this.futures.add(this.lookupProvider.thenCompose(regs -> {
+            DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
+            Optional<WithConditions<T>> withConds = Optional.of(new WithConditions<>(Arrays.asList(conditions), object));
+            return DataProvider.saveStable(this.cachedOutput, conditionalCodec.encodeStart(ops, withConds).getOrThrow(), this.pathProvider.json(id));
+        }));
     }
 
     /**
