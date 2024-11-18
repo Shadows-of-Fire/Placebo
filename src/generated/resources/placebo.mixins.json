@@ -8,6 +8,7 @@
         "ItemStackMixin"
     ],
     "client": [
+        "client.AbstractContainerScreenMixin",
         "client.ChatComponentMixin"
     ],
     "minVersion": "0.8"
