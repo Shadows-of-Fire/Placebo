@@ -361,6 +361,25 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
+     * Validates that every created {@link DynamicHolder} is bound to a regsitry entry.
+     * <p>
+     * This is primarily used as a sanity check in data generation.
+     * 
+     * @throws RuntimeException if any unbound holders are detected.
+     */
+    public final void validateExistingHolders() {
+        String error = "";
+        for (DynamicHolder<R> holder : this.holders.values()) {
+            if (!holder.isBound()) {
+                error += "Failed to validate dynamic holder %s for registry %s\n".formatted(holder.getId(), this.getPath());
+            }
+        }
+        if (!error.isEmpty()) {
+            throw new RuntimeException(error);
+        }
+    }
+
+    /**
      * Registers a single item of this type to the registry during reload.
      * <p>
      * Override {@link #validateItem} to perform additional validation of registered objects.
