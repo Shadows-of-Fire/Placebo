@@ -105,10 +105,14 @@ public record StepFunction(float min, int steps, float step, float max) implemen
     }
 
     public static StepFunction fromBounds(float min, float max) {
-        return fromBounds(min, max, 0.5F);
+        return fromBounds(min, max, 0.01F);
     }
 
     public static StepFunction fromBounds(float min, float max, float step) {
+        if (min == max) {
+            return constant(min);
+        }
+
         int steps = Math.round((max - min) / step);
         if (Math.abs((min + step * steps) - max) > 0.0001F) {
             throw new UnsupportedOperationException("Failed to interpolate step function bounds with min=" + min + "; max=" + max + "; step=" + step
