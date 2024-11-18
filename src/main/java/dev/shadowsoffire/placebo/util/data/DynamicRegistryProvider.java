@@ -31,8 +31,8 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     protected final CompletableFuture<HolderLookup.Provider> lookupProvider;
     protected final PackOutput.PathProvider pathProvider;
     protected final DynamicRegistry<R> registry;
+    protected final List<CompletableFuture<?>> futures = new ArrayList<>();
 
-    private List<CompletableFuture<?>> futures;
     private CachedOutput cachedOutput;
     private DataGenPopulator<R> populator;
 
@@ -61,7 +61,6 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
 
     @Override
     public final CompletableFuture<?> run(CachedOutput pOutput) {
-        this.futures = new ArrayList<>();
         this.cachedOutput = pOutput;
         DataGenPopulator.runScoped(registry, populator -> {
             this.populator = populator;
@@ -77,10 +76,12 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * @param id     The id of the object
      * @param object The object
      */
-    @SuppressWarnings("unchecked")
     protected final void add(ResourceLocation id, R object) {
         this.populator.register(id, object);
-        this.futures.add(DataProvider.saveStable(this.cachedOutput, RuntimeDatagenHelpers.toJson(object, this.registry.elementCodec()), this.pathProvider.json(id)));
+        this.futures.add(this.lookupProvider.thenCompose(regs -> {
+            DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
+            return DataProvider.saveStable(this.cachedOutput, this.registry.elementCodec().encodeStart(ops, object).getOrThrow(), this.pathProvider.json(id));
+        }));
     }
 
     /**
@@ -90,7 +91,6 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * @param object     The object
      * @param conditions Conditions required for the object to load.
      */
-    @SuppressWarnings("unchecked")
     protected final void addConditionally(ResourceLocation id, R object, ICondition... conditions) {
         this.populator.register(id, object);
         Codec<Optional<WithConditions<R>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<R>createConditionalCodecWithConditions(this.registry.elementCodec());
