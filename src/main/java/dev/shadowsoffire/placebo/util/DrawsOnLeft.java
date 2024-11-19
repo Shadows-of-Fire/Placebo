@@ -36,6 +36,21 @@ public interface DrawsOnLeft {
         gfx.renderComponentTooltip(__ths().font, split, xPos, y, ItemStack.EMPTY);
     }
 
+    /**
+     * Renders a list of text as a tooltip attached to the left edge of the currently open container screen.
+     */
+    default void drawOnLeft(GuiGraphics gfx, List<Component> list, int y, int maxWidth) {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        List<FormattedText> split = new ArrayList<>();
+        list.forEach(comp -> split.addAll(__ths().font.getSplitter().splitLines(comp, maxWidth, comp.getStyle())));
+
+        int xPos = __ths().getGuiLeft() - 16 - split.stream().map(__ths().font::width).max(Integer::compare).get();
+        gfx.renderComponentTooltip(__ths().font, split, xPos, y, ItemStack.EMPTY);
+    }
+
     default AbstractContainerScreen<?> __ths() {
         return (AbstractContainerScreen<?>) this;
     }
