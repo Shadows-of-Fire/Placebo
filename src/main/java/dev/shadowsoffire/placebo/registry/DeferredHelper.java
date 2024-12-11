@@ -69,6 +69,8 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -480,6 +482,15 @@ public class DeferredHelper {
     public <T extends IGlobalLootModifier> MapCodec<T> lootModifier(String path, MapCodec<T> codec) {
         this.register(path, NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, () -> codec);
         return codec;
+    }
+
+    /**
+     * Registers a codec for a {@link LootItemCondition} and returns the new {@link LootItemConditionType}.
+     */
+    public LootItemConditionType lootCondition(String path, MapCodec<? extends LootItemCondition> codec) {
+        LootItemConditionType type = new LootItemConditionType(codec);
+        this.register(path, Registries.LOOT_CONDITION_TYPE, () -> type);
+        return type;
     }
 
     /**
