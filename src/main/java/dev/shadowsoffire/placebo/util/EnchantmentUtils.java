@@ -45,7 +45,7 @@ public class EnchantmentUtils {
         int exp = getTotalExperienceForLevel(player.experienceLevel);
 
         // Add the amount of experience points the player has earned towards their next level.
-        exp += player.experienceProgress * getTotalExperienceForLevel(player.experienceLevel + 1);
+        exp += player.experienceProgress * getExperienceForLevel(player.experienceLevel + 1);
 
         return exp;
     }
