@@ -43,7 +43,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * @param registries The registry lookup for this datagen instance.
      * @param registry   The registry for which objects are being generated for
      */
-    protected DynamicRegistryProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, DynamicRegistry<R> registry) {
+    public DynamicRegistryProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, DynamicRegistry<R> registry) {
         this.lookupProvider = registries;
         this.pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
         this.registry = registry;
@@ -52,8 +52,8 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     /**
      * @deprecated Use {@link #DynamicRegistryProvider(PackOutput, CompletableFuture, DynamicRegistry)}
      */
-    @Deprecated
-    protected DynamicRegistryProvider(GatherDataEvent event, DynamicRegistry<R> registry) {
+    @Deprecated(forRemoval = true)
+    public DynamicRegistryProvider(GatherDataEvent event, DynamicRegistry<R> registry) {
         this.lookupProvider = event.getLookupProvider();
         this.pathProvider = event.getGenerator().getPackOutput().createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
         this.registry = registry;
