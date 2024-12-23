@@ -2,12 +2,14 @@ package dev.shadowsoffire.placebo.systems.gear;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
+import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.json.WeightedItemStack;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
 import net.minecraft.resources.ResourceLocation;
@@ -20,22 +22,23 @@ import net.minecraft.world.entity.LivingEntity;
  * When applying a Gear Set to an entity, it randomly selects an item for each slot and applies it.
  * <p>
  * The list of potentials for a slot may be empty.
+ * TODO: Think about splitting between Weapon Sets (hand items) and Armor Sets (helm/chest/legs/feet items) to allow for ease of combinations.
  */
 public record GearSet(int weight, float quality, List<WeightedItemStack> mainhands, List<WeightedItemStack> offhands, List<WeightedItemStack> boots, List<WeightedItemStack> leggings, List<WeightedItemStack> chestplates,
-    List<WeightedItemStack> helmets, List<String> tags) implements CodecProvider<GearSet>, ILuckyWeighted {
+    List<WeightedItemStack> helmets, Set<String> tags) implements CodecProvider<GearSet>, ILuckyWeighted {
 
     public static EquipmentSlot[] VALID_SLOTS = { EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND, EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD };
 
     public static final Codec<GearSet> CODEC = RecordCodecBuilder.create(inst -> inst.group(
         Codec.intRange(0, Integer.MAX_VALUE).fieldOf("weight").forGetter(ILuckyWeighted::getWeight),
         Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("quality", 0F).forGetter(ILuckyWeighted::getQuality),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("mainhands", Collections.emptyList()).forGetter(g -> g.mainhands),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("offhands", Collections.emptyList()).forGetter(g -> g.offhands),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("boots", Collections.emptyList()).forGetter(g -> g.boots),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("leggings", Collections.emptyList()).forGetter(g -> g.leggings),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("chestplates", Collections.emptyList()).forGetter(g -> g.chestplates),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("helmets", Collections.emptyList()).forGetter(g -> g.helmets),
-        Codec.STRING.listOf().fieldOf("tags").forGetter(g -> g.tags))
+        WeightedItemStack.LIST_CODEC.optionalFieldOf("mainhands", Collections.emptyList()).forGetter(GearSet::mainhands),
+        WeightedItemStack.LIST_CODEC.optionalFieldOf("offhands", Collections.emptyList()).forGetter(GearSet::offhands),
+        WeightedItemStack.LIST_CODEC.optionalFieldOf("boots", Collections.emptyList()).forGetter(GearSet::boots),
+        WeightedItemStack.LIST_CODEC.optionalFieldOf("leggings", Collections.emptyList()).forGetter(GearSet::leggings),
+        WeightedItemStack.LIST_CODEC.optionalFieldOf("chestplates", Collections.emptyList()).forGetter(GearSet::chestplates),
+        WeightedItemStack.LIST_CODEC.optionalFieldOf("helmets", Collections.emptyList()).forGetter(GearSet::helmets),
+        PlaceboCodecs.setOf(Codec.STRING).fieldOf("tags").forGetter(GearSet::tags))
         .apply(inst, GearSet::new));
 
     @Override
@@ -105,4 +108,5 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
         }
 
     }
+
 }
