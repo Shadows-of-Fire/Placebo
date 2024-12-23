@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.ApiStatus;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 import dev.shadowsoffire.placebo.Placebo;
@@ -25,6 +26,7 @@ import dev.shadowsoffire.placebo.menu.MenuUtil;
 import dev.shadowsoffire.placebo.menu.MenuUtil.PosFactory;
 import dev.shadowsoffire.placebo.util.DeferredSet;
 import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -507,6 +509,15 @@ public class DeferredHelper {
     public <T extends CriterionTrigger<?>> T criteriaTrigger(String path, T trigger) {
         this.register(path, Registries.TRIGGER_TYPE, () -> trigger);
         return trigger;
+    }
+
+    /**
+     * Registers an {@link ItemSubPredicate.Type} and returns it.
+     */
+    public <T extends ItemSubPredicate> ItemSubPredicate.Type<T> itemSubPredicate(String path, Codec<T> codec) {
+        ItemSubPredicate.Type<T> type = new ItemSubPredicate.Type<>(codec);
+        this.register(path, Registries.ITEM_SUB_PREDICATE_TYPE, () -> type);
+        return type;
     }
 
     /**
