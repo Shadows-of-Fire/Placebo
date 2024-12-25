@@ -1,3 +1,13 @@
+## 9.6.0
+* Added many new helpers to `DeferredHelper`.
+* Made `LegacyRecipeProvider#recipeOutput` protected.
+* Added the `DrawsOnLeft` interface from Apotheosis, which allows for rendering a component tooltip aligned to the left edge of a container screen.
+* Deprecated the use of auto-generated ids in `RandomAttributeModifier`.
+* Added datagen support for `DynamicRegistry` objects.
+* Added `StepFunction.fromBounds` and changed the default representation to the min/max/step form (instead of min/steps/step).
+* Fixed a logical bug in `EnchantmentUtils.getExperience` which could cause it to report double the intended value.
+* Made GearSet#tags a Set instead of a List.
+
 ## 9.5.4
 * Added `PlaceboContainerMenu#clearContainer(Player, IItemHandler)`.
 * Added back `GearSetRegistry#getRandomSet`.
