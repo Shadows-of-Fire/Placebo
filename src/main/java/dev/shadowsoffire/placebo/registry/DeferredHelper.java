@@ -69,6 +69,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplier;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -517,6 +519,15 @@ public class DeferredHelper {
     public <T extends ItemSubPredicate> ItemSubPredicate.Type<T> itemSubPredicate(String path, Codec<T> codec) {
         ItemSubPredicate.Type<T> type = new ItemSubPredicate.Type<>(codec);
         this.register(path, Registries.ITEM_SUB_PREDICATE_TYPE, () -> type);
+        return type;
+    }
+
+    /**
+     * Registers a {@link StructureProcessorType} and returns it.
+     */
+    public <T extends StructureProcessor> StructureProcessorType<T> structureProcessor(String path, MapCodec<T> codec) {
+        StructureProcessorType<T> type = () -> codec;
+        this.register(path, Registries.STRUCTURE_PROCESSOR, () -> type);
         return type;
     }
 
