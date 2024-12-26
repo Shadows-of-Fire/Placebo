@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 
 import dev.shadowsoffire.placebo.Placebo;
@@ -450,7 +451,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
         target.accept(new ReloadListenerPayloads.Start(this.path));
         this.registry.forEach((k, v) -> {
-            target.accept(new ReloadListenerPayloads.Content<>(this.path, k, v));
+            target.accept(new ReloadListenerPayloads.Content<>(this.path, k, Either.left(v)));
         });
         target.accept(new ReloadListenerPayloads.End(this.path));
     }
