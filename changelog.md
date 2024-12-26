@@ -1,3 +1,6 @@
+## 9.6.1
+* Fixed a race condition in Dynamic Registry sync that could cause objects to fail to deserialize.
+
 ## 9.6.0
 * Added many new helpers to `DeferredHelper`.
 * Made `LegacyRecipeProvider#recipeOutput` protected.
