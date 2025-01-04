@@ -1,3 +1,8 @@
+## 9.6.2
+* Changed the `BiMap` implementation used by `DynamicRegistry` to a custom one which uses `IdentityHashMap` for the inverse.
+  * This fixes issues where mutable registry objects are unable to resolve their keys (not that registry objects should be mutable, but having this issue present is often worse).
+* Added a builder for `BasicWandererTrade`.
+
 ## 9.6.1
 * Fixed a race condition in Dynamic Registry sync that could cause objects to fail to deserialize.
 
