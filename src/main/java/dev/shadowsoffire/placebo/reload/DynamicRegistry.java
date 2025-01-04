@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.Maps;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -164,7 +165,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      */
     protected void beginReload() {
         this.callbacks.forEach(l -> l.beginReload(this));
-        this.registry = HashBiMap.create();
+        this.registry = new DynRegBiMap<>();
         this.holders.values().forEach(DynamicHolder::unbind);
     }
 
@@ -173,7 +174,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * Should handle any info logging, and data immutability.
      */
     protected void onReload() {
-        this.registry = ImmutableBiMap.copyOf(this.registry);
+        this.registry = Maps.unmodifiableBiMap(this.registry);
         this.logger.info("Registered {} {}.", this.registry.size(), this.path);
         this.callbacks.forEach(l -> l.onReload(this));
         this.holders.values().forEach(DynamicHolder::bind);
