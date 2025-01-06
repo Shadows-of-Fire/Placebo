@@ -1,3 +1,7 @@
+## 9.6.3
+* Extended `DrawsOnLeft` to work with `List<? extends FormattedText` instead of `List<Component>`.
+  * Thanks to type erasure™ this isn't binary breaking.
+
 ## 9.6.2
 * Changed the `BiMap` implementation used by `DynamicRegistry` to a custom one which uses `IdentityHashMap` for the inverse.
   * This fixes issues where mutable registry objects are unable to resolve their keys (not that registry objects should be mutable, but having this issue present is often worse).
