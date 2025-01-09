@@ -6,6 +6,10 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
+/**
+ * @deprecated See {@link TickableTextList} as a replacement to individual uses of this class.
+ */
+@Deprecated(forRemoval = true, since = "9.6.4")
 public class TickableText {
 
     protected int ticks = 0;
