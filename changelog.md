@@ -1,3 +1,6 @@
+## 9.6.4
+* Added `TickableTextList`, a replacement for `TickableText` with full support for Minecraft text components and styles.
+
 ## 9.6.3
 * Extended `DrawsOnLeft` to work with `List<? extends FormattedText` instead of `List<Component>`.
   * Thanks to type erasure™ this isn't binary breaking.
