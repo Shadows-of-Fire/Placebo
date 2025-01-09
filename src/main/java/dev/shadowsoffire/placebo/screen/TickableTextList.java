@@ -28,6 +28,7 @@ public class TickableTextList {
     protected int ticks;
     protected int maxWidth;
     protected int lineSpacing;
+    protected int width = 0;
 
     /**
      * Creates a new tickable text list with the given font and specified max width.
@@ -50,6 +51,16 @@ public class TickableTextList {
      */
     public void addLine(FormattedText text, float tickRate) {
         this.texts.add(new TickableText(text, Math.max(0.01F, tickRate)));
+        this.width = this.computeWidth();
+    }
+
+    /**
+     * Adds a line of text with the default tick rate of 1.
+     * 
+     * @see #addLine(FormattedText, float)
+     */
+    public void addLine(FormattedText text) {
+        this.addLine(text, 1);
     }
 
     /**
@@ -70,6 +81,20 @@ public class TickableTextList {
             TickableText last = texts.removeLast();
             this.addLine(FormattedText.composite(last.text, text), tickRate);
         }
+    }
+
+    /**
+     * Sets the line of text for the specified index in the internal list.
+     * 
+     * @param index    The list index to set.
+     * @param text     The new text line.
+     * @param tickRate The new tick rate.
+     * @see #addLine(FormattedText, float)
+     * @throws IndexOutOfBoundsException if the index is out of range.
+     */
+    public void setLine(int index, FormattedText text, float tickRate) {
+        this.texts.set(index, new TickableText(text, Math.max(0.01F, tickRate)));
+        this.width = this.computeWidth();
     }
 
     /**
@@ -147,10 +172,33 @@ public class TickableTextList {
     }
 
     /**
+     * Returns the current line spacing. The line spacing is the number of vertical pixels incremented for each line drawn.
+     */
+    public int getLineSpacing() {
+        return lineSpacing;
+    }
+
+    /**
+     * Sets the line spacing.
+     */
+    public void setLineSpacing(int lineSpacing) {
+        this.lineSpacing = lineSpacing;
+    }
+
+    /**
      * Ticks the entire list. Each tick will usually show an additional character, depending on the tick rate of the line.
      */
     public void tick() {
         this.ticks++;
+    }
+
+    /**
+     * Returns the maximum width of this text list based on the current contents.
+     * <p>
+     * The returned value will never be larger than {@link #getMaxWidth()}.
+     */
+    public int getWidth() {
+        return this.width;
     }
 
     /**
@@ -160,6 +208,17 @@ public class TickableTextList {
      */
     private FormattedCharSequence wrap(FormattedCharSequence text, float tickRate, MutableFloat timeLeft) {
         return sink -> text.accept(new TimeLimitedCharSink(sink, tickRate, timeLeft));
+    }
+
+    /**
+     * Calculates the current width. See {@link #getWidth()}.
+     */
+    private int computeWidth() {
+        int width = 0;
+        for (TickableText text : this.texts) {
+            width = Math.clamp(this.font.width(text.text), width, maxWidth);
+        }
+        return width;
     }
 
     private record TickableText(FormattedText text, float tickRate) {}
