@@ -71,7 +71,7 @@ public class PlaceboTaskQueue {
         @Override
         public Status execute() {
             if (delay-- > 0) {
-                return Status.COMPLETED;
+                return Status.RUNNING;
             }
             return this.task.execute();
         }
