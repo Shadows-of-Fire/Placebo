@@ -22,7 +22,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.neoforged.bus.EventBus;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
@@ -49,7 +48,7 @@ public class Placebo {
         TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
         bus.addListener(TabFillingRegistry::fillTabs);
         bus.register(new PayloadHelper());
-        ((EventBus) NeoForge.EVENT_BUS).start();
+        NeoForge.EVENT_BUS.start(); // Startup the Neo bus as an experiment to see what kinds of things this breaks. We may do this in Neo at some point.
         PlaceboConfig.load();
     }
 
