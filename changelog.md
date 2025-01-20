@@ -1,3 +1,7 @@
+## 9.6.5
+* Fixed a crash when used with SpongeNeo.
+* leafy: Fixed an issue that caused `DelayedTask` immediately exit.
+
 ## 9.6.4
 * Added `TickableTextList`, a replacement for `TickableText` with full support for Minecraft text components and styles.
 
