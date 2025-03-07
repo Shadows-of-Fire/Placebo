@@ -50,19 +50,22 @@ public class PatreonUtils {
 	}
 
 	public static enum WingType {
-		ANGEL(() -> Wing.INSTANCE, wingTex("angel"), -0.5),
+		ANGEL(() -> Wing.INSTANCE, wingTex("angel"), -0.7),
 		ARMORED(() -> Wing.INSTANCE, wingTex("armored"), -0.7),
-		BAT(() -> Wing.INSTANCE, wingTex("bat"), -0.7),
+		BAT(() -> Wing.INSTANCE, wingTex("bat"), -0.85),
 		BLAZE(() -> Wing.INSTANCE, wingTex("blaze"), -0.73),
 		BONE(() -> Wing.INSTANCE, wingTex("bone"), -1),
+		BRANCH(() -> Wing.INSTANCE, wingTex("branch"), -1.05),
 		CLOUD(() -> Wing.INSTANCE, wingTex("cloud"), -1),
 		DEMON(() -> Wing.INSTANCE, wingTex("demon"), -0.55),
 		FAIRY(() -> Wing.INSTANCE, wingTex("fairy"), -0.85),
 		FLY(() -> Wing.INSTANCE, wingTex("fly"), -0.58, 6),
+		LACEWING(() -> Wing.INSTANCE, wingTex("lacewing"), -0.60, 6),
 		MECHANICAL(() -> Wing.INSTANCE, wingTex("mechanical"), -0.75),
-		MONARCH(() -> Wing.INSTANCE, wingTex("monarch"), -0.85),
-		PIXIE(() -> Wing.INSTANCE, wingTex("pixie"), -0.65),
-		SPOOKY(() -> Wing.INSTANCE, wingTex("spooky"), -0.65);
+		MONARCH(() -> Wing.INSTANCE, wingTex("monarch"), -0.9),
+		PIXIE(() -> Wing.INSTANCE, wingTex("pixie"), -0.8),
+		SPACE(() -> Wing.INSTANCE, wingTex("space"), -0.55),
+		SPOOKY(() -> Wing.INSTANCE, wingTex("spooky"), -0.8);
 
 		public final Supplier<IWingModel> model;
 		public final Function<Player, ResourceLocation> textureGetter;
