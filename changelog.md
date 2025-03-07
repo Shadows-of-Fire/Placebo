@@ -1,3 +1,6 @@
+## 7.4.1
+* Updated Supporter Wing Textures to match Placebo 9.7.0.
+
 ## 7.4.0
 * Cadentem: Partial backport of 1.20.1 changes necessary to support Apotheosis 6.5.0
 
