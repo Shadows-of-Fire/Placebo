@@ -1,3 +1,7 @@
+## 9.7.0
+* Updated all Supporter Wing textures and added a few new wing types.
+* Added `DeferredHelper` methods for creating Registries and Data Maps.
+
 ## 9.6.5
 * Fixed a crash when used with SpongeNeo.
 * leafy: Fixed an issue that caused `DelayedTask` immediately exit.
