@@ -1,3 +1,6 @@
+## 8.6.3
+* Updated Supporter Wing Textures to match Placebo 9.7.0.
+
 ## 8.6.2
 * Made `QuickMoveHandler` respect `Slot#mayPickup` and call `Slot#onTake` when a slot is updated.
 
