@@ -82,13 +82,18 @@ import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
+import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import net.neoforged.neoforge.registries.RegistryBuilder;
+import net.neoforged.neoforge.registries.datamaps.DataMapType;
+import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 /**
  * Helper class that acts as a single point of entry for deferred registration of all registry entries.
@@ -98,6 +103,18 @@ import net.neoforged.neoforge.registries.RegisterEvent;
  * Registration factories will only be invoked during registration for the target registry, using the same semantics of {@link DeferredRegister}.
  */
 public class DeferredHelper {
+
+    /**
+     * Fake resource key for the root registry, used to hold {@link Registry registries} in {@link #objects} until the {@link NewRegistryEvent}.
+     */
+    protected static final ResourceKey<? extends Registry<?>> ROOT_REGISTRY_KEY = ResourceKey.createRegistryKey(Registries.ROOT_REGISTRY_NAME);
+
+    /**
+     * Fake resource key for data map types, used to hold {@link DataMapType}(s) in {@link #objects} until the {@link RegisterDataMapTypesEvent}.
+     * 
+     * @apiNote This does not point to a real registry! Do not use this key to construct ResourceKey(s).
+     */
+    protected static final ResourceKey<Registry<DataMapType<?, ?>>> DATA_MAP_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(NeoForgeVersion.MOD_ID, "data_map_type"));
 
     protected final String modid;
     protected final Map<ResourceKey<? extends Registry<?>>, List<Registrar<?>>> objects;
@@ -117,6 +134,22 @@ public class DeferredHelper {
         this.modid = modid;
         this.objects = new IdentityHashMap<>();
         this.resolvedObjects = new IdentityHashMap<>();
+    }
+
+    /**
+     * Creates and returns a {@link Registry} in the current {@link #modid} with the given {@code registryPath}.
+     * <p>
+     * The registry will be automatically registered to the root registry during the {@link NewRegistryEvent}.
+     * 
+     * @param registryPath The path of the resource location for the new registry.
+     * @param config       A registry builder config.
+     * @return The newly created registry.
+     */
+    public <T> Registry<T> registry(String registryPath, UnaryOperator<RegistryBuilder<T>> config) {
+        ResourceKey<? extends Registry<T>> registryKey = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(this.modid, registryPath));
+        Registry<T> registry = config.apply(new RegistryBuilder<>(registryKey)).create();
+        this.registerRegistry(registryKey, registry);
+        return registry;
     }
 
     /**
@@ -532,10 +565,42 @@ public class DeferredHelper {
     }
 
     /**
+     * Creates and returns a {@link DataMapType} for the {@code targetRegistry}.
+     * <p>
+     * The data map type will be automatically registered during the {@link RegisterDataMapTypesEvent}.
+     * 
+     * @param <K>            The key type of the data map, which is also the type of the target registry.
+     * @param <V>            The value type of the data map.
+     * @param path           The path of the resource location for the data map type. The map will always use the {@link #modid} as the namespace.
+     * @param targetRegistry The registry that the data map is for.
+     * @param codec          The codec used to de/serialize the data map objects.
+     * @param config         A builder config used to specify other values.
+     * @return The newly created data map type.
+     */
+    @SuppressWarnings("unchecked") // DataMapType has a bug in that it expects ResourceKey<Registry<K>> instead of ? extends Registry.
+    public <K, V> DataMapType<K, V> dataMap(String path, ResourceKey<? extends Registry<K>> targetRegistry, Codec<V> codec, UnaryOperator<DataMapType.Builder<V, K>> config) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
+        ResourceKey<? extends DataMapType<?, ?>> registryKey = ResourceKey.create(DATA_MAP_KEY, id);
+        DataMapType<K, V> dataMapType = config.apply(DataMapType.builder(id, (ResourceKey<Registry<K>>) targetRegistry, codec)).build();
+        this.registerDataMap(registryKey, dataMapType);
+        return dataMapType;
+    }
+
+    /**
      * Registers a custom object to the target registry using a supplier.
      */
-    public <R, T extends R> DeferredHolder<R, T> custom(String path, ResourceKey<Registry<R>> registry, Supplier<T> factory) {
+    public <R, T extends R> DeferredHolder<R, T> custom(String path, ResourceKey<? extends Registry<R>> registry, Supplier<T> factory) {
         return this.registerDH(path, registry, factory);
+    }
+
+    /**
+     * Stages a custom object for registration to the target registry.
+     * <p>
+     * This method should be preferred over {@link #custom(String, ResourceKey, Supplier)} when the object's creation does not need to be deferred.
+     */
+    public <R, T extends R> T custom(String path, ResourceKey<? extends Registry<R>> registry, T object) {
+        this.register(path, registry, () -> object);
+        return object;
     }
 
     /**
@@ -552,7 +617,7 @@ public class DeferredHelper {
     /**
      * Stages the supplier for registration without creating a {@link DeferredHolder}.
      */
-    protected <R, T extends R> void register(String path, ResourceKey<Registry<R>> regKey, Supplier<T> factory) {
+    protected <R, T extends R> void register(String path, ResourceKey<? extends Registry<R>> regKey, Supplier<T> factory) {
         List<Registrar<?>> registrars = this.objects.computeIfAbsent(regKey, k -> new ArrayList<>());
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
         registrars.add(new Registrar<>(id, factory));
@@ -561,9 +626,27 @@ public class DeferredHelper {
     /**
      * Stages the supplier for registration and creates a {@link DeferredHolder} pointing to it.
      */
-    protected <R, T extends R> DeferredHolder<R, T> registerDH(String path, ResourceKey<Registry<R>> regKey, Supplier<T> factory) {
+    protected <R, T extends R> DeferredHolder<R, T> registerDH(String path, ResourceKey<? extends Registry<R>> regKey, Supplier<T> factory) {
         this.register(path, regKey, factory);
         return DeferredHolder.create(regKey, ResourceLocation.fromNamespaceAndPath(this.modid, path));
+    }
+
+    /**
+     * Stages a registry for registration during the {@link NewRegistryEvent}.
+     */
+    protected <T> void registerRegistry(ResourceKey<? extends Registry<T>> key, Registry<T> registry) {
+        List<Registrar<?>> registrars = this.objects.computeIfAbsent(ROOT_REGISTRY_KEY, k -> new ArrayList<>());
+        ResourceLocation id = key.location();
+        registrars.add(new Registrar<>(id, () -> registry));
+    }
+
+    /**
+     * Stages a data map for registration during the {@link RegisterDataMapTypesEvent}.
+     */
+    protected <K, V> void registerDataMap(ResourceKey<? extends DataMapType<?, ?>> key, DataMapType<K, V> type) {
+        List<Registrar<?>> registrars = this.objects.computeIfAbsent(DATA_MAP_KEY, k -> new ArrayList<>());
+        ResourceLocation id = key.location();
+        registrars.add(new Registrar<>(id, () -> type));
     }
 
     @SubscribeEvent
@@ -582,6 +665,36 @@ public class DeferredHelper {
             }
         }
         this.objects.remove(e.getRegistryKey());
+    }
+
+    @SubscribeEvent
+    public void registerRegistries(NewRegistryEvent e) {
+        for (Registrar<?> registrar : this.objects.getOrDefault(ROOT_REGISTRY_KEY, Collections.emptyList())) {
+            try {
+                Registry<?> obj = (Registry<?>) registrar.factory.get();
+                e.register(obj);
+            }
+            catch (Throwable ex) {
+                Placebo.LOGGER.error("Exception thrown during registration of registry {}", registrar.id);
+                throw ex;
+            }
+        }
+        this.objects.remove(ROOT_REGISTRY_KEY);
+    }
+
+    @SubscribeEvent
+    public void registerDataMaps(RegisterDataMapTypesEvent e) {
+        for (Registrar<?> registrar : this.objects.getOrDefault(DATA_MAP_KEY, Collections.emptyList())) {
+            try {
+                DataMapType<?, ?> obj = (DataMapType<?, ?>) registrar.factory.get();
+                e.register(obj);
+            }
+            catch (Throwable ex) {
+                Placebo.LOGGER.error("Exception thrown during registration of data map type {}", registrar.id);
+                throw ex;
+            }
+        }
+        this.objects.remove(DATA_MAP_KEY);
     }
 
     /**
