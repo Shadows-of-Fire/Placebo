@@ -1,3 +1,7 @@
+## 9.7.1
+* Fixed trail particles spawning in while the game was paused, which caused a backlog of particles to spawn when unpaused.
+* Added `DynamicRegistryProvider.runSilently` to allow running datagen of dependencies without generating files.
+
 ## 9.7.0
 * Updated all Supporter Wing textures and added a few new wing types.
 * Added `DeferredHelper` methods for creating Registries and Data Maps.
