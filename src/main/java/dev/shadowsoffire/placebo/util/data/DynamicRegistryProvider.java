@@ -12,6 +12,8 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
+import dev.shadowsoffire.placebo.datagen.DataGenBuilder;
+import dev.shadowsoffire.placebo.datagen.DataGenBuilder.DataProviderFactory;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry;
 import dev.shadowsoffire.placebo.reload.DynamicRegistry.DataGenPopulator;
 import net.minecraft.core.HolderLookup;
@@ -35,6 +37,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
 
     private CachedOutput cachedOutput;
     private DataGenPopulator<R> populator;
+    boolean skipGeneration = false;
 
     /**
      * Creates a new provider. Subclasses should create a public constructor that inlines the registry parameter.
@@ -78,10 +81,12 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      */
     protected final void add(ResourceLocation id, R object) {
         this.populator.register(id, object);
-        this.futures.add(this.lookupProvider.thenCompose(regs -> {
-            DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
-            return DataProvider.saveStable(this.cachedOutput, this.registry.elementCodec().encodeStart(ops, object).getOrThrow(), this.pathProvider.json(id));
-        }));
+        if (!this.skipGeneration) {
+            this.futures.add(this.lookupProvider.thenCompose(regs -> {
+                DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
+                return DataProvider.saveStable(this.cachedOutput, this.registry.elementCodec().encodeStart(ops, object).getOrThrow(), this.pathProvider.json(id));
+            }));
+        }
     }
 
     /**
@@ -94,11 +99,13 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     protected final void addConditionally(ResourceLocation id, R object, ICondition... conditions) {
         this.populator.register(id, object);
         Codec<Optional<WithConditions<R>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<R>createConditionalCodecWithConditions(this.registry.elementCodec());
-        this.futures.add(this.lookupProvider.thenCompose(regs -> {
-            DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
-            Optional<WithConditions<R>> withConds = Optional.of(new WithConditions<>(Arrays.asList(conditions), object));
-            return DataProvider.saveStable(this.cachedOutput, conditionalCodec.encodeStart(ops, withConds).getOrThrow(), this.pathProvider.json(id));
-        }));
+        if (!this.skipGeneration) {
+            this.futures.add(this.lookupProvider.thenCompose(regs -> {
+                DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);
+                Optional<WithConditions<R>> withConds = Optional.of(new WithConditions<>(Arrays.asList(conditions), object));
+                return DataProvider.saveStable(this.cachedOutput, conditionalCodec.encodeStart(ops, withConds).getOrThrow(), this.pathProvider.json(id));
+            }));
+        }
     }
 
     /**
@@ -107,5 +114,24 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * Use {@link #add(ResourceLocation, CodecProvider)} to supply items.
      */
     public abstract void generate();
+
+    /**
+     * Binds a {@link DynamicRegistryProvider} in a way that ensures it will run "silently" and not generate any files.
+     * <p>
+     * This can be used by mods who need to generate dynamic registry entries from a dependency, but do not want to generate any files themselves.
+     * Provided you have access to the datagen code for said dependency, anyway.
+     * 
+     * @param <R>     The registry type of the provider
+     * @param <T>     The provider type
+     * @param factory A method reference to the provider's constructor.
+     * @return A re-bound factory that will skip generation. This can be passed to {@link DataGenBuilder#provider(DataProviderFactory)}.
+     */
+    public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProviderFactory<T> factory) {
+        return (output, registries, fileHelper) -> {
+            T provider = factory.create(output, registries, fileHelper);
+            provider.skipGeneration = true;
+            return provider;
+        };
+    }
 
 }
