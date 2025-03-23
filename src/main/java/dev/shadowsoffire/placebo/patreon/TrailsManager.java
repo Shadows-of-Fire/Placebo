@@ -70,7 +70,7 @@ public class TrailsManager {
     @SubscribeEvent
     public static void clientTick(ClientTickEvent.Post e) {
         PatreonParticleType t = null;
-        if (Minecraft.getInstance().level != null) {
+        if (Minecraft.getInstance().level != null && !Minecraft.getInstance().isPaused()) {
             for (Player player : Minecraft.getInstance().level.players()) {
                 if (!player.isInvisible() && player.tickCount * 3 % 2 == 0 && !DISABLED.contains(player.getUUID()) && (t = TRAILS.get(player.getUUID())) != null) {
                     ClientLevel world = (ClientLevel) player.level();
