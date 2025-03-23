@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
@@ -129,6 +130,22 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProviderFactory<T> factory) {
         return (output, registries, fileHelper) -> {
             T provider = factory.create(output, registries, fileHelper);
+            provider.skipGeneration = true;
+            return provider;
+        };
+    }
+
+    public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
+        return (output, registries, fileHelper) -> {
+            T provider = factory.apply(output, registries);
+            provider.skipGeneration = true;
+            return provider;
+        };
+    }
+
+    public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProvider.Factory<T> factory) {
+        return (output, registries, fileHelper) -> {
+            T provider = factory.create(output);
             provider.skipGeneration = true;
             return provider;
         };

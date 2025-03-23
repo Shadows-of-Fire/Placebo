@@ -593,12 +593,14 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         }
 
         private DataGenPopulator<R> start() {
+            BiMap<ResourceLocation, R> old = registry.registry;
             registry.beginReload();
+            old.forEach(this::register);
             return this;
         }
 
         public DataGenPopulator<R> register(ResourceLocation id, R object) {
-            registry.register(id, object);
+            registry.registry.put(id, object);
             return this;
         }
 
