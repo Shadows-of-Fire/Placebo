@@ -60,6 +60,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  *
  * @param <R> The base type of objects stored in this registry.
  */
+// TODO: Drop the CodecProvider requirement from this class and bind it to a subclass. Objects without subtypes do not need CodecProvider.
 public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimpleJsonResourceReloadListener {
 
     protected final Logger logger;

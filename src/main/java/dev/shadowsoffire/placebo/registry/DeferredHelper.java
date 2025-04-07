@@ -331,30 +331,33 @@ public class DeferredHelper {
     /**
      * Registers a {@link SimpleParticleType}.
      */
-    public DeferredHolder<ParticleType<?>, SimpleParticleType> simpleParticle(String path, boolean overrideLimit) {
-        return this.particle(path, () -> new SimpleParticleType(overrideLimit));
+    public SimpleParticleType simpleParticle(String path, boolean overrideLimit) {
+        var type = new SimpleParticleType(overrideLimit);
+        this.register(path, Registries.PARTICLE_TYPE, () -> type);
+        return type;
     }
 
     /**
      * Registers a {@link ParticleType} with custom serialization. Both the codec and stream codec must be provided.
      */
-    public <T extends ParticleOptions> DeferredHolder<ParticleType<?>, ParticleType<T>> particle(String path, boolean overrideLimit, Function<ParticleType<T>, MapCodec<T>> codec,
+    public <T extends ParticleOptions> ParticleType<T> particle(String path, boolean overrideLimit, Function<ParticleType<T>, MapCodec<T>> codec,
         Function<ParticleType<T>, StreamCodec<? super RegistryFriendlyByteBuf, T>> streamCodec) {
-        return this.particle(path, () -> {
-            return new ParticleType<T>(overrideLimit){
+        var type = new ParticleType<T>(overrideLimit){
 
-                @Override
-                public MapCodec<T> codec() {
-                    return codec.apply(this);
-                }
+            @Override
+            public MapCodec<T> codec() {
+                return codec.apply(this);
+            }
 
-                @Override
-                public StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
-                    return streamCodec.apply(this);
-                }
+            @Override
+            public StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec() {
+                return streamCodec.apply(this);
+            }
 
-            };
-        });
+        };
+
+        this.register(path, Registries.PARTICLE_TYPE, () -> type);
+        return type;
     }
 
     /**
