@@ -1,16 +1,22 @@
 package dev.shadowsoffire.placebo.util;
 
-import java.util.Locale;
+import java.util.Arrays;
 import java.util.function.IntFunction;
 
+import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.config.Configuration;
+import dev.shadowsoffire.placebo.config.Property;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
@@ -71,14 +77,35 @@ public record Offset(AnchorPoint anchor, int x, int y) {
      * 
      * @param key   The configuration key for the offset.
      * @param group The configuration group for the offset.
-     * @param def   The default anchor point for the offset.
+     * @param def   The default offset value.
      * @param cfg   The configuration to load the offset from.
      */
-    public static Offset load(String key, String group, AnchorPoint def, Configuration cfg) {
-        AnchorPoint anchor = AnchorPoint.parse(cfg.getString(key + " Anchor Point", group, def.toString().toLowerCase(Locale.ROOT), "The anchor point for this element."));
-        int x = cfg.getInt(key + " X Offset", group, 0, -1000, 1000, "The X offset for this element.");
-        int y = cfg.getInt(key + " Y Offset", group, 0, -1000, 1000, "The Y Offset for this element.");
+    public static Offset load(String key, String group, Offset def, Configuration cfg) {
+        AnchorPoint anchor = AnchorPoint.parse(cfg.getString(key + " Anchor Point", group, def.anchor.getSerializedName(), "The anchor point for this element."));
+        int x = cfg.getInt(key + " X Offset", group, def.x, -1000, 1000, "The X offset for this element.");
+        int y = cfg.getInt(key + " Y Offset", group, def.y, -1000, 1000, "The Y Offset for this element.");
         return new Offset(anchor, x, y);
+    }
+
+    /**
+     * Writes an offset to the given configuration.
+     * 
+     * @param key    The configuration key for the offset.
+     * @param group  The configuration group for the offset.
+     * @param offset The offset to write.
+     * @param cfg    The configuration to write the offset to. The configuration will be saved after writing.
+     */
+    public static void save(String key, String group, Offset offset, Configuration cfg) {
+        Property anchorProp = cfg.get(group, key + " Anchor Point", "");
+        anchorProp.setValue(offset.anchor.getSerializedName());
+
+        Property xProp = cfg.get(group, key + " X Offset", 0);
+        xProp.setValue(offset.x);
+
+        Property yProp = cfg.get(group, key + " Y Offset", 0);
+        yProp.setValue(offset.y);
+
+        cfg.save();
     }
 
     public static record Box(int width, int height) {}
@@ -97,6 +124,9 @@ public record Offset(AnchorPoint anchor, int x, int y) {
         public static final IntFunction<AnchorPoint> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
         public static final Codec<AnchorPoint> CODEC = StringRepresentable.fromValues(AnchorPoint::values);
         public static final StreamCodec<ByteBuf, AnchorPoint> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, Enum::ordinal);
+
+        public static final SuggestionProvider<CommandSourceStack> SUGGEST_ANCHOR_POINT = (ctx, builder) -> SharedSuggestionProvider.suggest(
+            Arrays.stream(AnchorPoint.values()).map(StringRepresentable::getSerializedName), builder);
 
         private final String name;
         private final Int2IntFunction xPos;
@@ -123,7 +153,7 @@ public record Offset(AnchorPoint anchor, int x, int y) {
 
         public static AnchorPoint parse(String s) {
             try {
-                return AnchorPoint.valueOf(s.toUpperCase(Locale.ROOT));
+                return CODEC.decode(JsonOps.INSTANCE, new JsonPrimitive(s)).getOrThrow().getFirst();
             }
             catch (Exception ex) {
                 Placebo.LOGGER.error("Failed to parse invalid Anchor Point {}", s);
