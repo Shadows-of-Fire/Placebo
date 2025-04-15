@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
 import com.google.common.collect.BiMap;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 
 import net.minecraft.resources.ResourceLocation;
 
@@ -62,23 +60,12 @@ public class PlaceboCodecs {
      * Creates an enum codec using the lowercase name of the enum values as the keys.
      */
     public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> clazz) {
-        return stringResolverCodec(e -> e.name().toLowerCase(Locale.ROOT), name -> Enum.valueOf(clazz, name.toUpperCase(Locale.ROOT)));
+        return Codec.stringResolver(e -> e.name().toLowerCase(Locale.ROOT), name -> Enum.valueOf(clazz, name.toUpperCase(Locale.ROOT)));
     }
 
-    public static <E> Codec<E> stringResolverCodec(Function<E, String> p_184406_, Function<String, E> p_184407_) {
-        return Codec.STRING.flatXmap((p_184404_) -> {
-            return Optional.ofNullable(p_184407_.apply(p_184404_)).map(DataResult::success).orElseGet(() -> {
-                return DataResult.error(() -> {
-                    return "Unknown element name:" + p_184404_;
-                });
-            });
-        }, (p_184401_) -> {
-            return Optional.ofNullable(p_184406_.apply(p_184401_)).map(DataResult::success).orElseGet(() -> {
-                return DataResult.error(() -> {
-                    return "Element with unknown name: " + p_184401_;
-                });
-            });
-        });
+    @Deprecated
+    public static <E> Codec<E> stringResolverCodec(Function<E, String> to, Function<String, E> from) {
+        return Codec.stringResolver(to, from);
     }
 
 }
