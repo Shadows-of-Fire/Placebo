@@ -1,3 +1,9 @@
+## 9.8.0
+* Updated `DeferredHelper` particle methods to be direct instantiation instead of using `DeferredHolder`.
+* Added `/placebo get_dimension_type` to report the dimension type of the current dimension.
+  * The dimension type is different from the dimension itself, and can be otherwise hard to figure out.
+* Added the `Offset` class, a utility for specifying configurable positions in GUI space.
+
 ## 9.7.1
 * Fixed trail particles spawning in while the game was paused, which caused a backlog of particles to spawn when unpaused.
 * Added `DynamicRegistryProvider.runSilently` to allow running datagen of dependencies without generating files.
