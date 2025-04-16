@@ -3,6 +3,7 @@
 * Added `/placebo get_dimension_type` to report the dimension type of the current dimension.
   * The dimension type is different from the dimension itself, and can be otherwise hard to figure out.
 * Added the `Offset` class, a utility for specifying configurable positions in GUI space.
+* Added `PlaceboClient.getTooltipScrollIndex` and `SpecialTooltipItem` to handle scroll-wheel interactions with tooltips.
 
 ## 9.7.1
 * Fixed trail particles spawning in while the game was paused, which caused a backlog of particles to spawn when unpaused.
