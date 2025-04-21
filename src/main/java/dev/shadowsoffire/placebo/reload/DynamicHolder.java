@@ -101,6 +101,11 @@ public class DynamicHolder<R extends CodecProvider<? super R>> implements Suppli
         return Objects.hash(this.id, this.registry);
     }
 
+    @Override
+    public String toString() {
+        return "DynamicHolder{%s / %s}".formatted(this.registry == null ? "null" : this.registry.getPath(), this.id);
+    }
+
     /**
      * Binds this DynamicRegistryObject to the value stored in the registry.<br>
      * Does nothing if already bound.
