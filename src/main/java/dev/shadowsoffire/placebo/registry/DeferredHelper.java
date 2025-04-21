@@ -8,12 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -442,12 +444,12 @@ public class DeferredHelper {
      *
      * @see Stats#makeCustomStat
      */
-    public Holder<ResourceLocation> customStat(String path, StatFormatter formatter) {
-        return this.registerDH(path, Registries.CUSTOM_STAT, () -> {
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
-            Stats.CUSTOM.get(id, formatter);
-            return id;
+    public ResourceLocation customStat(String path, StatFormatter formatter) {
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
+        this.register(path, Registries.CUSTOM_STAT, () -> id, key -> {
+            Stats.CUSTOM.get(key, formatter);
         });
+        return id;
     }
 
     /**
@@ -632,10 +634,17 @@ public class DeferredHelper {
     /**
      * Stages the supplier for registration without creating a {@link DeferredHolder}.
      */
-    protected <R, T extends R> void register(String path, ResourceKey<? extends Registry<R>> regKey, Supplier<T> factory) {
+    protected <R, T extends R> void register(String path, ResourceKey<? extends Registry<R>> regKey, Supplier<T> factory, @Nullable Consumer<T> callback) {
         List<Registrar<?>> registrars = this.objects.computeIfAbsent(regKey, k -> new ArrayList<>());
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
-        registrars.add(new Registrar<>(id, factory));
+        registrars.add(new Registrar<>(id, factory, callback));
+    }
+
+    /**
+     * Stages the supplier for registration without creating a {@link DeferredHolder}.
+     */
+    protected <R, T extends R> void register(String path, ResourceKey<? extends Registry<R>> regKey, Supplier<T> factory) {
+        this.register(path, regKey, factory, null);
     }
 
     /**
@@ -673,6 +682,9 @@ public class DeferredHelper {
                 Object obj = registrar.factory.get();
                 Registry.register(registry, registrar.id, obj);
                 this.resolvedObjects.computeIfAbsent(e.getRegistryKey(), k -> new ArrayList<>()).add(registry.wrapAsHolder(obj));
+                if (registrar.callback != null) {
+                    ((Registrar) registrar).callback.accept(obj);
+                }
             }
             catch (Throwable ex) {
                 Placebo.LOGGER.error("Exception thrown during registration of {}", registrar.id);
@@ -720,8 +732,10 @@ public class DeferredHelper {
         ((MappedRegistry<BlockEntityType<?>>) BuiltInRegistries.BLOCK_ENTITY_TYPE).unfreeze();
     }
 
-    protected static record Registrar<T>(ResourceLocation id, Supplier<T> factory) {
-
+    protected static record Registrar<T>(ResourceLocation id, Supplier<T> factory, @Nullable Consumer<T> callback) {
+        protected Registrar(ResourceLocation id, Supplier<T> factory) {
+            this(id, factory, null);
+        }
     }
 
 }
