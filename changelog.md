@@ -1,3 +1,8 @@
+## 9.8.1
+* Added a `toString` override to `DynamicHolder`.
+* Fixed `DeferredHelper#customStat` crashing.
+  * This change means there's a breaking change to the signature of this method, but since the method previously would crash on use, that's probably fine.
+
 ## 9.8.0
 * Updated `DeferredHelper` particle methods to be direct instantiation instead of using `DeferredHolder`.
 * Added `/placebo get_dimension_type` to report the dimension type of the current dimension.
