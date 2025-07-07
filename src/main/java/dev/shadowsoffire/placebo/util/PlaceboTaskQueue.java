@@ -10,7 +10,6 @@ import dev.shadowsoffire.placebo.Placebo;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -78,7 +77,7 @@ public class PlaceboTaskQueue {
 
     }
 
-    @EventBusSubscriber(modid = Placebo.MODID, bus = Bus.GAME)
+    @EventBusSubscriber(modid = Placebo.MODID)
     public static class Impl {
 
         private static final Queue<Pair<ResourceLocation, Task>> TASKS = new ArrayDeque<>();

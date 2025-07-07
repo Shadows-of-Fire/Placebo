@@ -9,13 +9,12 @@ import dev.shadowsoffire.placebo.reload.DynamicRegistry;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.event.village.WandererTradesEvent;
 
 /**
  * Allows loading wandering trader trades from json.
  */
-@EventBusSubscriber(modid = Placebo.MODID, bus = Bus.GAME)
+@EventBusSubscriber(modid = Placebo.MODID)
 public class WandererTradesRegistry extends DynamicRegistry<WandererTrade> {
 
     public static final WandererTradesRegistry INSTANCE = new WandererTradesRegistry();
