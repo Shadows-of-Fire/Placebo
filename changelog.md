@@ -1,3 +1,11 @@
+## 9.9.0
+* Added `StepFunction.STREAM_CODEC`, and deprecated `StepFunction.read` / `StepFunction#write`.
+* Added `StepFunction#isConstant()` to check if a function is constant.
+* Updated javadocs for `StepFunction`.
+* Updated to NeoForge 21.1.187 to utilize new automatic bus inference in `@EventBusSubscriber`.
+* Added `DynamicRegistry$ReloadType` and added it as a param to `DynamicRegistry#beginReload` / `DynamicRegistry#onReload`.
+  * This allows reloads to properly handle the fact that registry objects are reused on integrated servers.
+
 ## 9.8.1
 * Added a `toString` override to `DynamicHolder`.
 * Fixed `DeferredHelper#customStat` crashing.
