@@ -37,8 +37,8 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
     }
 
     @Override
-    protected void beginReload() {
-        super.beginReload();
+    protected void beginReload(ReloadType type) {
+        super.beginReload(type);
         this.zeroLuckList = Collections.emptyList();
         this.zeroLuckTotalWeight = 0;
     }
@@ -51,8 +51,8 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
     }
 
     @Override
-    protected void onReload() {
-        super.onReload();
+    protected void onReload(ReloadType type) {
+        super.onReload(type);
         this.zeroLuckList = this.registry.values().stream().map(item -> WeightedEntry.wrap(item, item.getWeight())).toList();
         this.zeroLuckTotalWeight = WeightedRandom.getTotalWeight(this.zeroLuckList);
     }

@@ -32,15 +32,15 @@ public class WandererTradesRegistry extends DynamicRegistry<WandererTrade> {
     }
 
     @Override
-    protected void beginReload() {
-        super.beginReload();
+    protected void beginReload(ReloadType type) {
+        super.beginReload(type);
         this.normTrades.clear();
         this.rareTrades.clear();
     }
 
     @Override
-    protected void onReload() {
-        super.onReload();
+    protected void onReload(ReloadType type) {
+        super.onReload(type);
         this.getValues().forEach(trade -> {
             if (trade.isRare()) {
                 this.rareTrades.add(trade);

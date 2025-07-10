@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
@@ -41,6 +42,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -134,7 +136,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      */
     @Override
     protected final void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        this.beginReload();
+        this.beginReload(ReloadType.SERVER);
         ConditionalOps<JsonElement> ops = this.makeConditionalOps();
         objects.forEach((key, ele) -> {
             try {
@@ -151,7 +153,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
                 this.logger.error("Underlying Exception: ", e);
             }
         });
-        this.onReload();
+        this.onReload(ReloadType.SERVER);
     }
 
     /**
@@ -163,7 +165,18 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * Called when this manager begins reloading all items.
      * Should handle clearing internal data caches.
+     * 
+     * @see {@link ReloadType} for information on the reload types.
      */
+    @MustBeInvokedByOverriders
+    protected void beginReload(ReloadType type) {
+        this.beginReload();
+    }
+
+    /**
+     * @deprecated Use {@link #beginReload(LogicalSide)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "9.9.0")
     protected void beginReload() {
         this.callbacks.forEach(l -> l.beginReload(this));
         this.registry = new DynRegBiMap<>();
@@ -173,7 +186,18 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * Called after this manager has finished reloading all items.
      * Should handle any info logging, and data immutability.
+     * 
+     * @see {@link ReloadType} for information on the reload types.
      */
+    @MustBeInvokedByOverriders
+    protected void onReload(ReloadType type) {
+        this.onReload();
+    }
+
+    /**
+     * @deprecated Use {@link #onReload(LogicalSide)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "9.9.0")
     protected void onReload() {
         this.registry = Maps.unmodifiableBiMap(this.registry);
         this.logger.info("Registered {} {}.", this.registry.size(), this.path);
@@ -420,24 +444,24 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      *
      * @implNote Not executed when hosting a singleplayer world, as it would replace the server data.
      */
-    private void pushStagedToLive() {
-        this.beginReload();
+    private void processDedicatedClientReload() {
+        this.beginReload(ReloadType.DEDICATED_CLIENT);
         this.staged.forEach(this::register);
-        this.onReload();
+        this.onReload(ReloadType.DEDICATED_CLIENT);
     }
 
     /**
      * Performs a fake reload by making a copy of {@link #registry} and re-registering the original contents.
      * This triggers the full reload process for the client.
      *
-     * @implNote This is used instead of {@link #pushStagedToLive()} for singleplayer hosts to avoid data loss.
+     * @implNote This is used instead of {@link #processDedicatedClientReload()} for singleplayer hosts to avoid data loss.
      */
-    private void triggerClientsideReload() {
+    private void processIntegratedClientReload() {
         this.staged.clear();
         this.staged.putAll(this.registry);
-        this.beginReload();
+        this.beginReload(ReloadType.INTEGRATED_CLIENT);
         this.staged.forEach(this::register);
-        this.onReload();
+        this.onReload(ReloadType.INTEGRATED_CLIENT);
     }
 
     private CodecException makeCodecException(String msg) {
@@ -464,6 +488,31 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         Preconditions.checkNotNull(streamCodec, "Attempted to register a null stream codec for key " + key);
         this.codecs.register(key, codec);
         this.streamCodecs.put(key, streamCodec);
+    }
+
+    /**
+     * Marker used to differentiate between reload types for calls to {@link #beginReload(ReloadType)} and {@link #onReload(ReloadType)}.
+     */
+    public static enum ReloadType {
+        /**
+         * The reload is being performed on the server during the apply phase of the reload listener.
+         * All incoming objects are brand-new after being deserialized from JSON.
+         */
+        SERVER,
+
+        /**
+         * The reload is being performed on the client while playing on an integrated server.
+         * In this case, the incoming objects are reused from the server, as the registry is a singleton.
+         * 
+         * @apiNote If your objects are mutable, you should avoid re-applying any modifications already applied.
+         */
+        INTEGRATED_CLIENT,
+
+        /**
+         * The reload is being performed on the client while playing on a dedicated server.
+         * All incoming objects are brand-new after being deserialized over the network.
+         */
+        DEDICATED_CLIENT;
     }
 
     /**
@@ -558,10 +607,10 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
             if (ServerLifecycleHooks.getCurrentServer() != null) {
                 // On a singleplayer host, we have to re-register a copy of the original data instead of the synced data
                 // since the synced data may not contain the "full" information from the server.
-                ifPresent(path, DynamicRegistry::triggerClientsideReload);
+                ifPresent(path, DynamicRegistry::processIntegratedClientReload);
             }
             else {
-                ifPresent(path, DynamicRegistry::pushStagedToLive);
+                ifPresent(path, DynamicRegistry::processDedicatedClientReload);
             }
             Placebo.LOGGER.info("Completed sync for {}", path);
         }

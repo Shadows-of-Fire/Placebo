@@ -28,19 +28,19 @@ public class MixRegistry extends DynamicRegistry<JsonMix<?>> {
     }
 
     @Override
-    protected void beginReload() {
+    protected void beginReload(ReloadType type) {
         for (PotionBrewing brewing : resolveBrewing()) {
             removeAll(brewing);
         }
-        super.beginReload();
+        super.beginReload(type);
     }
 
     @Override
-    protected void onReload() {
+    protected void onReload(ReloadType type) {
         for (PotionBrewing brewing : resolveBrewing()) {
             addAll(brewing);
         }
-        super.onReload();
+        super.onReload(type);
     }
 
     /**
