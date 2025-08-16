@@ -11,6 +11,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.ItemLike;
@@ -72,7 +73,9 @@ public class PlaceboUtil {
      * @param player The player breaking the block.
      * @param pos    The location of the block to break.
      * @return If a block was successfully broken.
+     * @deprecated Use {@link ServerPlayerGameMode#destroyBlock(BlockPos)} instead.
      */
+    @Deprecated(forRemoval = true, since = "9.9.1")
     public static boolean tryHarvestBlock(ServerPlayer player, BlockPos pos) {
         return player.gameMode.destroyBlock(pos);
     }
