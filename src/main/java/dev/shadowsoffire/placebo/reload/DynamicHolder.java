@@ -75,6 +75,13 @@ public class DynamicHolder<R extends CodecProvider<? super R>> implements Suppli
     }
 
     /**
+     * @return The path of the registry this holder is from.
+     */
+    public String getRegistryPath() {
+        return this.registry.getPath();
+    }
+
+    /**
      * @return The ID of the target value.
      */
     public ResourceLocation getId() {
