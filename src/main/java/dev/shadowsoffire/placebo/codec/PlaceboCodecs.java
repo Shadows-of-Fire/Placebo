@@ -1,7 +1,7 @@
 package dev.shadowsoffire.placebo.codec;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -53,7 +53,7 @@ public class PlaceboCodecs {
      * Converts a list codec into a set codec.
      */
     public static <T> Codec<Set<T>> setFromList(Codec<List<T>> listCodec) {
-        return listCodec.<Set<T>>xmap(HashSet::new, ArrayList::new);
+        return listCodec.<Set<T>>xmap(LinkedHashSet::new, ArrayList::new);
     }
 
     /**
