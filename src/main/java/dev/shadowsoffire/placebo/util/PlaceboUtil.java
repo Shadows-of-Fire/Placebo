@@ -81,7 +81,7 @@ public class PlaceboUtil {
     }
 
     /**
-     * Adds a component to the lore tag of an itemstack/
+     * Adds a component to the lore tag of an itemstack.
      *
      * @param stack The ItemStack to append lore to.
      * @param lore  The actual lore.
