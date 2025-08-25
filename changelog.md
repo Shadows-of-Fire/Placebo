@@ -1,3 +1,13 @@
+## 9.9.1
+* Deprecated `PlaceboUtil.tryHarvestBlock` in favor of the vanilla method it calls.
+* Added `DynamicHolder#getRegistryPath()`.
+* Made `PlaceboCodecs.setFromList` always use a `LinkedHashSet` to preserve ordering.
+* Added `FieldOrderingFactory` to reorder fields for individual object types during datagen.
+  * Being upstreamed to Neo but I needed it a bit more immediately.
+* Added a mixin to `HashCache` to avoid deleting buildsystem generated metadata.
+  * Might upstream this, but I'd need to develop a proper API for it first.
+* Hel10word: Updated Chinese Translation.
+
 ## 9.9.0
 * Added `StepFunction.STREAM_CODEC`, and deprecated `StepFunction.read` / `StepFunction#write`.
 * Added `StepFunction#isConstant()` to check if a function is constant.
