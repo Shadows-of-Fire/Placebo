@@ -164,7 +164,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
     /**
      * Resolves a potential path for the given output object. Avoids duplicates by appending underscores.
      */
-    private String resolvePath(ItemStack output) {
+    protected String resolvePath(ItemStack output) {
         String path = BuiltInRegistries.ITEM.getKey(output.getItem()).getPath();
         while (this.usedPaths.contains(path)) {
             path += "_";
@@ -179,7 +179,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * @param thing A potential candidate object. One of {@link ItemStack}, {@link ItemLike}, or a {@link Holder} containing an {@link ItemLike}.
      * @throws IllegalArgumentException if the type of object is unknown
      */
-    private static ItemStack makeStack(Object thing) {
+    protected static ItemStack makeStack(Object thing) {
         if (thing instanceof ItemStack stack) return stack;
         if (thing instanceof ItemLike il) return new ItemStack(il);
         if (thing instanceof Holder<?> h) return new ItemStack((ItemLike) h.value());
@@ -205,7 +205,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * @throws UnsupportedOperationException if the object cannot be converted.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static NonNullList<Ingredient> createInput(boolean allowEmpty, Object... inputArr) {
+    protected static NonNullList<Ingredient> createInput(boolean allowEmpty, Object... inputArr) {
         NonNullList<Ingredient> inputL = NonNullList.create();
         for (int i = 0; i < inputArr.length; i++) {
             Object input = inputArr[i];
@@ -225,7 +225,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * <p>
      * Uses the first available character from the first valid item in each ingredient to form the key.
      */
-    private static ShapedRecipePattern toPattern(int width, int height, NonNullList<Ingredient> input) {
+    protected static ShapedRecipePattern toPattern(int width, int height, NonNullList<Ingredient> input) {
         Map<Character, Ingredient> key = new HashMap<>();
         Map<Ingredient, Character> chars = new HashMap<>();
         List<String> rows = new ArrayList<>(height);
@@ -254,7 +254,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
     /**
      * Resolves the first available character from an ingredient, given the currently in-use characters.
      */
-    private static Character getFirstChar(Collection<Character> inUse, Ingredient ing) {
+    protected static Character getFirstChar(Collection<Character> inUse, Ingredient ing) {
         String path;
         if (ing == Ingredient.EMPTY) {
             return ' ';
