@@ -8,7 +8,7 @@ license="MIT License"
 
 modId="placebo"
 
-version="9.9.1"
+version="10.0.0-beta0"
 
 displayName="Placebo"
 
@@ -22,13 +22,13 @@ config="placebo.mixins.json"
 [[dependencies.placebo]]
     modId="minecraft"
     type="required"
-    versionRange="[1.21.1,)"
+    versionRange="[26.1,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.placebo]]
     modId="neoforge"
     type="required"
-    versionRange="[21.1.187,)"
+    versionRange="[26.1.0.1-beta,)"
     ordering="NONE"
     side="BOTH"
