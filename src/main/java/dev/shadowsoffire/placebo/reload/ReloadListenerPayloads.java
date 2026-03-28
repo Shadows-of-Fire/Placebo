@@ -20,7 +20,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
@@ -74,17 +74,17 @@ public class ReloadListenerPayloads {
         }
     }
 
-    public static record Content<V extends CodecProvider<? super V>>(String path, ResourceLocation key, Either<V, ByteBuf> item) implements CustomPacketPayload {
+    public static record Content<V extends CodecProvider<? super V>>(String path, Identifier key, Either<V, ByteBuf> item) implements CustomPacketPayload {
 
         public static final Type<Content<?>> TYPE = new Type<>(Placebo.loc("reload_sync_content"));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Content<?>> CODEC = StreamCodec.of(Content::write, Content::read);
 
-        public Content(String path, ResourceLocation key, V item) {
+        public Content(String path, Identifier key, V item) {
             this(path, key, Either.left(item));
         }
 
-        public Content(String path, ResourceLocation key, ByteBuf buf) {
+        public Content(String path, Identifier key, ByteBuf buf) {
             this(path, key, Either.right(buf));
         }
 
@@ -95,7 +95,7 @@ public class ReloadListenerPayloads {
 
         public static <V extends CodecProvider<? super V>> void write(RegistryFriendlyByteBuf buf, Content<V> payload) {
             buf.writeUtf(payload.path, 50);
-            buf.writeResourceLocation(payload.key);
+            buf.writeIdentifier(payload.key);
             SyncManagement.writeItem(payload.path, payload.item.orThrow(), buf);
         }
 
@@ -105,7 +105,7 @@ public class ReloadListenerPayloads {
          */
         public static <V extends CodecProvider<? super V>> Content<V> read(RegistryFriendlyByteBuf buf) {
             String path = buf.readUtf(50);
-            ResourceLocation key = buf.readResourceLocation();
+            Identifier key = buf.readIdentifier();
 
             int size = buf.writerIndex() - buf.readerIndex();
             ByteBuf itemBuf = Unpooled.buffer(size, size);

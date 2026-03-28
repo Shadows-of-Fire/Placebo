@@ -8,7 +8,7 @@ import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.util.StepFunction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,18 +43,18 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
     /**
      * Creates an {@link AttributeModifier} with a set id and randomly-selected value from the {@link #value} function.
      */
-    public AttributeModifier create(ResourceLocation id, RandomSource rand) {
+    public AttributeModifier create(Identifier id, RandomSource rand) {
         return new AttributeModifier(id, this.value.get(rand.nextFloat()), this.operation);
     }
 
     /**
      * Creates a deterministic {@link AttributeModifier} with a set id, using the minimum value of the {@link #value} function.
      */
-    public AttributeModifier createDeterministic(ResourceLocation id) {
+    public AttributeModifier createDeterministic(Identifier id) {
         return new AttributeModifier(id, this.value.min(), this.operation);
     }
 
-    public void apply(ResourceLocation id, RandomSource rand, LivingEntity entity) {
+    public void apply(Identifier id, RandomSource rand, LivingEntity entity) {
         if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
         AttributeModifier modif = this.create(id, rand);
         AttributeInstance inst = entity.getAttribute(this.attribute);
@@ -70,7 +70,7 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
      * Creates an {@link AttributeModifier} with a randomly-generated id and randomly-selected value from the {@link #value} function.
      * <p>
      * Two modifiers with the same id for a single attribute will conflict. To avoid conflicts, provide a full id via
-     * {@link #create(ResourceLocation, RandomSource)}.
+     * {@link #create(Identifier, RandomSource)}.
      */
     @Deprecated(forRemoval = true)
     public AttributeModifier create(RandomSource rand) {
@@ -81,7 +81,7 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
      * Creates a deterministic {@link AttributeModifier} with a static id, using the minimum value of the {@link #value} function.
      * <p>
      * Two modifiers with the same id for a single attribute will conflict. To avoid conflicts, provide a full id via
-     * {@link #createDeterministic(ResourceLocation)}.
+     * {@link #createDeterministic(Identifier)}.
      */
     @Deprecated(forRemoval = true)
     public AttributeModifier createDeterministic() {

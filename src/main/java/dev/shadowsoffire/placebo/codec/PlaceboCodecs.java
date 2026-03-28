@@ -10,7 +10,7 @@ import java.util.function.Function;
 import com.google.common.collect.BiMap;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Util class for codecs.
@@ -26,7 +26,7 @@ public class PlaceboCodecs {
      * @param defaultCodec The default codec to use if the deserialized object has no type field.
      * @return A codec backed by the provided map, that will fallback if necessary.
      */
-    public static <T extends CodecProvider<T>> Codec<T> mapBackedDefaulted(String name, BiMap<ResourceLocation, Codec<? extends T>> reg, Codec<? extends T> defaultCodec) {
+    public static <T extends CodecProvider<T>> Codec<T> mapBackedDefaulted(String name, BiMap<Identifier, Codec<? extends T>> reg, Codec<? extends T> defaultCodec) {
         return new MapBackedCodec<>(name, reg, () -> defaultCodec);
     }
 
@@ -38,7 +38,7 @@ public class PlaceboCodecs {
      * @param reg  The codec map.
      * @return A codec backed by the provided map.
      */
-    public static <T extends CodecProvider<? super T>> Codec<T> mapBacked(String name, BiMap<ResourceLocation, Codec<? extends T>> reg) {
+    public static <T extends CodecProvider<? super T>> Codec<T> mapBacked(String name, BiMap<Identifier, Codec<? extends T>> reg) {
         return new MapBackedCodec<>(name, reg);
     }
 

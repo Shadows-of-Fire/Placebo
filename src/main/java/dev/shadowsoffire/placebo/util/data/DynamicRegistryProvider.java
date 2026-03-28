@@ -21,7 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.WithConditions;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -80,7 +80,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * @param id     The id of the object
      * @param object The object
      */
-    protected final void add(ResourceLocation id, R object) {
+    protected final void add(Identifier id, R object) {
         this.populator.register(id, object);
         if (!this.skipGeneration) {
             this.futures.add(this.lookupProvider.thenCompose(regs -> {
@@ -97,7 +97,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * @param object     The object
      * @param conditions Conditions required for the object to load.
      */
-    protected final void addConditionally(ResourceLocation id, R object, ICondition... conditions) {
+    protected final void addConditionally(Identifier id, R object, ICondition... conditions) {
         this.populator.register(id, object);
         Codec<Optional<WithConditions<R>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<R>createConditionalCodecWithConditions(this.registry.elementCodec());
         if (!this.skipGeneration) {
@@ -112,7 +112,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     /**
      * Generates all items provided by this provider.
      * <p>
-     * Use {@link #add(ResourceLocation, CodecProvider)} to supply items.
+     * Use {@link #add(Identifier, CodecProvider)} to supply items.
      */
     public abstract void generate();
 

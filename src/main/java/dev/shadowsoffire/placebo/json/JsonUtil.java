@@ -4,7 +4,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonElement;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
@@ -13,7 +13,7 @@ public class JsonUtil {
     /**
      * Checks if an item is empty, and if it is, returns false and logs the key.
      */
-    public static boolean checkAndLogEmpty(JsonElement e, ResourceLocation id, String type, Logger logger) {
+    public static boolean checkAndLogEmpty(JsonElement e, Identifier id, String type, Logger logger) {
         String s = e.toString();
         if (s.isEmpty() || "{}".equals(s)) {
             logger.error("Ignoring {} item with id {} as it is empty.  Please switch to a condition-false json instead of an empty one.", type, id);
@@ -33,7 +33,7 @@ public class JsonUtil {
      * @param context The context object used for resolving conditions.
      * @return True if the item's conditions are met, false otherwise.
      */
-    public static boolean checkConditions(JsonElement e, ResourceLocation id, String type, Logger logger, ConditionalOps<JsonElement> ops) {
+    public static boolean checkConditions(JsonElement e, Identifier id, String type, Logger logger, ConditionalOps<JsonElement> ops) {
         if (ICondition.conditionsMatched(ops, e.getAsJsonObject())) {
             return true;
         }

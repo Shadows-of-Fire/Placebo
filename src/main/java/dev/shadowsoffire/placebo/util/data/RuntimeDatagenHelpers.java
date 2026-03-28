@@ -12,7 +12,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.fml.loading.FMLPaths;
 
 /**
@@ -49,19 +49,19 @@ public class RuntimeDatagenHelpers {
     /**
      * Writes any codec-based object to the datagen directory.
      */
-    public static <T> void write(T object, Codec<T> codec, String type, ResourceLocation key) {
+    public static <T> void write(T object, Codec<T> codec, String type, Identifier key) {
         write(toJson(object, codec), type, key);
     }
 
     /**
      * Writes a {@link CodecProvider} object to the datagen directory.
      * 
-     * @deprecated Use {@link #write(Object, Codec, String, ResourceLocation)} and supply an explicit codec. Subtyped objects will not write their type when using
+     * @deprecated Use {@link #write(Object, Codec, String, Identifier)} and supply an explicit codec. Subtyped objects will not write their type when using
      *             this method.
      */
     @SuppressWarnings("unchecked")
     @Deprecated
-    public static <T extends CodecProvider<T>> void write(T object, String type, ResourceLocation key) {
+    public static <T extends CodecProvider<T>> void write(T object, String type, Identifier key) {
         write(toJson(object), type, key);
     }
 
@@ -72,7 +72,7 @@ public class RuntimeDatagenHelpers {
      *
      * @throws IllegalStateException if the disk write fails
      */
-    public static void write(JsonElement json, String type, ResourceLocation key) {
+    public static void write(JsonElement json, String type, Identifier key) {
         File file = new File(FMLPaths.GAMEDIR.get().toFile(), "datagen/" + key.getNamespace() + "/" + type + "/" + key.getPath() + ".json");
         file.getParentFile().mkdirs();
         try (FileWriter writer = new FileWriter(file)) {

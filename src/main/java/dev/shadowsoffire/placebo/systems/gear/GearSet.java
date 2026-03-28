@@ -12,7 +12,7 @@ import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.json.WeightedItemStack;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -92,7 +92,7 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
                 this.internal = t -> t.tags.contains(tag);
             }
             else {
-                ResourceLocation id = ResourceLocation.parse(key);
+                Identifier id = Identifier.parse(key);
                 this.internal = t -> GearSetRegistry.INSTANCE.getKey(t).equals(id);
             }
         }

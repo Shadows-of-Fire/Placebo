@@ -9,7 +9,7 @@ import java.util.function.ToIntFunction;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -25,7 +25,7 @@ public final class CachedObject<T> {
 
     public static final int HAS_NEVER_BEEN_INITIALIZED = -2;
 
-    protected final ResourceLocation id;
+    protected final Identifier id;
     protected final Function<ItemStack, T> deserializer;
     protected final ToIntFunction<ItemStack> hasher;
 
@@ -39,7 +39,7 @@ public final class CachedObject<T> {
      * @param deserializer The deserialization function. May return null. The stack passed to the function may be empty.
      * @param hasher       A Function which can generate a hash from the relevant itemstack data.
      */
-    public CachedObject(ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
+    public CachedObject(Identifier id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
         this.id = id;
         this.deserializer = deserializer;
         this.hasher = hasher;
@@ -110,14 +110,14 @@ public final class CachedObject<T> {
          * @param hasher       The hash function.
          * @return The object, as produced by the deserializer, which will also be stored in the internal cache.
          */
-        public <T> T getOrCreate(ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher);
+        public <T> T getOrCreate(Identifier id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher);
 
         /**
          * Helper which hides the cast to CachedObjectSource.
          *
-         * @see #getOrCreate(ResourceLocation, Function, ToIntFunction)
+         * @see #getOrCreate(Identifier, Function, ToIntFunction)
          */
-        public static <T> T getOrCreate(ItemStack stack, ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
+        public static <T> T getOrCreate(ItemStack stack, Identifier id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
             return ((CachedObjectSource) (Object) stack).getOrCreate(id, deserializer, hasher);
         }
 

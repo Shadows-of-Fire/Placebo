@@ -41,7 +41,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.StatType;
@@ -116,7 +116,7 @@ public class DeferredHelper {
      * 
      * @apiNote This does not point to a real registry! Do not use this key to construct ResourceKey(s).
      */
-    protected static final ResourceKey<Registry<DataMapType<?, ?>>> DATA_MAP_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(NeoForgeVersion.MOD_ID, "data_map_type"));
+    protected static final ResourceKey<Registry<DataMapType<?, ?>>> DATA_MAP_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(NeoForgeVersion.MOD_ID, "data_map_type"));
 
     protected final String modid;
     protected final Map<ResourceKey<? extends Registry<?>>, List<Registrar<?>>> objects;
@@ -148,7 +148,7 @@ public class DeferredHelper {
      * @return The newly created registry.
      */
     public <T> Registry<T> registry(String registryPath, UnaryOperator<RegistryBuilder<T>> config) {
-        ResourceKey<? extends Registry<T>> registryKey = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(this.modid, registryPath));
+        ResourceKey<? extends Registry<T>> registryKey = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(this.modid, registryPath));
         Registry<T> registry = config.apply(new RegistryBuilder<>(registryKey)).create();
         this.registerRegistry(registryKey, registry);
         return registry;
@@ -159,7 +159,7 @@ public class DeferredHelper {
      */
     public <T extends Block> DeferredBlock<T> block(String path, Supplier<T> factory) {
         this.register(path, Registries.BLOCK, factory);
-        return DeferredBlock.createBlock(ResourceLocation.fromNamespaceAndPath(this.modid, path));
+        return DeferredBlock.createBlock(Identifier.fromNamespaceAndPath(this.modid, path));
     }
 
     /**
@@ -181,7 +181,7 @@ public class DeferredHelper {
      */
     public <T extends Item> DeferredItem<T> item(String path, Supplier<T> factory) {
         this.register(path, Registries.ITEM, factory);
-        return DeferredItem.createItem(ResourceLocation.fromNamespaceAndPath(this.modid, path));
+        return DeferredItem.createItem(Identifier.fromNamespaceAndPath(this.modid, path));
     }
 
     /**
@@ -237,7 +237,7 @@ public class DeferredHelper {
      * Registers a {@link SoundEvent} using the given path via {@link SoundEvent#createVariableRangeEvent}.
      */
     public Holder<SoundEvent> sound(String path) {
-        return this.sound(path, () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(this.modid, path)));
+        return this.sound(path, () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(this.modid, path)));
     }
 
     /**
@@ -253,7 +253,7 @@ public class DeferredHelper {
     public DeferredHolder<Potion, Potion> singlePotion(String path, Supplier<MobEffectInstance> factory) {
         return this.registerDH(path, Registries.POTION, () -> {
             MobEffectInstance inst = factory.get();
-            ResourceLocation key = inst.getEffect().getKey().location();
+            Identifier key = inst.getEffect().getKey().location();
             return new Potion(key.toLanguageKey(), inst);
         });
     }
@@ -262,7 +262,7 @@ public class DeferredHelper {
      * Registers a {@link Potion} containing multiple mob effects, with a language key automatically generated from the path.
      */
     public DeferredHolder<Potion, Potion> multiPotion(String path, Supplier<List<MobEffectInstance>> factory) {
-        String key = ResourceLocation.fromNamespaceAndPath(this.modid, path).toLanguageKey("potion");
+        String key = Identifier.fromNamespaceAndPath(this.modid, path).toLanguageKey("potion");
         return this.registerDH(path, Registries.POTION, () -> new Potion(key, factory.get().toArray(new MobEffectInstance[0])));
     }
 
@@ -277,7 +277,7 @@ public class DeferredHelper {
      * Registers an {@link EntityType} given the {@link EntityFactory}, {@link MobCategory}, and a function to configure the type.
      */
     public <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> entity(String path, EntityFactory<T> factory, MobCategory category, UnaryOperator<EntityType.Builder<T>> op) {
-        String key = ResourceLocation.fromNamespaceAndPath(this.modid, path).toLanguageKey("entity");
+        String key = Identifier.fromNamespaceAndPath(this.modid, path).toLanguageKey("entity");
         return this.entity(path, () -> op.apply(EntityType.Builder.of(factory, category)).build(key));
     }
 
@@ -399,12 +399,12 @@ public class DeferredHelper {
     }
 
     /**
-     * Registers a {@link RecipeType} using {@link RecipeType#simple(ResourceLocation)}.
+     * Registers a {@link RecipeType} using {@link RecipeType#simple(Identifier)}.
      * <p>
      * Immediately constructs the {@link RecipeType} and returns it. Registration is deferred until the appropriate time.
      */
     public <C extends RecipeInput, U extends Recipe<C>> RecipeType<U> recipe(String path) {
-        RecipeType<U> type = RecipeType.simple(ResourceLocation.fromNamespaceAndPath(this.modid, path));
+        RecipeType<U> type = RecipeType.simple(Identifier.fromNamespaceAndPath(this.modid, path));
         this.recipe(path, () -> type);
         return type;
     }
@@ -427,7 +427,7 @@ public class DeferredHelper {
      * Registers a {@link RangedAttribute}.
      */
     public DeferredHolder<Attribute, RangedAttribute> rangedAttribute(String path, double defaultValue, double min, double max) {
-        String key = ResourceLocation.fromNamespaceAndPath(this.modid, path).toLanguageKey("attribute");
+        String key = Identifier.fromNamespaceAndPath(this.modid, path).toLanguageKey("attribute");
         return this.attribute(path, () -> new RangedAttribute(key, defaultValue, min, max));
     }
 
@@ -444,8 +444,8 @@ public class DeferredHelper {
      *
      * @see Stats#makeCustomStat
      */
-    public ResourceLocation customStat(String path, StatFormatter formatter) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
+    public Identifier customStat(String path, StatFormatter formatter) {
+        Identifier id = Identifier.fromNamespaceAndPath(this.modid, path);
         this.register(path, Registries.CUSTOM_STAT, () -> id, key -> {
             Stats.CUSTOM.get(key, formatter);
         });
@@ -584,7 +584,7 @@ public class DeferredHelper {
      */
     @SuppressWarnings("unchecked") // DataMapType has a bug in that it expects ResourceKey<Registry<K>> instead of ? extends Registry.
     public <K, V> DataMapType<K, V> dataMap(String path, ResourceKey<? extends Registry<K>> targetRegistry, Codec<V> codec, UnaryOperator<DataMapType.Builder<V, K>> config) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
+        Identifier id = Identifier.fromNamespaceAndPath(this.modid, path);
         ResourceKey<? extends DataMapType<?, ?>> registryKey = ResourceKey.create(DATA_MAP_KEY, id);
         DataMapType<K, V> dataMapType = config.apply(DataMapType.builder(id, (ResourceKey<Registry<K>>) targetRegistry, codec)).build();
         this.registerDataMap(registryKey, dataMapType);
@@ -636,7 +636,7 @@ public class DeferredHelper {
      */
     protected <R, T extends R> void register(String path, ResourceKey<? extends Registry<R>> regKey, Supplier<T> factory, @Nullable Consumer<T> callback) {
         List<Registrar<?>> registrars = this.objects.computeIfAbsent(regKey, k -> new ArrayList<>());
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(this.modid, path);
+        Identifier id = Identifier.fromNamespaceAndPath(this.modid, path);
         registrars.add(new Registrar<>(id, factory, callback));
     }
 
@@ -652,7 +652,7 @@ public class DeferredHelper {
      */
     protected <R, T extends R> DeferredHolder<R, T> registerDH(String path, ResourceKey<? extends Registry<R>> regKey, Supplier<T> factory) {
         this.register(path, regKey, factory);
-        return DeferredHolder.create(regKey, ResourceLocation.fromNamespaceAndPath(this.modid, path));
+        return DeferredHolder.create(regKey, Identifier.fromNamespaceAndPath(this.modid, path));
     }
 
     /**
@@ -660,7 +660,7 @@ public class DeferredHelper {
      */
     protected <T> void registerRegistry(ResourceKey<? extends Registry<T>> key, Registry<T> registry) {
         List<Registrar<?>> registrars = this.objects.computeIfAbsent(ROOT_REGISTRY_KEY, k -> new ArrayList<>());
-        ResourceLocation id = key.location();
+        Identifier id = key.location();
         registrars.add(new Registrar<>(id, () -> registry));
     }
 
@@ -669,7 +669,7 @@ public class DeferredHelper {
      */
     protected <K, V> void registerDataMap(ResourceKey<? extends DataMapType<?, ?>> key, DataMapType<K, V> type) {
         List<Registrar<?>> registrars = this.objects.computeIfAbsent(DATA_MAP_KEY, k -> new ArrayList<>());
-        ResourceLocation id = key.location();
+        Identifier id = key.location();
         registrars.add(new Registrar<>(id, () -> type));
     }
 
@@ -732,8 +732,8 @@ public class DeferredHelper {
         ((MappedRegistry<BlockEntityType<?>>) BuiltInRegistries.BLOCK_ENTITY_TYPE).unfreeze();
     }
 
-    protected static record Registrar<T>(ResourceLocation id, Supplier<T> factory, @Nullable Consumer<T> callback) {
-        protected Registrar(ResourceLocation id, Supplier<T> factory) {
+    protected static record Registrar<T>(Identifier id, Supplier<T> factory, @Nullable Consumer<T> callback) {
+        protected Registrar(Identifier id, Supplier<T> factory) {
             this(id, factory, null);
         }
     }

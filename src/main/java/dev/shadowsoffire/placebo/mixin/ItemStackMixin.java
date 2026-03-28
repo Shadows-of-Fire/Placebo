@@ -9,22 +9,22 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import dev.shadowsoffire.placebo.util.CachedObject;
 import dev.shadowsoffire.placebo.util.CachedObject.CachedObjectSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 @Mixin(ItemStack.class)
 public class ItemStackMixin implements CachedObjectSource {
 
-    private volatile Map<ResourceLocation, CachedObject<?>> cachedObjects = null;
+    private volatile Map<Identifier, CachedObject<?>> cachedObjects = null;
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getOrCreate(ResourceLocation id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
+    public <T> T getOrCreate(Identifier id, Function<ItemStack, T> deserializer, ToIntFunction<ItemStack> hasher) {
         var cachedObj = this.getOrCreate().computeIfAbsent(id, key -> new CachedObject<>(key, deserializer, hasher));
         return (T) cachedObj.get((ItemStack) (Object) this);
     }
 
-    private Map<ResourceLocation, CachedObject<?>> getOrCreate() {
+    private Map<Identifier, CachedObject<?>> getOrCreate() {
         if (this.cachedObjects == null) {
             synchronized (this) {
                 if (this.cachedObjects == null) this.cachedObjects = new ConcurrentHashMap<>();

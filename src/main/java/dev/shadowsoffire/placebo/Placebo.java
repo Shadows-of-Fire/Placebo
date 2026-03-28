@@ -20,7 +20,7 @@ import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -86,8 +86,8 @@ public class Placebo {
         MixRegistry.applyMixes();
     }
 
-    public static ResourceLocation loc(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier loc(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
 }

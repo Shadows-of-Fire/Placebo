@@ -24,7 +24,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -78,7 +78,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * @param height The height of the recipe.
      * @param input  A row-major vararg array of {@linkplain #createInput(boolean, Object...) input-like} objects. Must be the same length as width * height.
      */
-    public void addShaped(ResourceLocation key, String group, Object output, int width, int height, Object... input) {
+    public void addShaped(Identifier key, String group, Object output, int width, int height, Object... input) {
         if (width * height != input.length) {
             throw new UnsupportedOperationException("Attempted to create invalid shaped recipe. Expected " + width * height + " inputs, but got " + input.length);
         }
@@ -95,7 +95,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * @param output A {@linkplain #makeStack(Object) stack-like} output object.
      * @param input  A row-major vararg array of {@linkplain #createInput(boolean, Object...) input-like} objects. Empty inputs are not permitted.
      */
-    public void addShapeless(ResourceLocation key, String group, Object output, Object... inputs) {
+    public void addShapeless(Identifier key, String group, Object output, Object... inputs) {
         ShapelessRecipe recipe = new ShapelessRecipe(group, CraftingBookCategory.MISC, makeStack(output), createInput(false, inputs));
         this.recipeOutput.accept(key, recipe, null);
     }
@@ -103,18 +103,18 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
     /**
      * Stages a {@link ShapedRecipe} for datagen using the {@link #modid} as the group.
      * 
-     * @see #addShaped(ResourceLocation, String, Object, int, int, Object...)
+     * @see #addShaped(Identifier, String, Object, int, int, Object...)
      */
-    public void addShaped(ResourceLocation key, Object output, int width, int height, Object... input) {
+    public void addShaped(Identifier key, Object output, int width, int height, Object... input) {
         this.addShaped(key, this.modid, output, width, height, input);
     }
 
     /**
      * Stages a {@link ShapelessRecipe} for datagen using the {@link #modid} as the group.
      * 
-     * @see #addShapeless(ResourceLocation, String, Object, Object...)
+     * @see #addShapeless(Identifier, String, Object, Object...)
      */
-    public void addShapeless(ResourceLocation key, Object output, Object... inputs) {
+    public void addShapeless(Identifier key, Object output, Object... inputs) {
         this.addShapeless(key, this.modid, output, inputs);
     }
 
@@ -122,24 +122,24 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * Stages a {@link ShapedRecipe} for datagen using the {@link #modid} as the group and the key's namespace,
      * while automatically determining a path from the output item.
      * 
-     * @see #addShaped(ResourceLocation, String, Object, int, int, Object...)
+     * @see #addShaped(Identifier, String, Object, int, int, Object...)
      */
     public void addShaped(Object output, int width, int height, Object... input) {
         ItemStack out = makeStack(output);
         String path = this.resolvePath(out);
-        this.addShaped(ResourceLocation.fromNamespaceAndPath(this.modid, path), this.modid, out, width, height, input);
+        this.addShaped(Identifier.fromNamespaceAndPath(this.modid, path), this.modid, out, width, height, input);
     }
 
     /**
      * Stages a {@link ShapelessRecipe} for datagen using the {@link #modid} as the group and the key's namespace,
      * while automatically determining a path from the output item.
      * 
-     * @see #addShapeless(ResourceLocation, String, Object, Object...)
+     * @see #addShapeless(Identifier, String, Object, Object...)
      */
     public void addShapeless(Object output, Object... inputs) {
         ItemStack out = makeStack(output);
         String path = this.resolvePath(out);
-        this.addShapeless(ResourceLocation.fromNamespaceAndPath(this.modid, path), this.modid, out, inputs);
+        this.addShapeless(Identifier.fromNamespaceAndPath(this.modid, path), this.modid, out, inputs);
     }
 
     /**
@@ -192,7 +192,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * The created {@link Ingredient} depends on the type of the object:
      * <ul>
      * <li>A {@link TagKey} will be converted to a tag ingredient.</li>
-     * <li>A {@link String} will be parsed into a {@link ResourceLocation}, and treated as a {@link TagKey}.</li>
+     * <li>A {@link String} will be parsed into a {@link Identifier}, and treated as a {@link TagKey}.</li>
      * <li>An {@link ItemStack} will be converted into a single-stack ingredient.</li>
      * <li>An {@link ItemLike} or {@link Holder} will be passed to {@link #makeStack(Object)} and treated as an {@link ItemStack}.</li>
      * <li>An {@link Ingredient} will be casted and used directly.</li>
@@ -210,7 +210,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
         for (int i = 0; i < inputArr.length; i++) {
             Object input = inputArr[i];
             if (input instanceof TagKey tag) inputL.add(i, Ingredient.of(tag));
-            else if (input instanceof String str) inputL.add(i, Ingredient.of(ItemTags.create(ResourceLocation.parse(str))));
+            else if (input instanceof String str) inputL.add(i, Ingredient.of(ItemTags.create(Identifier.parse(str))));
             else if (input instanceof ItemStack stack && !stack.isEmpty()) inputL.add(i, Ingredient.of(stack));
             else if (input instanceof ItemLike || input instanceof Holder) inputL.add(i, Ingredient.of(makeStack(input)));
             else if (input instanceof Ingredient ing && !ing.isEmpty()) inputL.add(i, ing);

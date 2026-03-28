@@ -36,7 +36,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -72,24 +72,24 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     protected final CodecMap<R> codecs;
     protected final Codec<DynamicHolder<R>> holderCodec;
     protected final StreamCodec<ByteBuf, DynamicHolder<R>> holderStreamCodec;
-    protected final BiMap<ResourceLocation, StreamCodec<RegistryFriendlyByteBuf, ? extends R>> streamCodecs;
+    protected final BiMap<Identifier, StreamCodec<RegistryFriendlyByteBuf, ? extends R>> streamCodecs;
 
     /**
      * Internal registry. Immutable when outside of the registration phase.
      * <p>
      * This map is cleared in {@link #beginReload()} and frozen in {@link #onReload()}
      */
-    protected BiMap<ResourceLocation, R> registry = ImmutableBiMap.of();
+    protected BiMap<Identifier, R> registry = ImmutableBiMap.of();
 
     /**
      * Staged data used during the sync process. Discarded when running an integrated server.
      */
-    private final Map<ResourceLocation, R> staged = new HashMap<>();
+    private final Map<Identifier, R> staged = new HashMap<>();
 
     /**
      * Map of all holders that have ever been requested for this registry.
      */
-    private final Map<ResourceLocation, DynamicHolder<R>> holders = new ConcurrentHashMap<>();
+    private final Map<Identifier, DynamicHolder<R>> holders = new ConcurrentHashMap<>();
 
     /**
      * List of callbacks attached to this registry.
@@ -120,8 +120,8 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         if (this.codecs.isEmpty()) {
             throw new RuntimeException("Attempted to create a dynamic registry for " + path + " with no built-in codecs!");
         }
-        this.holderCodec = ResourceLocation.CODEC.xmap(this::holder, DynamicHolder::getId);
-        this.holderStreamCodec = ResourceLocation.STREAM_CODEC.map(this::holder, DynamicHolder::getId);
+        this.holderCodec = Identifier.CODEC.xmap(this::holder, DynamicHolder::getId);
+        this.holderStreamCodec = Identifier.STREAM_CODEC.map(this::holder, DynamicHolder::getId);
     }
 
     /**
@@ -135,7 +135,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * </ol>
      */
     @Override
-    protected final void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
+    protected final void apply(Map<Identifier, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         this.beginReload(ReloadType.SERVER);
         ConditionalOps<JsonElement> ops = this.makeConditionalOps();
         objects.forEach((key, ele) -> {
@@ -158,7 +158,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
     /**
      * Add all default serializers to this reload listener.
-     * This should be a series of calls to {@link #registerCodec(ResourceLocation, Codec)}
+     * This should be a series of calls to {@link #registerCodec(Identifier, Codec)}
      */
     protected abstract void registerBuiltinCodecs();
 
@@ -208,7 +208,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * @return An immutable view of all keys registered for this type.
      */
-    public Set<ResourceLocation> getKeys() {
+    public Set<Identifier> getKeys() {
         return this.registry.keySet();
     }
 
@@ -223,7 +223,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @return The item associated with this key, or null.
      */
     @Nullable
-    public R getValue(ResourceLocation key) {
+    public R getValue(Identifier key) {
         return this.registry.get(key);
     }
 
@@ -231,14 +231,14 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @return The key associated with this value, or null.
      */
     @Nullable
-    public ResourceLocation getKey(R value) {
+    public Identifier getKey(R value) {
         return this.registry.inverse().get(value);
     }
 
     /**
      * @return The item associated with this key, or the default value.
      */
-    public R getOrDefault(ResourceLocation key, R defValue) {
+    public R getOrDefault(Identifier key, R defValue) {
         return this.registry.getOrDefault(key, defValue);
     }
 
@@ -257,7 +257,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @param id The ID of the target value.
      * @return A dynamic registry object pointing to the target value.
      */
-    public DynamicHolder<R> holder(@Nullable ResourceLocation id) {
+    public DynamicHolder<R> holder(@Nullable Identifier id) {
         if (id == null) {
             return this.emptyHolder();
         }
@@ -269,17 +269,17 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * <p>
      * If the value is not present in the registry, instead returns {@linkplain #emptyHolder() the empty holder}.
      *
-     * @see #holder(ResourceLocation)
+     * @see #holder(Identifier)
      */
     public DynamicHolder<R> holder(R value) {
-        ResourceLocation key = this.getKey(value);
+        Identifier key = this.getKey(value);
         return this.holder(key == null ? DynamicHolder.EMPTY : key);
     }
 
     /**
      * Gets the empty {@link DynamicHolder}.
      *
-     * @see #holder(ResourceLocation)
+     * @see #holder(Identifier)
      */
     public DynamicHolder<R> emptyHolder() {
         return this.holder(DynamicHolder.EMPTY);
@@ -287,7 +287,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
     /**
      * Returns a {@link Codec} that can handle {@link DynamicHolder}s for this registry.<br>
-     * The serialized form is {@link ResourceLocation}.
+     * The serialized form is {@link Identifier}.
      *
      * @return The Dynamic Holder Codec for this registry.
      */
@@ -297,7 +297,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
     /**
      * Returns a {@link StreamCodec} that can handle {@link DynamicHolder}s for this registry.<br>
-     * The dynamic holders will be transmitted as {@link ResourceLocation}s using {@link ResourceLocation#STREAM_CODEC}.
+     * The dynamic holders will be transmitted as {@link Identifier}s using {@link Identifier#STREAM_CODEC}.
      *
      * @return The Dynamic Holder Stream Codec for this registry.
      * @throws UnsupportedOperationException if this is not a synced registry.
@@ -316,9 +316,9 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @param key         The key of the codec.
      * @param codec       The codec being registered.
      * @param streamCodec A stream codec for synced registries.
-     * @throws UnsupportedOperationException if this registry does not support subtypes. Use {@link #registerDefaultCodec(ResourceLocation, Codec)} instead.
+     * @throws UnsupportedOperationException if this registry does not support subtypes. Use {@link #registerDefaultCodec(Identifier, Codec)} instead.
      */
-    public final void registerCodec(ResourceLocation key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
+    public final void registerCodec(Identifier key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
         if (!this.subtypes) {
             throw new UnsupportedOperationException("Attempted to call registerCodec on a registry which does not support subtypes.");
         }
@@ -326,11 +326,11 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
-     * Variant of {@link #registerCodec(ResourceLocation, Codec, StreamCodec)} that automatically wraps the codec as a stream codec.
+     * Variant of {@link #registerCodec(Identifier, Codec, StreamCodec)} that automatically wraps the codec as a stream codec.
      * <p>
      * If this registry is synced, prefer providing a stream codec via the other overload.
      */
-    public final void registerCodec(ResourceLocation key, Codec<? extends R> codec) {
+    public final void registerCodec(Identifier key, Codec<? extends R> codec) {
         registerCodec(key, codec, ByteBufCodecs.fromCodecWithRegistries(codec));
     }
 
@@ -341,7 +341,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @param codec The codec being registered.
      * @throws UnsupportedOperationException if a default codec has already been registered.
      */
-    protected final void registerDefaultCodec(ResourceLocation key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
+    protected final void registerDefaultCodec(Identifier key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
         if (this.codecs.getDefaultCodec() != null) {
             throw new UnsupportedOperationException("Attempted to register a second " + this.path + " default codec with key " + key);
         }
@@ -350,11 +350,11 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
-     * Variant of {@link #registerDefaultCodec(ResourceLocation, Codec, StreamCodec)} that automatically wraps the codec as a stream codec.
+     * Variant of {@link #registerDefaultCodec(Identifier, Codec, StreamCodec)} that automatically wraps the codec as a stream codec.
      * <p>
      * If this registry is synced, prefer providing a stream codec via the other overload.
      */
-    protected final void registerDefaultCodec(ResourceLocation key, Codec<? extends R> codec) {
+    protected final void registerDefaultCodec(Identifier key, Codec<? extends R> codec) {
         registerDefaultCodec(key, codec, ByteBufCodecs.fromCodecWithRegistries(codec));
     }
 
@@ -415,7 +415,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @param value The value being registered.
      * @throws UnsupportedOperationException if the key is already in use.
      */
-    protected final void register(ResourceLocation key, R value) {
+    protected final void register(Identifier key, R value) {
         if (this.registry.containsKey(key)) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a duplicate registry ID! Key: " + key);
         this.validateItem(key, value);
         this.registry.put(key, value);
@@ -429,7 +429,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @param key   The key of the value being registered.
      * @param value The value being registered.
      */
-    protected void validateItem(ResourceLocation key, R value) {}
+    protected void validateItem(Identifier key, R value) {}
 
     /**
      * Adds this reload listener to the {@link ReloadableServerResources}.
@@ -482,7 +482,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         target.accept(new ReloadListenerPayloads.End(this.path));
     }
 
-    private void registerInternal(ResourceLocation key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
+    private void registerInternal(Identifier key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(codec, "Attempted to register a null codec for key " + key);
         Preconditions.checkNotNull(streamCodec, "Attempted to register a null stream codec for key " + key);
@@ -560,8 +560,8 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         @SuppressWarnings("unchecked")
         static <V extends CodecProvider<? super V>> void writeItem(String path, V value, RegistryFriendlyByteBuf buf) {
             ifPresent(path, registry -> {
-                ResourceLocation type = registry.codecs.getKey(value.getCodec());
-                buf.writeResourceLocation(type);
+                Identifier type = registry.codecs.getKey(value.getCodec());
+                buf.writeIdentifier(type);
                 ((StreamCodec<RegistryFriendlyByteBuf, V>) registry.streamCodecs.get(type)).encode(buf, value);
             });
         }
@@ -580,7 +580,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
             if (registry == null) {
                 throw new RuntimeException("Received sync packet for unknown registry!");
             }
-            ResourceLocation type = buf.readResourceLocation();
+            Identifier type = buf.readIdentifier();
             return ((StreamCodec<RegistryFriendlyByteBuf, V>) registry.streamCodecs.get(type)).decode(buf);
         }
 
@@ -592,8 +592,8 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
          * @param value The object being staged.
          */
         @SuppressWarnings("unchecked")
-        static <V> void acceptItem(String path, ResourceLocation key, V value) {
-            ifPresent(path, registry -> ((Map<ResourceLocation, V>) registry.staged).put(key, value));
+        static <V> void acceptItem(String path, Identifier key, V value) {
+            ifPresent(path, registry -> ((Map<Identifier, V>) registry.staged).put(key, value));
         }
 
         /**
@@ -643,13 +643,13 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         }
 
         private DataGenPopulator<R> start() {
-            BiMap<ResourceLocation, R> old = registry.registry;
+            BiMap<Identifier, R> old = registry.registry;
             registry.beginReload();
             old.forEach(this::register);
             return this;
         }
 
-        public DataGenPopulator<R> register(ResourceLocation id, R object) {
+        public DataGenPopulator<R> register(Identifier id, R object) {
             registry.registry.put(id, object);
             return this;
         }

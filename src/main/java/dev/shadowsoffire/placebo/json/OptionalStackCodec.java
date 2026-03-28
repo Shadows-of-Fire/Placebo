@@ -15,7 +15,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,12 +36,12 @@ public class OptionalStackCodec {
     private static class OptionalItemMapCodec extends MapCodec<Holder<Item>> {
 
         private final MapCodec<Holder<Item>> encoder = BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("id");
-        private final MapCodec<ResourceLocation> idDecoder = ResourceLocation.CODEC.fieldOf("id");
+        private final MapCodec<Identifier> idDecoder = Identifier.CODEC.fieldOf("id");
         private final MapCodec<Boolean> optDecoder = Codec.BOOL.optionalFieldOf("optional", false);
 
         @Override
         public <T> DataResult<Holder<Item>> decode(DynamicOps<T> ops, MapLike<T> input) {
-            ResourceLocation id = this.idDecoder.decode(ops, input).getOrThrow();
+            Identifier id = this.idDecoder.decode(ops, input).getOrThrow();
             boolean optional = this.optDecoder.decode(ops, input).getOrThrow();
 
             Optional<Holder.Reference<Item>> item = BuiltInRegistries.ITEM.getHolder(id);

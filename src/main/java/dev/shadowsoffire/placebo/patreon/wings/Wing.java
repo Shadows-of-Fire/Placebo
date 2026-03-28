@@ -20,7 +20,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 
@@ -51,7 +51,7 @@ public class Wing extends EntityModel<AbstractClientPlayer> implements IWingMode
     }
 
     @Override
-    public void render(PoseStack stack, MultiBufferSource buf, int packedLightIn, AbstractClientPlayer player, float partialTicks, ResourceLocation texture, PlayerModel<AbstractClientPlayer> model) {
+    public void render(PoseStack stack, MultiBufferSource buf, int packedLightIn, AbstractClientPlayer player, float partialTicks, Identifier texture, PlayerModel<AbstractClientPlayer> model) {
         if (player.isInvisible()) return;
         WingType type = WingsManager.getType(player.getUUID());
         stack.translate(0, 0, 0.065);

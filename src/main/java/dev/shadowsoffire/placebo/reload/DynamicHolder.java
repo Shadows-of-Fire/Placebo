@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * A Dynamic Holder is an implementation of {@link Holder} for {@link DynamicRegistry}.<br>
@@ -25,10 +25,10 @@ public class DynamicHolder<R extends CodecProvider<? super R>> implements Suppli
      *
      * @see DynamicRegistry#emptyHolder()
      */
-    public static final ResourceLocation EMPTY = ResourceLocation.fromNamespaceAndPath("empty", "empty");
+    public static final Identifier EMPTY = Identifier.fromNamespaceAndPath("empty", "empty");
 
     protected final DynamicRegistry<R> registry;
-    protected final ResourceLocation id;
+    protected final Identifier id;
 
     /**
      * The current data. Null when unbound.
@@ -37,9 +37,9 @@ public class DynamicHolder<R extends CodecProvider<? super R>> implements Suppli
     protected R value;
 
     /**
-     * @see DynamicRegistry#holder(ResourceLocation)
+     * @see DynamicRegistry#holder(Identifier)
      */
-    DynamicHolder(DynamicRegistry<R> registry, ResourceLocation id) {
+    DynamicHolder(DynamicRegistry<R> registry, Identifier id) {
         this.id = id;
         this.registry = registry;
     }
@@ -84,7 +84,7 @@ public class DynamicHolder<R extends CodecProvider<? super R>> implements Suppli
     /**
      * @return The ID of the target value.
      */
-    public ResourceLocation getId() {
+    public Identifier getId() {
         return this.id;
     }
 
@@ -94,7 +94,7 @@ public class DynamicHolder<R extends CodecProvider<? super R>> implements Suppli
      * @param id The id to check against.
      * @return True, if the passed id equals the target id.
      */
-    public boolean is(ResourceLocation id) {
+    public boolean is(Identifier id) {
         return this.id.equals(id);
     }
 

@@ -15,7 +15,7 @@ import com.google.common.base.Predicates;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedEntry.Wrapper;
@@ -44,7 +44,7 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
     }
 
     @Override
-    protected void validateItem(ResourceLocation key, V item) {
+    protected void validateItem(Identifier key, V item) {
         super.validateItem(key, item);
         Preconditions.checkArgument(item.getQuality() >= 0, "Item may not have negative quality!");
         Preconditions.checkArgument(item.getWeight() >= 0, "Item may not have negative weight!");
@@ -132,14 +132,14 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
          * @return A set of the names of all dimensions this item is available in.
          */
         @Nullable
-        Set<ResourceLocation> getDimensions();
+        Set<Identifier> getDimensions();
 
         /**
          * Creates a new predicate matching objects limited to the passed dimension.
          */
-        public static <T extends IDimensional> Predicate<T> createPredicate(ResourceLocation dimId) {
+        public static <T extends IDimensional> Predicate<T> createPredicate(Identifier dimId) {
             return obj -> {
-                Set<ResourceLocation> dims = obj.getDimensions();
+                Set<Identifier> dims = obj.getDimensions();
                 return dims == null || dims.isEmpty() || dims.contains(dimId);
             };
         }

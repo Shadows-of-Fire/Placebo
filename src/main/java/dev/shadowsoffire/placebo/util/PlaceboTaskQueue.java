@@ -7,7 +7,7 @@ import java.util.Queue;
 import org.apache.commons.lang3.tuple.Pair;
 
 import dev.shadowsoffire.placebo.Placebo;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -24,7 +24,7 @@ public class PlaceboTaskQueue {
     /**
      * Submits a new task for immediate execution.
      */
-    public static void submitTask(ResourceLocation id, Task task) {
+    public static void submitTask(Identifier id, Task task) {
         Impl.TASKS.add(Pair.of(id, task));
     }
 
@@ -33,7 +33,7 @@ public class PlaceboTaskQueue {
      * 
      * @param delay The delay, in ticks, before the task begins executing.
      */
-    public static void submitDelayedTask(ResourceLocation id, int delay, Task task) {
+    public static void submitDelayedTask(Identifier id, int delay, Task task) {
         Impl.TASKS.add(Pair.of(id, new DelayedTask(delay, task)));
     }
 
@@ -80,12 +80,12 @@ public class PlaceboTaskQueue {
     @EventBusSubscriber(modid = Placebo.MODID)
     public static class Impl {
 
-        private static final Queue<Pair<ResourceLocation, Task>> TASKS = new ArrayDeque<>();
+        private static final Queue<Pair<Identifier, Task>> TASKS = new ArrayDeque<>();
 
         @SubscribeEvent
         public static void tick(ServerTickEvent.Post e) {
-            Iterator<Pair<ResourceLocation, Task>> it = TASKS.iterator();
-            Pair<ResourceLocation, Task> current = null;
+            Iterator<Pair<Identifier, Task>> it = TASKS.iterator();
+            Pair<Identifier, Task> current = null;
             while (it.hasNext()) {
                 current = it.next();
                 try {
