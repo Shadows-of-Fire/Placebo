@@ -10,12 +10,12 @@ import dev.shadowsoffire.placebo.patreon.wings.WingLayer;
 import dev.shadowsoffire.placebo.util.SpecialTooltipItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.neoforged.api.distmarker.Dist;
@@ -23,10 +23,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent.AddLayers;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -57,8 +57,8 @@ public class PlaceboClient {
     }
 
     @SubscribeEvent
-    public static void clientResource(RegisterClientReloadListenersEvent e) {
-        e.registerReloadListener((ResourceManagerReloadListener) res -> NeoForge.EVENT_BUS.post(new ResourceReloadEvent(res, LogicalSide.CLIENT)));
+    public static void clientResource(AddClientReloadListenersEvent e) {
+        e.addListener(Placebo.loc("client_reload_event"), (ResourceManagerReloadListener) res -> NeoForge.EVENT_BUS.post(new ResourceReloadEvent(res, LogicalSide.CLIENT)));
     }
 
     @SubscribeEvent

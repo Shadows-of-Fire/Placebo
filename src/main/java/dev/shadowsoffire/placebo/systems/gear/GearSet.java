@@ -69,7 +69,7 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
             case LEGS -> this.leggings;
             case CHEST -> this.chestplates;
             case HEAD -> this.helmets;
-            case BODY -> throw new UnsupportedOperationException("Invalid slot type: " + slot);
+            case BODY, SADDLE -> throw new UnsupportedOperationException("Invalid slot type: " + slot);
         };
     }
 

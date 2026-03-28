@@ -20,7 +20,7 @@ public class TickingBlockEntityType<T extends BlockEntity & TickingBlockEntity> 
     protected final TickSide side;
 
     public TickingBlockEntityType(BlockEntitySupplier<? extends T> pFactory, Set<Block> pValidBlocks, TickSide side) {
-        super(pFactory, pValidBlocks, null);
+        super(pFactory, pValidBlocks);
         this.side = side;
     }
 

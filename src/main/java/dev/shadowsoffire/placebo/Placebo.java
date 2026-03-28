@@ -28,7 +28,7 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -78,8 +78,8 @@ public class Placebo {
         PlaceboCommand.register(e.getDispatcher(), e.getBuildContext());
     }
 
-    public void serverReload(AddReloadListenerEvent e) {
-        e.addListener((ResourceManagerReloadListener) res -> NeoForge.EVENT_BUS.post(new ResourceReloadEvent(res, LogicalSide.SERVER)));
+    public void serverReload(AddServerReloadListenersEvent e) {
+        e.addListener(loc("placebo_reload_event"), (ResourceManagerReloadListener) res -> NeoForge.EVENT_BUS.post(new ResourceReloadEvent(res, LogicalSide.SERVER)));
     }
 
     public void serverStart(ServerAboutToStartEvent e) {

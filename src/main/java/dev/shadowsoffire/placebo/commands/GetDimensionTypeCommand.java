@@ -16,7 +16,7 @@ public class GetDimensionTypeCommand {
     public static void register(LiteralArgumentBuilder<CommandSourceStack> builder) {
         builder.then(Commands.literal("get_dimension_type").executes(ctx -> {
             ServerLevel level = ctx.getSource().getLevel();
-            Registry<DimensionType> reg = level.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE);
+            Registry<DimensionType> reg = level.registryAccess().lookupOrThrow(Registries.DIMENSION_TYPE);
             DimensionType type = level.dimensionType();
             Identifier key = reg.getKey(type);
             ctx.getSource().sendSuccess(() -> Component.translatable("Dimension type for current level: %s", key.toString()), true);

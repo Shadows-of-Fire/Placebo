@@ -43,7 +43,7 @@ public class MapBackedCodec<V extends CodecProvider<? super V>> implements Codec
 
     @Override
     public <T> DataResult<Pair<V, T>> decode(DynamicOps<T> ops, T input) {
-        Optional<T> type = ops.get(input, "type").resultOrPartial(str -> {});
+        Optional<T> type = ops.get(input, "type").resultOrPartial(_ -> {});
         Optional<Identifier> key = type.map(t -> Identifier.CODEC.decode(ops, t).resultOrPartial(Placebo.LOGGER::error).get().getFirst());
 
         Codec codec = key.<Codec>map(this.registry::get).orElse(this.defaultCodec.get());
@@ -56,7 +56,7 @@ public class MapBackedCodec<V extends CodecProvider<? super V>> implements Codec
 
     @Override
     public <T> DataResult<T> encode(V input, DynamicOps<T> ops, T prefix) {
-        Codec<V> codec = (Codec<V>) input.getCodec();
+        Codec<? super V> codec = input.getCodec();
         Identifier key = this.registry.inverse().get(codec);
         if (key == null) {
             return DataResult.error(() -> "Attempted to serialize an element of type " + this.name + " with an unregistered codec! Object: " + input);

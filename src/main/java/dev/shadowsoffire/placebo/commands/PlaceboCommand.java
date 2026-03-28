@@ -11,7 +11,7 @@ public class PlaceboCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> pDispatcher, CommandBuildContext ctx) {
         LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("placebo");
-        SerializeLootTableCommand.register(builder);
+        SerializeLootTableCommand.register(builder, ctx);
         HandToJsonCommand.register(builder);
         GetDimensionTypeCommand.register(builder);
         pDispatcher.register(builder);

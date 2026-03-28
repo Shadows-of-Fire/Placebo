@@ -14,9 +14,10 @@ public interface TickingEntityBlock extends EntityBlock {
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     default <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> type) {
-        if (type instanceof TickingBlockEntityType tickType) return tickType.getTicker(pLevel.isClientSide);
+        if (type instanceof TickingBlockEntityType tickType) return tickType.getTicker(pLevel.isClientSide());
         Placebo.LOGGER.error("##############################");
-        Placebo.LOGGER.error("A Block {} with BlockEntityType {} has subscribed as a TickingEntityBlock but is not using TickingBlockEntityType!", BuiltInRegistries.BLOCK.getKey(pState.getBlock()), BlockEntityType.getKey(type));
+        Placebo.LOGGER.error("A Block {} with BlockEntityType {} has subscribed as a TickingEntityBlock but is not using TickingBlockEntityType!",
+            BuiltInRegistries.BLOCK.getKey(pState.getBlock()), BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type));
         Placebo.LOGGER.error("##############################");
         return null;
     }

@@ -9,6 +9,7 @@ import org.joml.Matrix4f;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Font.DisplayMode;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -124,14 +125,14 @@ public class TickableTextList {
      * @param color      The default text color. Will be used if the text did not specify a color itself.
      * @param dropShadow If text will be rendered with a drop shadow.
      */
-    public void render(GuiGraphics gfx, float x, float y, int color, boolean dropShadow) {
+    public void render(GuiGraphicsExtractor gfx, float x, float y, int color, boolean dropShadow) {
         this.render(x, y, color, dropShadow, gfx.pose().last().pose(), gfx.bufferSource(), DisplayMode.NORMAL, 0, 0xF000F0);
     }
 
     /**
      * Calls {@link #render(GuiGraphics, float, float, int, boolean)} with a color of white and no drop shadow.
      */
-    public void render(GuiGraphics gfx, float x, float y) {
+    public void render(GuiGraphicsExtractor gfx, float x, float y) {
         this.render(gfx, x, y, 0xFFFFFFFF, false);
     }
 
@@ -237,7 +238,7 @@ public class TickableTextList {
         @Override
         public boolean accept(int positionInCurrentSequence, Style style, int codePoint) {
             this.timeLeft.subtract(1 / tickRate);
-            if (this.timeLeft.getValue() >= 0.0F) {
+            if (this.timeLeft.floatValue() >= 0.0F) {
                 this.wrapped.accept(positionInCurrentSequence, style, codePoint);
                 return true;
             }

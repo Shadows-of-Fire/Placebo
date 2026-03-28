@@ -45,7 +45,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -63,7 +63,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  * @param <R> The base type of objects stored in this registry.
  */
 // TODO: Drop the CodecProvider requirement from this class and bind it to a subclass. Objects without subtypes do not need CodecProvider.
-public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimpleJsonResourceReloadListener {
+public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimpleJsonResourceReloadListener<R> {
 
     protected final Logger logger;
     protected final String path;
@@ -434,7 +434,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * Adds this reload listener to the {@link ReloadableServerResources}.
      */
-    private void addReloader(AddReloadListenerEvent e) {
+    private void addReloader(AddServerReloadListenersEvent e) {
         e.addListener(this);
     }
 
