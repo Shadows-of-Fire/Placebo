@@ -12,7 +12,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -31,8 +30,6 @@ public class StackLootEntry extends LootPoolSingletonContainer {
             Codec.intRange(0, 64).fieldOf("max").forGetter(e -> e.max))
         .and(singletonFields(inst))
         .apply(inst, StackLootEntry::new));
-
-    public static final LootPoolEntryType TYPE = new LootPoolEntryType(CODEC);
 
     private final ItemStack stack;
     private final int min;
@@ -65,8 +62,8 @@ public class StackLootEntry extends LootPoolSingletonContainer {
     }
 
     @Override
-    public LootPoolEntryType getType() {
-        return TYPE;
+    public MapCodec<StackLootEntry> codec() {
+        return CODEC;
     }
 
 }

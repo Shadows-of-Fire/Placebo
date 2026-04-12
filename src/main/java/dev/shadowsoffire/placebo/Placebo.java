@@ -70,7 +70,7 @@ public class Placebo {
     @SubscribeEvent
     public void register(RegisterEvent e) {
         e.register(Registries.LOOT_POOL_ENTRY_TYPE, helper -> {
-            helper.register(loc("stack_entry"), StackLootEntry.TYPE);
+            helper.register(loc("stack_entry"), StackLootEntry.CODEC);
         });
     }
 

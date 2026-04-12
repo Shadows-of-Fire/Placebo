@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.BiMap;
