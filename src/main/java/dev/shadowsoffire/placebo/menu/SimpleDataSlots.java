@@ -7,10 +7,10 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
-import dev.shadowsoffire.placebo.cap.ModifiableEnergyStorage;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 
 /**
  * Simple DataSlot implementation that allows for lambda registration.
@@ -43,7 +43,7 @@ public class SimpleDataSlots {
     /**
      * Registers an energy storage for tracking.
      */
-    public void addEnergy(ModifiableEnergyStorage energy) {
+    public void addEnergy(SimpleEnergyHandler energy) {
         this.addSlot(new EnergyDataSlot(energy));
     }
 
@@ -71,8 +71,8 @@ public class SimpleDataSlots {
 
     public class EnergyDataSlot extends LambdaDataSlot {
 
-        public EnergyDataSlot(ModifiableEnergyStorage energy) {
-            super(energy::getEnergyStored, energy::setEnergy);
+        public EnergyDataSlot(SimpleEnergyHandler energy) {
+            super(energy::getAmountAsInt, energy::set);
         }
     }
 
