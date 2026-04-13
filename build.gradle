@@ -4,6 +4,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
     id 'com.diffplug.eclipse.apt' version '3.42.2'
     id 'net.darkhax.curseforgegradle' version '1.1.18'
+    id 'eclipse'
 }
 
 base {
@@ -44,7 +45,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
             programArguments.addAll '--mod', "${modid}", '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
             ideName = "${project.name} - Data"
         }
