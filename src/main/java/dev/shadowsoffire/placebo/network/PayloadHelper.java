@@ -32,8 +32,12 @@ public class PayloadHelper {
     public static <T extends CustomPacketPayload> void registerPayload(PayloadProvider<T> prov) {
         Preconditions.checkNotNull(prov);
         synchronized (ALL_PROVIDERS) {
-            if (locked) throw new UnsupportedOperationException("Attempted to register a payload provider after registration has finished.");
-            if (ALL_PROVIDERS.containsKey(prov.getType())) throw new UnsupportedOperationException("Attempted to register payload provider with duplicate ID: " + prov.getType().id());
+            if (locked) {
+                throw new UnsupportedOperationException("Attempted to register a payload provider after registration has finished.");
+            }
+            if (ALL_PROVIDERS.containsKey(prov.getType())) {
+                throw new UnsupportedOperationException("Attempted to register payload provider with duplicate ID: " + prov.getType().id());
+            }
             ALL_PROVIDERS.put(prov.getType(), prov);
         }
     }

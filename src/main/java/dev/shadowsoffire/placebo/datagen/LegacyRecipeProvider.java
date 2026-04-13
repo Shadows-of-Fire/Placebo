@@ -14,29 +14,28 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.CachedOutput;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Ingredient.ItemValue;
-import net.minecraft.world.item.crafting.Ingredient.TagValue;
-import net.minecraft.world.item.crafting.Ingredient.Value;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
@@ -45,32 +44,65 @@ import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 
 /**
- * Extension of {@link RecipeProvider} which allows creating recipes using the syntax from Placebo's old RecipeHelper.
+ * Extension of {@link RecipeProvider.Runner} which allows creating recipes using the syntax from Placebo's old RecipeHelper.
  * <p>
  * Shaped recipes are written out as the output, width, height, and then a row-major vararg array of the actual inputs.
  * The pattern will be inferred from the inputs.
+ * <p>
+ * In 26.1 the vanilla {@link RecipeProvider} became a tiny logic class that needs to be constructed with a
+ * resolved {@link HolderLookup.Provider} and an open {@link RecipeOutput}, and the datagen {@link net.minecraft.data.DataProvider}
+ * side lives on the nested {@link RecipeProvider.Runner}. This class exposes the same downstream-facing API (subclass, override
+ * {@link #genRecipes}, call {@link #addShaped}/{@link #addShapeless}) by being a {@code Runner} that internally stands up an
+ * anonymous {@link RecipeProvider} and temporarily exposes the live {@link RecipeOutput} on a field.
  */
-public abstract class LegacyRecipeProvider extends RecipeProvider {
+public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
 
     private final String modid;
     protected final Set<String> usedPaths = new HashSet<>();
 
     /**
-     * Populated during {@link #run(CachedOutput, Provider)} so that it doesn't need to be passed to each method individually.
+     * Populated while an inner {@link RecipeProvider#buildRecipes()} is running, so the
+     * {@link #addShaped}/{@link #addShapeless} helpers can emit recipes directly on {@code this}.
      */
     @Nullable
     protected RecipeOutput recipeOutput;
+    @Nullable
+    protected HolderLookup.Provider currentRegistries;
 
     public LegacyRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, String modid) {
         super(output, registries);
         this.modid = modid;
     }
 
+    /**
+     * Subclasses implement this to declare their recipes. The {@link RecipeOutput} and
+     * {@link HolderLookup.Provider} are provided both as arguments and as the fields
+     * {@link #recipeOutput} / {@link #currentRegistries} for the duration of the call.
+     */
     protected abstract void genRecipes(RecipeOutput recipeOutput, HolderLookup.Provider registries);
+
+    @Override
+    protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        final LegacyRecipeProvider self = this;
+        return new RecipeProvider(registries, output){
+            @Override
+            protected void buildRecipes() {
+                self.recipeOutput = this.output;
+                self.currentRegistries = this.registries;
+                try {
+                    self.genRecipes(this.output, this.registries);
+                }
+                finally {
+                    self.recipeOutput = null;
+                    self.currentRegistries = null;
+                }
+            }
+        };
+    }
 
     /**
      * Stages a {@link ShapedRecipe} for datagen.
-     * 
+     *
      * @param key    The resource location of the recipe.
      * @param group  The recipe book group of the recipe.
      * @param output A {@linkplain #makeStack(Object) stack-like} output object.
@@ -83,26 +115,30 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
             throw new UnsupportedOperationException("Attempted to create invalid shaped recipe. Expected " + width * height + " inputs, but got " + input.length);
         }
 
-        ShapedRecipe recipe = new ShapedRecipe(group, CraftingBookCategory.MISC, toPattern(width, height, createInput(true, input)), makeStack(output));
-        this.recipeOutput.accept(key, recipe, null);
+        Recipe.CommonInfo commonInfo = new Recipe.CommonInfo(true);
+        CraftingRecipe.CraftingBookInfo bookInfo = new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, group);
+        ShapedRecipe recipe = new ShapedRecipe(commonInfo, bookInfo, toPattern(width, height, createInput(true, input)), toTemplate(makeStack(output)));
+        this.recipeOutput.accept(recipeKey(key), recipe, null);
     }
 
     /**
      * Stages a {@link ShapelessRecipe} for datagen.
-     * 
+     *
      * @param key    The resource location of the recipe.
      * @param group  The recipe book group of the recipe.
      * @param output A {@linkplain #makeStack(Object) stack-like} output object.
-     * @param input  A row-major vararg array of {@linkplain #createInput(boolean, Object...) input-like} objects. Empty inputs are not permitted.
+     * @param inputs A row-major vararg array of {@linkplain #createInput(boolean, Object...) input-like} objects. Empty inputs are not permitted.
      */
     public void addShapeless(Identifier key, String group, Object output, Object... inputs) {
-        ShapelessRecipe recipe = new ShapelessRecipe(group, CraftingBookCategory.MISC, makeStack(output), createInput(false, inputs));
-        this.recipeOutput.accept(key, recipe, null);
+        Recipe.CommonInfo commonInfo = new Recipe.CommonInfo(true);
+        CraftingRecipe.CraftingBookInfo bookInfo = new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, group);
+        ShapelessRecipe recipe = new ShapelessRecipe(commonInfo, bookInfo, toTemplate(makeStack(output)), createInput(false, inputs));
+        this.recipeOutput.accept(recipeKey(key), recipe, null);
     }
 
     /**
      * Stages a {@link ShapedRecipe} for datagen using the {@link #modid} as the group.
-     * 
+     *
      * @see #addShaped(Identifier, String, Object, int, int, Object...)
      */
     public void addShaped(Identifier key, Object output, int width, int height, Object... input) {
@@ -111,7 +147,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
 
     /**
      * Stages a {@link ShapelessRecipe} for datagen using the {@link #modid} as the group.
-     * 
+     *
      * @see #addShapeless(Identifier, String, Object, Object...)
      */
     public void addShapeless(Identifier key, Object output, Object... inputs) {
@@ -121,7 +157,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
     /**
      * Stages a {@link ShapedRecipe} for datagen using the {@link #modid} as the group and the key's namespace,
      * while automatically determining a path from the output item.
-     * 
+     *
      * @see #addShaped(Identifier, String, Object, int, int, Object...)
      */
     public void addShaped(Object output, int width, int height, Object... input) {
@@ -133,7 +169,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
     /**
      * Stages a {@link ShapelessRecipe} for datagen using the {@link #modid} as the group and the key's namespace,
      * while automatically determining a path from the output item.
-     * 
+     *
      * @see #addShapeless(Identifier, String, Object, Object...)
      */
     public void addShapeless(Object output, Object... inputs) {
@@ -146,20 +182,10 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * Creates an {@link Ingredient} matching a potion item with the given potion type.
      */
     public static Ingredient potionIngredient(Holder<Potion> type) {
-        HolderSet<Item> items = HolderSet.direct(BuiltInRegistries.ITEM.wrapAsHolder(Items.POTION));
-        DataComponentPredicate predicate = DataComponentPredicate.builder().expect(DataComponents.POTION_CONTENTS, new PotionContents(type)).build();
-        return new Ingredient(new DataComponentIngredient(items, predicate, false));
+        ItemStack potionStack = new ItemStack(Items.POTION);
+        potionStack.set(DataComponents.POTION_CONTENTS, new PotionContents(type));
+        return DataComponentIngredient.of(false, potionStack);
     }
-
-    @Override
-    protected final void buildRecipes(RecipeOutput recipeOutput, HolderLookup.Provider registries) {
-        this.recipeOutput = recipeOutput;
-        this.genRecipes(recipeOutput, registries);
-        this.recipeOutput = null;
-    }
-
-    @Override
-    protected final void buildRecipes(RecipeOutput recipeOutput) {}
 
     /**
      * Resolves a potential path for the given output object. Avoids duplicates by appending underscores.
@@ -175,15 +201,29 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
 
     /**
      * Transforms an object that could be converted into an {@link ItemStack} into one.
-     * 
+     *
      * @param thing A potential candidate object. One of {@link ItemStack}, {@link ItemLike}, or a {@link Holder} containing an {@link ItemLike}.
      * @throws IllegalArgumentException if the type of object is unknown
      */
     protected static ItemStack makeStack(Object thing) {
-        if (thing instanceof ItemStack stack) return stack;
-        if (thing instanceof ItemLike il) return new ItemStack(il);
-        if (thing instanceof Holder<?> h) return new ItemStack((ItemLike) h.value());
+        if (thing instanceof ItemStack stack) {
+            return stack;
+        }
+        if (thing instanceof ItemLike il) {
+            return new ItemStack(il);
+        }
+        if (thing instanceof Holder<?> h) {
+            return new ItemStack((ItemLike) h.value());
+        }
         throw new IllegalArgumentException("Attempted to create an ItemStack from something that cannot be converted: " + thing);
+    }
+
+    private static ItemStackTemplate toTemplate(ItemStack stack) {
+        return new ItemStackTemplate(stack.getItem(), stack.getCount(), stack.getComponentsPatch());
+    }
+
+    private static ResourceKey<Recipe<?>> recipeKey(Identifier id) {
+        return ResourceKey.create(Registries.RECIPE, id);
     }
 
     /**
@@ -193,32 +233,59 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      * <ul>
      * <li>A {@link TagKey} will be converted to a tag ingredient.</li>
      * <li>A {@link String} will be parsed into a {@link Identifier}, and treated as a {@link TagKey}.</li>
-     * <li>An {@link ItemStack} will be converted into a single-stack ingredient.</li>
+     * <li>An {@link ItemStack} will be converted into a single-stack ingredient. Component data is preserved via {@link DataComponentIngredient}.</li>
      * <li>An {@link ItemLike} or {@link Holder} will be passed to {@link #makeStack(Object)} and treated as an {@link ItemStack}.</li>
-     * <li>An {@link Ingredient} will be casted and used directly.</li>
+     * <li>An {@link Ingredient} will be used directly.</li>
      * </ul>
-     * If empty inputs are allowed, then {@code null}, {@link ItemStack#EMPTY}, or {@link Ingredient#EMPTY} will be converted to {@link Ingredient#EMPTY}.
-     * 
+     * If empty inputs are allowed, then {@code null} or {@link ItemStack#EMPTY} will be converted to a sentinel empty {@link Ingredient}.
+     *
      * @param allowEmpty If empty input values are allowed.
      * @param inputArr   An array of objects to translate into ingredients.
      * @return A list of ingredients resulting from the conversion.
      * @throws UnsupportedOperationException if the object cannot be converted.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected static NonNullList<Ingredient> createInput(boolean allowEmpty, Object... inputArr) {
+    protected NonNullList<Ingredient> createInput(boolean allowEmpty, Object... inputArr) {
         NonNullList<Ingredient> inputL = NonNullList.create();
         for (int i = 0; i < inputArr.length; i++) {
             Object input = inputArr[i];
-            if (input instanceof TagKey tag) inputL.add(i, Ingredient.of(tag));
-            else if (input instanceof String str) inputL.add(i, Ingredient.of(ItemTags.create(Identifier.parse(str))));
-            else if (input instanceof ItemStack stack && !stack.isEmpty()) inputL.add(i, Ingredient.of(stack));
-            else if (input instanceof ItemLike || input instanceof Holder) inputL.add(i, Ingredient.of(makeStack(input)));
-            else if (input instanceof Ingredient ing && !ing.isEmpty()) inputL.add(i, ing);
-            else if (allowEmpty && (input == null || input == ItemStack.EMPTY || input == Ingredient.EMPTY)) inputL.add(i, Ingredient.EMPTY);
-            else throw new UnsupportedOperationException("Attempted to add invalid recipe. Input " + input + " not allowed.");
+            if (input instanceof TagKey tag) {
+                inputL.add(i, Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(tag)));
+            }
+            else if (input instanceof String str) {
+                TagKey<Item> parsed = ItemTags.create(Identifier.parse(str));
+                inputL.add(i, Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(parsed)));
+            }
+            else if (input instanceof ItemStack stack && !stack.isEmpty()) {
+                if (stack.getComponentsPatch().isEmpty()) {
+                    inputL.add(i, Ingredient.of(stack.getItem()));
+                }
+                else {
+                    inputL.add(i, DataComponentIngredient.of(false, stack));
+                }
+            }
+            else if (input instanceof ItemLike || input instanceof Holder) {
+                inputL.add(i, Ingredient.of(makeStack(input).getItem()));
+            }
+            else if (input instanceof Ingredient ing) {
+                inputL.add(i, ing);
+            }
+            else if (allowEmpty && (input == null || input == ItemStack.EMPTY)) {
+                inputL.add(i, EMPTY_INGREDIENT_SENTINEL);
+            }
+            else {
+                throw new UnsupportedOperationException("Attempted to add invalid recipe. Input " + input + " not allowed.");
+            }
         }
         return inputL;
     }
+
+    /**
+     * Sentinel used in place of the removed {@code Ingredient.EMPTY}. Shaped recipes represent empty slots
+     * through the pattern layout rather than through an empty {@link Ingredient}. The inferred-pattern path
+     * recognizes this sentinel and emits a space in the pattern, stripping the slot from the key map.
+     */
+    private static final Ingredient EMPTY_INGREDIENT_SENTINEL = Ingredient.of(Items.SEA_PICKLE);
 
     /**
      * Automatically determines a {@link ShapedRecipePattern} from a list of shaped recipe inputs.
@@ -233,6 +300,10 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
             String row = "";
             for (int w = 0; w < width; w++) {
                 Ingredient ing = input.get(h * width + w);
+                if (ing == EMPTY_INGREDIENT_SENTINEL) {
+                    row += ' ';
+                    continue;
+                }
                 if (chars.containsKey(ing)) {
                     row += chars.get(ing);
                     continue;
@@ -256,29 +327,29 @@ public abstract class LegacyRecipeProvider extends RecipeProvider {
      */
     protected static Character getFirstChar(Collection<Character> inUse, Ingredient ing) {
         String path;
-        if (ing == Ingredient.EMPTY) {
-            return ' ';
-        }
-        else if (ing.isCustom()) {
+        if (ing.isCustom()) {
             ICustomIngredient custom = ing.getCustomIngredient();
-            Item item = custom.getItems().findFirst().map(ItemStack::getItem).orElse(Items.AIR);
+            Item item = custom.items().map(Holder::value).findFirst().orElse(Items.AIR);
             path = BuiltInRegistries.ITEM.getKey(item).getPath();
         }
         else {
-            Value v = ing.getValues()[0];
-            if (v instanceof TagValue t) {
-                path = t.tag().location().getPath();
-            }
-            else if (v instanceof ItemValue i) {
-                path = BuiltInRegistries.ITEM.getKey(i.item().getItem()).getPath();
+            HolderSet<Item> values = ing.getValues();
+            if (values instanceof HolderSet.Named<Item> named) {
+                path = named.key().location().getPath();
             }
             else {
-                throw new UnsupportedOperationException("Unknown Ingredient$Value type: " + v.getClass().getCanonicalName());
+                Holder<Item> first = values.stream().findFirst().orElse(null);
+                if (first == null) {
+                    throw new UnsupportedOperationException("Empty ingredient values for: " + ing);
+                }
+                path = BuiltInRegistries.ITEM.getKey(first.value()).getPath();
             }
         }
         path = path.toUpperCase(Locale.ROOT);
         for (char c : path.toCharArray()) {
-            if (!inUse.contains(c)) return c;
+            if (!inUse.contains(c)) {
+                return c;
+            }
         }
         throw new UnsupportedOperationException("Failed to find any unused characters for ingredient: " + ing);
     }

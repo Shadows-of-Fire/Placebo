@@ -121,22 +121,22 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * <p>
      * This can be used by mods who need to generate dynamic registry entries from a dependency, but do not want to generate any files themselves.
      * Provided you have access to the datagen code for said dependency, anyway.
-     * 
+     *
      * @param <R>     The registry type of the provider
      * @param <T>     The provider type
      * @param factory A method reference to the provider's constructor.
      * @return A re-bound factory that will skip generation. This can be passed to {@link DataGenBuilder#provider(DataProviderFactory)}.
      */
     public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProviderFactory<T> factory) {
-        return (output, registries, fileHelper) -> {
-            T provider = factory.create(output, registries, fileHelper);
+        return (output, registries) -> {
+            T provider = factory.create(output, registries);
             provider.skipGeneration = true;
             return provider;
         };
     }
 
     public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
-        return (output, registries, fileHelper) -> {
+        return (output, registries) -> {
             T provider = factory.apply(output, registries);
             provider.skipGeneration = true;
             return provider;
@@ -144,7 +144,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     }
 
     public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProvider.Factory<T> factory) {
-        return (output, registries, fileHelper) -> {
+        return (output, registries) -> {
             T provider = factory.create(output);
             provider.skipGeneration = true;
             return provider;

@@ -18,7 +18,7 @@ public record StepFunction(float min, int steps, float step, float max) implemen
 
     /**
      * Accepts a fully defined step function with min, steps, and step values.
-     * 
+     *
      * @deprecated Prefer {@link #BOUNDS_CODEC}.
      */
     @Deprecated(forRemoval = true, since = "9.6.0")
@@ -59,7 +59,7 @@ public record StepFunction(float min, int steps, float step, float max) implemen
 
     /**
      * Legacy constructor that automatically calculates the max value based on the min, steps, and step values.
-     * 
+     *
      * @deprecated Prefer {@link #fromBounds(float, float, float)} to create step functions. This constructor will be private in a future version.
      */
     @Deprecated(forRemoval = true, since = "9.6.0")

@@ -1,6 +1,5 @@
 package dev.shadowsoffire.placebo.screen;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
@@ -11,12 +10,6 @@ public abstract class PlaceboContainerScreen<T extends AbstractContainerMenu> ex
 
     public PlaceboContainerScreen(T pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
-    }
-
-    @Override
-    public void render(GuiGraphicsExtractor graphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(graphics, pMouseX, pMouseY, pPartialTick);
-        this.renderTooltip(graphics, pMouseX, pMouseY);
     }
 
 }

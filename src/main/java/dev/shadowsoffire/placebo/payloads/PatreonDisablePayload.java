@@ -72,7 +72,9 @@ public record PatreonDisablePayload(CosmeticType cosmetic, UUID id) implements C
             if (set.contains(msg.id)) {
                 set.remove(msg.id);
             }
-            else set.add(msg.id);
+            else {
+                set.add(msg.id);
+            }
         }
 
         @Override

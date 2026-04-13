@@ -55,7 +55,9 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
     }
 
     public void apply(Identifier id, RandomSource rand, LivingEntity entity) {
-        if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
+        if (entity == null) {
+            throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
+        }
         AttributeModifier modif = this.create(id, rand);
         AttributeInstance inst = entity.getAttribute(this.attribute);
         if (inst == null) {
@@ -90,7 +92,9 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
 
     @Deprecated(forRemoval = true)
     public void apply(RandomSource rand, LivingEntity entity) {
-        if (entity == null) throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
+        if (entity == null) {
+            throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
+        }
         AttributeModifier modif = this.create(rand);
         AttributeInstance inst = entity.getAttribute(this.attribute);
         if (inst == null) {

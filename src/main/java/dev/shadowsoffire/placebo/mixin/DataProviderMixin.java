@@ -24,6 +24,10 @@ import net.minecraft.util.Util;
 @Mixin(value = DataProvider.class, remap = false)
 public interface DataProviderMixin {
 
+    /**
+     * @author Shadows
+     * @reason Supports FieldOrderingFactory.
+     */
     @SuppressWarnings("deprecation")
     @Overwrite
     static CompletableFuture<?> saveStable(CachedOutput output, JsonElement json, Path path) {

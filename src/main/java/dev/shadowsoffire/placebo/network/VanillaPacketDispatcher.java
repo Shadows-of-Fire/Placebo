@@ -23,6 +23,8 @@ public class VanillaPacketDispatcher {
      */
     public static void dispatchTEToNearbyPlayers(Level world, BlockPos pos) {
         BlockEntity tile = world.getBlockEntity(pos);
-        if (tile != null) dispatchTEToNearbyPlayers(tile);
+        if (tile != null) {
+            dispatchTEToNearbyPlayers(tile);
+        }
     }
 }

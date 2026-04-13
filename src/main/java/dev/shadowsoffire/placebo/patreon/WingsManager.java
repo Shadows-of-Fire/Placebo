@@ -16,6 +16,7 @@ import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import dev.shadowsoffire.placebo.Placebo;
+import dev.shadowsoffire.placebo.PlaceboClient;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
 import dev.shadowsoffire.placebo.patreon.wings.Wing;
 import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload;
@@ -27,13 +28,13 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 public class WingsManager {
 
     static Map<UUID, WingType> WINGS = new HashMap<>();
-    public static final KeyMapping TOGGLE = new KeyMapping("placebo.toggleWings", GLFW.GLFW_KEY_KP_8, "key.categories.placebo");
+    public static final KeyMapping TOGGLE = new KeyMapping("placebo.toggleWings", GLFW.GLFW_KEY_KP_8, PlaceboClient.KEY_CATEGORY);
     public static final Set<UUID> DISABLED = new HashSet<>();
     public static final ModelLayerLocation WING_LOC = new ModelLayerLocation(Placebo.loc("wings"), "main");
 
@@ -66,14 +67,16 @@ public class WingsManager {
                 // not possible
             }
             Placebo.LOGGER.info("Loaded {} patreon wings.", WINGS.size());
-            if (WINGS.size() > 0) NeoForge.EVENT_BUS.register(WingsManager.class);
+            if (WINGS.size() > 0) {
+                NeoForge.EVENT_BUS.register(WingsManager.class);
+            }
         }, "Placebo Patreon Wing Loader").start();
     }
 
     @SubscribeEvent
     public static void keys(InputEvent.Key e) {
-        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
-            PacketDistributor.sendToServer(new PatreonDisablePayload(CosmeticType.WINGS, Minecraft.getInstance().player.getUUID()));
+        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKeyEvent()) && Minecraft.getInstance().getConnection() != null) {
+            ClientPacketDistributor.sendToServer(new PatreonDisablePayload(CosmeticType.WINGS, Minecraft.getInstance().player.getUUID()));
         }
     }
 

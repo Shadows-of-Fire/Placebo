@@ -25,7 +25,7 @@ import net.minecraft.util.StringRepresentable;
 /**
  * A utility class for handling offsets and anchor points for GUI elements.
  * This class provides methods to calculate the position of an element based on its anchor point and offset.
- * 
+ *
  * @param anchor The anchor point of the element.
  * @param x      The X offset of the element.
  * @param y      The Y offset of the element.
@@ -41,7 +41,7 @@ public record Offset(AnchorPoint anchor, int x, int y) {
 
     /**
      * Returns the X position of the element based on its anchor point and offset.
-     * 
+     *
      * @param window  The size of the window.
      * @param element The size of the element.
      * @return The X position of the element.
@@ -52,7 +52,7 @@ public record Offset(AnchorPoint anchor, int x, int y) {
 
     /**
      * Returns the Y position of the element based on its anchor point and offset.
-     * 
+     *
      * @param window  The size of the window.
      * @param element The size of the element.
      * @return The Y position of the element.
@@ -63,7 +63,7 @@ public record Offset(AnchorPoint anchor, int x, int y) {
 
     /**
      * Applies the X and Y coordinates for the element to the given {@link PoseStack}.
-     * 
+     *
      * @param pose    The PoseStack to apply the translation to.
      * @param window  The size of the window.
      * @param element The size of the element.
@@ -74,7 +74,7 @@ public record Offset(AnchorPoint anchor, int x, int y) {
 
     /**
      * Loads an Offset from the given configuration.
-     * 
+     *
      * @param key   The configuration key for the offset.
      * @param group The configuration group for the offset.
      * @param def   The default offset value.
@@ -89,7 +89,7 @@ public record Offset(AnchorPoint anchor, int x, int y) {
 
     /**
      * Writes an offset to the given configuration.
-     * 
+     *
      * @param key    The configuration key for the offset.
      * @param group  The configuration group for the offset.
      * @param offset The offset to write.

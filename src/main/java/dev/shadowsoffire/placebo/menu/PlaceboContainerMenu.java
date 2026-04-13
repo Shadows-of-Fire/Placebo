@@ -16,7 +16,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 /**
  * Implmentation of {@link AbstractContainerMenu} which has utilities for quick move and
@@ -108,40 +110,20 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
     }
 
     /**
-     * Adds a slot update listener, which is only invoked on the server, when it feels like it™
-     * Probably best to avoid this...
-     *
-     * @param listener
+     * Variant of {@link AbstractContainerMenu#clearContainer(Player, Container)} for a
+     * {@link ResourceHandler} of {@link ItemResource}s.
      */
-    @Deprecated(forRemoval = true)
-    public void addSlotListener(SlotUpdateListener listener) {
-        this.addSlotListener(new ContainerListener(){
-
-            @Override
-            public void slotChanged(AbstractContainerMenu pContainerToSend, int pDataSlotIndex, ItemStack pStack) {
-                listener.slotUpdated(pDataSlotIndex, pStack);
-            }
-
-            @Override
-            public void dataChanged(AbstractContainerMenu pContainerMenu, int pDataSlotIndex, int pValue) {}
-
-        });
-    }
-
-    /**
-     * Variant of {@link AbstractContainerMenu#clearContainer(Player, Container)} for {@link IItemHandler}.
-     */
-    protected void clearContainer(Player player, IItemHandler inv) {
+    protected void clearContainer(Player player, ResourceHandler<ItemResource> inv) {
         if (!player.isAlive() || player instanceof ServerPlayer && ((ServerPlayer) player).hasDisconnected()) {
-            for (int slot = 0; slot < inv.getSlots(); slot++) {
-                player.drop(inv.getStackInSlot(slot), false);
+            for (int slot = 0; slot < inv.size(); slot++) {
+                player.drop(ItemUtil.getStack(inv, slot), false);
             }
         }
         else {
-            for (int slot = 0; slot < inv.getSlots(); slot++) {
+            for (int slot = 0; slot < inv.size(); slot++) {
                 Inventory inventory = player.getInventory();
                 if (inventory.player instanceof ServerPlayer) {
-                    inventory.placeItemBackInInventory(inv.getStackInSlot(slot));
+                    inventory.placeItemBackInInventory(ItemUtil.getStack(inv, slot));
                 }
             }
         }
@@ -154,8 +136,8 @@ public abstract class PlaceboContainerMenu extends AbstractContainerMenu impleme
         }
 
         @Override
-        public void setChanged() {
-            super.setChanged();
+        protected void setStackCopy(ItemStack stack) {
+            super.setStackCopy(stack);
             PlaceboContainerMenu.this.slotsChanged(null);
         }
     }

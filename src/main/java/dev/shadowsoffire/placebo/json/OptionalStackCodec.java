@@ -28,7 +28,7 @@ public class OptionalStackCodec {
 
     public static final Codec<ItemStack> INSTANCE = Codec.lazyInitialized(() -> RecordCodecBuilder.create(inst -> inst
         .group(
-            new OptionalItemMapCodec().forGetter(ItemStack::getItemHolder),
+            new OptionalItemMapCodec().forGetter(ItemStack::typeHolder),
             ExtraCodecs.intRange(1, Item.ABSOLUTE_MAX_STACK_SIZE).fieldOf("count").orElse(1).forGetter(ItemStack::getCount),
             DataComponentPatch.CODEC.optionalFieldOf("components", DataComponentPatch.EMPTY).forGetter(ItemStack::getComponentsPatch))
         .apply(inst, ItemStack::new)));
@@ -44,7 +44,7 @@ public class OptionalStackCodec {
             Identifier id = this.idDecoder.decode(ops, input).getOrThrow();
             boolean optional = this.optDecoder.decode(ops, input).getOrThrow();
 
-            Optional<Holder.Reference<Item>> item = BuiltInRegistries.ITEM.getHolder(id);
+            Optional<Holder.Reference<Item>> item = BuiltInRegistries.ITEM.get(id);
             if (!optional && item.isEmpty()) {
                 return DataResult.error(() -> "Failed to read non-optional item id " + id);
             }

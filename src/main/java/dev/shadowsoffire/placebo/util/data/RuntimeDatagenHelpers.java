@@ -37,7 +37,7 @@ public class RuntimeDatagenHelpers {
 
     /**
      * Converts a {@link CodecProvider} object to json via its provided codec.
-     * 
+     *
      * @deprecated Use {@link #toJson(Object, Codec)} and supply an explicit codec. Subtyped objects will not write their type when using this method.
      */
     @SuppressWarnings("unchecked")
@@ -55,7 +55,7 @@ public class RuntimeDatagenHelpers {
 
     /**
      * Writes a {@link CodecProvider} object to the datagen directory.
-     * 
+     *
      * @deprecated Use {@link #write(Object, Codec, String, Identifier)} and supply an explicit codec. Subtyped objects will not write their type when using
      *             this method.
      */

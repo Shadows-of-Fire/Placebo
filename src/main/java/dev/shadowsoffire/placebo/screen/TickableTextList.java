@@ -8,7 +8,6 @@ import org.joml.Matrix4f;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Font.DisplayMode;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.FormattedText;
@@ -46,7 +45,7 @@ public class TickableTextList {
      * Adds a new line of text.
      * <p>
      * When rendered, this text will be automatically split such that it fits into {@link #maxWidth}.
-     * 
+     *
      * @param text     The line of text to add.
      * @param tickRate The number of characters that will appear per tick. A value of 1 is one character/tick.
      */
@@ -57,7 +56,7 @@ public class TickableTextList {
 
     /**
      * Adds a line of text with the default tick rate of 1.
-     * 
+     *
      * @see #addLine(FormattedText, float)
      */
     public void addLine(FormattedText text) {
@@ -69,7 +68,7 @@ public class TickableTextList {
      * If you want space between this text and the previous entry, you must add it manually.
      * <p>
      * When rendered, this text will be automatically split such that it fits into {@link #maxWidth}.
-     * 
+     *
      * @implNote This method will override the speed of the line it merges into, if any.
      */
     public void continueLine(FormattedText text, float tickRate) {
@@ -86,7 +85,7 @@ public class TickableTextList {
 
     /**
      * Sets the line of text for the specified index in the internal list.
-     * 
+     *
      * @param index    The list index to set.
      * @param text     The new text line.
      * @param tickRate The new tick rate.
@@ -103,7 +102,10 @@ public class TickableTextList {
      * <p>
      * The parameters are the same as
      * {@link Font#drawInBatch(FormattedCharSequence, float, float, int, boolean, Matrix4f, MultiBufferSource, DisplayMode, int, int)}.
+     * 
+     * @deprecated Use the GuiGraphicsExtractor variant to support deferred rendering.
      */
+    @Deprecated
     public void render(float x, float y, int color, boolean dropShadow, Matrix4f matrix, MultiBufferSource buffer, Font.DisplayMode mode, int bgColor, int packedLight) {
         int line = 0;
         MutableFloat timeLeft = new MutableFloat(this.ticks);
@@ -119,18 +121,26 @@ public class TickableTextList {
 
     /**
      * Renders all visible lines of text from this list.
-     * 
+     *
      * @param x          The x position to draw text at.
      * @param y          The y position to draw the first line at. Subsequent lines will be offset by {@link #lineSpacing}.
      * @param color      The default text color. Will be used if the text did not specify a color itself.
      * @param dropShadow If text will be rendered with a drop shadow.
      */
     public void render(GuiGraphicsExtractor gfx, float x, float y, int color, boolean dropShadow) {
-        this.render(x, y, color, dropShadow, gfx.pose().last().pose(), gfx.bufferSource(), DisplayMode.NORMAL, 0, 0xF000F0);
+        int line = 0;
+        MutableFloat timeLeft = new MutableFloat(this.ticks);
+        for (TickableText tickable : this.texts) {
+            for (FormattedCharSequence seq : this.font.split(tickable.text, this.maxWidth)) {
+                seq = wrap(seq, tickable.tickRate, timeLeft);
+                gfx.text(this.font, seq, (int) x, (int) (y + this.lineSpacing * line), color, dropShadow);
+                line++;
+            }
+        }
     }
 
     /**
-     * Calls {@link #render(GuiGraphics, float, float, int, boolean)} with a color of white and no drop shadow.
+     * Calls {@link #render(GuiGraphicsExtractor, float, float, int, boolean)} with a color of white and no drop shadow.
      */
     public void render(GuiGraphicsExtractor gfx, float x, float y) {
         this.render(gfx, x, y, 0xFFFFFFFF, false);

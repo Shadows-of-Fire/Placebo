@@ -27,7 +27,7 @@ public class PatreonPreview {
     @SubscribeEvent
     public static void tick(PlayerTickEvent.Post e) {
         Player player = e.getEntity();
-        if (player.level().isClientSide) {
+        if (player.level().isClientSide()) {
             if (player.tickCount >= 200) {
                 if (player.tickCount % 150 == 0) {
                     Minecraft mc = Minecraft.getInstance();

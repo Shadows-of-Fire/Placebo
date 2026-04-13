@@ -47,7 +47,7 @@ public interface PayloadProvider<T extends CustomPacketPayload> {
      * @param ctx Relevant network context information.
      */
     default void handleServer(T msg, IPayloadContext ctx) {}
-    
+
     /**
      * Gets a list of all supported connection protocols. This method may allocated a new list, as it is only called once.
      *

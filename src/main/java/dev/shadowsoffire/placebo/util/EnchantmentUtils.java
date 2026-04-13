@@ -22,7 +22,9 @@ public class EnchantmentUtils {
             player.giveExperiencePoints(-cost);
 
             // Due to rounding errors, the bar can get stuck displaying nothing when it should be empty.
-            if (getExperience(player) <= 0) player.experienceProgress = 0F;
+            if (getExperience(player) <= 0) {
+                player.experienceProgress = 0F;
+            }
             return true;
         }
         return false;
@@ -58,9 +60,15 @@ public class EnchantmentUtils {
      * @return The amount of experience required to reach the given level when starting from the previous level.
      */
     public static int getExperienceForLevel(int level) {
-        if (level == 0) return 0;
-        if (level > 30) return 112 + (level - 31) * 9;
-        if (level > 15) return 37 + (level - 16) * 5;
+        if (level == 0) {
+            return 0;
+        }
+        if (level > 30) {
+            return 112 + (level - 31) * 9;
+        }
+        if (level > 15) {
+            return 37 + (level - 16) * 5;
+        }
         return 7 + (level - 1) * 2;
     }
 
@@ -72,9 +80,13 @@ public class EnchantmentUtils {
      * @return The amount of experience required to go from the starting level to the target level.
      */
     public static int getExperienceDifference(int start, int target) {
-        if (target < start || start < 0) throw new IllegalArgumentException("Invalid start/target");
+        if (target < start || start < 0) {
+            throw new IllegalArgumentException("Invalid start/target");
+        }
 
-        if (target == start) return 0;
+        if (target == start) {
+            return 0;
+        }
 
         int expReq = 0;
         for (int lvl = start + 1; lvl <= target; lvl++) {
@@ -103,7 +115,9 @@ public class EnchantmentUtils {
         int level = 0;
         while (true) {
             final int xpToNextLevel = getExperienceForLevel(level + 1);
-            if (experience < xpToNextLevel) return level;
+            if (experience < xpToNextLevel) {
+                return level;
+            }
             level++;
             experience -= xpToNextLevel;
         }

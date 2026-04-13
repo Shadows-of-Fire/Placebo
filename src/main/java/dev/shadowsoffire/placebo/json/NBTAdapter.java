@@ -25,7 +25,7 @@ public class NBTAdapter implements JsonDeserializer<CompoundTag>, JsonSerializer
 
     public static final Codec<CompoundTag> EITHER_CODEC = Codec.either(Codec.STRING, CompoundTag.CODEC).xmap(either -> either.map(t -> {
         try {
-            return TagParser.parseTag(t);
+            return TagParser.parseCompoundFully(t);
         }
         catch (CommandSyntaxException e) {
             throw new RuntimeException(e);

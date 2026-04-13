@@ -27,7 +27,7 @@ public interface FieldOrderingFactory {
      * Alternatively, returns null to use the default ordering (by {@link DataProvider#FIXED_ORDER_FIELDS}).
      * <p>
      * When multiple factories are registered, the first non-null comparator will be used.
-     * 
+     *
      * @param json The JSON element being written (should be an object)
      * @param path The path the JSON is being written to
      * @return A comparator for ordering fields, or null to use the default ordering
@@ -42,7 +42,7 @@ public interface FieldOrderingFactory {
 
     /**
      * Returns a factory that applies the ordering only to objects of the given type (based on the output path containing the type string).
-     * 
+     *
      * @param objPath      The output path for the type of object to reorder (e.g. "recipe", "advancement", etc)
      * @param orderBuilder A function that takes the base order map (a copy of {@link DataProvider#FIXED_ORDER_FIELDS}) and returns a modified map with the desired
      *                     ordering.

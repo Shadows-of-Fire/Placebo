@@ -109,10 +109,12 @@ public abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nulla
     }
 
     // Modification Operations
+    @Override
     public V put(K key, V value) {
         return putInBothMaps(key, value, false);
     }
 
+    @Override
     public V forcePut(K key, V value) {
         return putInBothMaps(key, value, true);
     }
@@ -251,7 +253,7 @@ public abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nulla
 
         @Override
         public Iterator<K> iterator() {
-            return new TransformedIterator<Entry<K, V>, K>(entrySet().iterator()){
+            return new TransformedIterator<>(entrySet().iterator()){
                 @Override
                 K transform(Entry<K, V> entry) {
                     return entry.getKey();
@@ -282,7 +284,7 @@ public abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nulla
 
         @Override
         public Iterator<V> iterator() {
-            return new TransformedIterator<Entry<K, V>, V>(entrySet().iterator()){
+            return new TransformedIterator<>(entrySet().iterator()){
                 @Override
                 V transform(Entry<K, V> entry) {
                     return entry.getValue();
@@ -347,7 +349,7 @@ public abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nulla
 
     Iterator<Entry<K, V>> entrySetIterator() {
         final Iterator<Entry<K, V>> iterator = delegate.entrySet().iterator();
-        return new Iterator<Entry<K, V>>(){
+        return new Iterator<>(){
 
             Entry<K, V> entry;
 
@@ -431,7 +433,7 @@ public abstract class AbstractBiMap<K extends @Nullable Object, V extends @Nulla
                 return false;
             }
             // Guava normally wraps o in Maps.unmodifiableEntry but I don't want to copy all of that.
-            return delegate().contains((Entry<?, ?>) o);
+            return delegate().contains(o);
         }
 
         @Override

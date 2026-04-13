@@ -26,7 +26,9 @@ public class QuickMoveHandler {
      *         incomplete.
      */
     public ItemStack quickMoveStack(QuickMoveMenu container, Player player, int index) {
-        if (this.rules.isEmpty()) throw new RuntimeException("Quick Move requires at least one rule to be registered");
+        if (this.rules.isEmpty()) {
+            throw new RuntimeException("Quick Move requires at least one rule to be registered");
+        }
         ItemStack slotStackCopy = ItemStack.EMPTY;
         Slot slot = container.getSlot(index);
         if (slot != null && slot.hasItem()) {

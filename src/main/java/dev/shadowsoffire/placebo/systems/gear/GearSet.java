@@ -56,7 +56,7 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
      */
     public LivingEntity apply(LivingEntity entity) {
         for (EquipmentSlot slot : VALID_SLOTS) {
-            WeightedRandom.getRandomItem(entity.getRandom(), this.getPotentials(slot)).ifPresent(s -> s.apply(entity, slot));
+            WeightedRandom.getRandomItem(entity.getRandom(), this.getPotentials(slot), WeightedItemStack::weight).ifPresent(s -> s.apply(entity, slot));
         }
         return entity;
     }

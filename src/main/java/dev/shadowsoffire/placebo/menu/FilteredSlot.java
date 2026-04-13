@@ -7,13 +7,16 @@ import com.google.common.base.Predicates;
 import dev.shadowsoffire.placebo.cap.InternalItemHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 /**
- * Extension of {@link SlotItemHandler} which takes a filter on what may enter the slot.
+ * Extension of {@link ResourceHandlerSlot} which takes a filter on what may enter the slot.
  */
-public class FilteredSlot extends SlotItemHandler {
+public class FilteredSlot extends ResourceHandlerSlot {
 
+    protected final InternalItemHandler handler;
     protected final Predicate<ItemStack> filter;
     protected final int index;
 
@@ -27,7 +30,8 @@ public class FilteredSlot extends SlotItemHandler {
      * @param filter  A filter controlling what items may be placed in the slot by a player
      */
     public FilteredSlot(InternalItemHandler handler, int index, int x, int y, Predicate<ItemStack> filter) {
-        super(handler, index, x, y);
+        super(handler, handler::set, index, x, y);
+        this.handler = handler;
         this.filter = filter;
         this.index = index;
     }
@@ -41,14 +45,20 @@ public class FilteredSlot extends SlotItemHandler {
         return this.filter.test(stack);
     }
 
+    /**
+     * Overridden to bypass any restrictive {@code extract} overrides on {@link InternalItemHandler}
+     * subclasses — the parent's default uses the public {@code extract}, which would fail for slots
+     * the menu considers valid but that mod automation would reject.
+     */
     @Override
     public boolean mayPickup(Player playerIn) {
-        return !((InternalItemHandler) this.getItemHandler()).extractItemInternal(this.index, 1, true).isEmpty();
-    }
-
-    @Override
-    public ItemStack remove(int amount) {
-        return ((InternalItemHandler) this.getItemHandler()).extractItemInternal(this.index, amount, false);
+        ItemResource resource = this.handler.getResource(this.index);
+        if (resource.isEmpty()) {
+            return false;
+        }
+        try (Transaction tx = Transaction.openRoot()) {
+            return this.handler.extractInternal(this.index, resource, 1, tx) >= 1;
+        }
     }
 
 }

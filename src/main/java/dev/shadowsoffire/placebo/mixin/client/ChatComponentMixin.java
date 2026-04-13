@@ -12,9 +12,11 @@ public class ChatComponentMixin {
     /**
      * Causes newlines to be unescaped when logging chat, so that {@link HandToJsonCommand} can log properly.
      */
-    @ModifyConstant(method = "logChatMessage(Lnet/minecraft/client/GuiMessage;)V", remap = false)
+    @ModifyConstant(method = "logChatMessage(Lnet/minecraft/client/multiplayer/chat/GuiMessage;)V", remap = false)
     public String placebo_unEscapeChatLogNewlines(String old) {
-        if ("\\\\n".equals(old)) return "\n";
+        if ("\\\\n".equals(old)) {
+            return "\n";
+        }
         return old;
     }
 

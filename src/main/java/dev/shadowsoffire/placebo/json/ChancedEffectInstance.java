@@ -31,7 +31,7 @@ public record ChancedEffectInstance(float chance, Holder<MobEffect> effect, Step
      */
     public static Codec<ChancedEffectInstance> CONSTANT_CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            Codec.unit(1F).optionalFieldOf("chance", 1F).forGetter(a -> 1F),
+            Codec.FLOAT.optionalFieldOf("chance", 1F).forGetter(a -> 1F),
             BuiltInRegistries.MOB_EFFECT.holderByNameCodec().fieldOf("effect").forGetter(ChancedEffectInstance::effect),
             Codec.intRange(0, 255).optionalFieldOf("amplifier", 0).xmap(StepFunction::constant, sf -> (int) sf.min()).forGetter(ChancedEffectInstance::amplifier),
             Codec.BOOL.optionalFieldOf("ambient", true).forGetter(ChancedEffectInstance::ambient),

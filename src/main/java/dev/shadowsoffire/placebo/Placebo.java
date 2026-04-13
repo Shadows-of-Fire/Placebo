@@ -15,7 +15,6 @@ import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload;
 import dev.shadowsoffire.placebo.reload.ReloadListenerPayloads;
 import dev.shadowsoffire.placebo.systems.gear.GearSetRegistry;
 import dev.shadowsoffire.placebo.systems.mixes.MixRegistry;
-import dev.shadowsoffire.placebo.systems.wanderer.WandererTradesRegistry;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
 import net.minecraft.core.registries.Registries;
@@ -63,7 +62,6 @@ public class Placebo {
             PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
         });
         GearSetRegistry.INSTANCE.registerToBus();
-        WandererTradesRegistry.INSTANCE.registerToBus();
         MixRegistry.INSTANCE.registerToBus();
     }
 

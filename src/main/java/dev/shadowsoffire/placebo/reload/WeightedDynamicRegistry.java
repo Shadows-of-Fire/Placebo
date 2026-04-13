@@ -1,10 +1,8 @@
 package dev.shadowsoffire.placebo.reload;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -17,9 +15,8 @@ import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.util.random.WeightedEntry.Wrapper;
-import net.minecraft.util.random.WeightedRandom;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.level.Level;
 
 /**
@@ -29,8 +26,7 @@ import net.minecraft.world.level.Level;
  */
 public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V> & ILuckyWeighted> extends DynamicRegistry<V> {
 
-    protected List<Wrapper<V>> zeroLuckList = Collections.emptyList();
-    protected int zeroLuckTotalWeight = 0;
+    protected WeightedList<V> zeroLuckList = WeightedList.of();
 
     public WeightedDynamicRegistry(Logger logger, String path, boolean synced, boolean subtypes) {
         super(logger, path, synced, subtypes);
@@ -39,8 +35,7 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
     @Override
     protected void beginReload(ReloadType type) {
         super.beginReload(type);
-        this.zeroLuckList = Collections.emptyList();
-        this.zeroLuckTotalWeight = 0;
+        this.zeroLuckList = WeightedList.of();
     }
 
     @Override
@@ -53,8 +48,13 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
     @Override
     protected void onReload(ReloadType type) {
         super.onReload(type);
-        this.zeroLuckList = this.registry.values().stream().map(item -> WeightedEntry.wrap(item, item.getWeight())).toList();
-        this.zeroLuckTotalWeight = WeightedRandom.getTotalWeight(this.zeroLuckList);
+        WeightedList.Builder<V> builder = WeightedList.builder();
+        for (V item : this.registry.values()) {
+            if (item.getWeight() > 0) {
+                builder.add(item, item.getWeight());
+            }
+        }
+        this.zeroLuckList = builder.build();
     }
 
     /**
@@ -70,7 +70,9 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
      */
     @Nullable
     public V getRandomItem(RandomSource rand, float luck) {
-        if (luck == 0) return WeightedRandom.getRandomItem(rand, this.zeroLuckList, this.zeroLuckTotalWeight).map(Wrapper::data).orElse(null);
+        if (luck == 0) {
+            return this.zeroLuckList.getRandom(rand).orElse(null);
+        }
         return this.getRandomItem(rand, luck, Predicates.alwaysTrue());
     }
 
@@ -80,13 +82,18 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
     @Nullable
     @SafeVarargs
     public final V getRandomItem(RandomSource rand, float luck, Predicate<V>... filters) {
-        List<Wrapper<V>> list = new ArrayList<>(this.zeroLuckList.size());
-        var stream = this.registry.values().stream();
+        WeightedList.Builder<V> builder = WeightedList.builder();
+        Stream<V> stream = this.registry.values().stream();
         for (Predicate<V> filter : filters) {
             stream = stream.filter(filter);
         }
-        stream.map(l -> l.<V>wrap(luck)).forEach(list::add);
-        return WeightedRandom.getRandomItem(rand, list).map(Wrapper::data).orElse(null);
+        stream.forEach(item -> {
+            int weight = Math.max(0, item.getWeight() + (int) (luck * item.getQuality()));
+            if (weight > 0) {
+                builder.add(item, weight);
+            }
+        });
+        return builder.build().getRandom(rand).orElse(null);
     }
 
     /**
@@ -106,18 +113,18 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
         public int getWeight();
 
         /**
-         * Helper to wrap this object as a WeightedEntry.
+         * Helper to wrap this object as a {@link Weighted} entry, with its weight adjusted by the given luck value.
          */
         @SuppressWarnings("unchecked")
-        default <T extends ILuckyWeighted> Wrapper<T> wrap(float luck) {
+        default <T extends ILuckyWeighted> Weighted<T> wrap(float luck) {
             return wrap((T) this, luck);
         }
 
         /**
          * Static (and more generic-safe) variant of {@link ILuckyWeighted#wrap(float)}
          */
-        static <T extends ILuckyWeighted> Wrapper<T> wrap(T item, float luck) {
-            return WeightedEntry.wrap(item, Math.max(0, item.getWeight() + (int) (luck * item.getQuality())));
+        static <T extends ILuckyWeighted> Weighted<T> wrap(T item, float luck) {
+            return new Weighted<>(item, Math.max(0, item.getWeight() + (int) (luck * item.getQuality())));
         }
     }
 
@@ -145,7 +152,7 @@ public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V>
         }
 
         public static <T extends IDimensional> Predicate<T> matches(Level level) {
-            return createPredicate(level.dimension().location());
+            return createPredicate(level.dimension().identifier());
         }
     }
 

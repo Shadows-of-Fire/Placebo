@@ -59,7 +59,7 @@ public class MixRegistry extends DynamicRegistry<JsonMix<?>> {
      */
     private static List<@Nullable PotionBrewing> resolveBrewing() {
         List<PotionBrewing> registries = new ArrayList<>();
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             registries.add(PlaceboClient.getBrewingRegistry());
         }
 

@@ -27,7 +27,9 @@ public class ItemStackMixin implements CachedObjectSource {
     private Map<Identifier, CachedObject<?>> getOrCreate() {
         if (this.cachedObjects == null) {
             synchronized (this) {
-                if (this.cachedObjects == null) this.cachedObjects = new ConcurrentHashMap<>();
+                if (this.cachedObjects == null) {
+                    this.cachedObjects = new ConcurrentHashMap<>();
+                }
             }
         }
         return this.cachedObjects;

@@ -10,6 +10,7 @@ import dev.shadowsoffire.placebo.patreon.wings.IWingModel;
 import dev.shadowsoffire.placebo.patreon.wings.Wing;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.PowerParticleOption;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
@@ -20,7 +21,7 @@ public class PatreonUtils {
         CAMPFIRE_SMOKE(() -> ParticleTypes.CAMPFIRE_COSY_SMOKE),
         CLOUD(() -> ParticleTypes.CLOUD),
         DMG_HEART(() -> ParticleTypes.DAMAGE_INDICATOR),
-        DRAGON_BREATH(() -> ParticleTypes.DRAGON_BREATH),
+        DRAGON_BREATH(() -> PowerParticleOption.create(ParticleTypes.DRAGON_BREATH, 1.0F)),
         ELECTRIC_SPARK(() -> ParticleTypes.ELECTRIC_SPARK),
         END_ROD(() -> ParticleTypes.END_ROD),
         FIRE(() -> ParticleTypes.FLAME),

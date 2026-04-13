@@ -1,25 +1,27 @@
 package dev.shadowsoffire.placebo.cap;
 
 import dev.shadowsoffire.placebo.menu.FilteredSlot;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
- * Extension of {@link ItemStackHandler} which provides access to the unrestricted {@link #extractItem} and {@link #insertItem} methods.
+ * Extension of {@link ItemStacksResourceHandler} which provides access to the unrestricted {@link #extractInternal} and {@link #insertInternal} methods.
  * <p>
  * Used by {@link FilteredSlot} so that menus may define their own logic that differs from the logic used by automation.
  */
-public class InternalItemHandler extends ItemStackHandler {
+public class InternalItemHandler extends ItemStacksResourceHandler {
 
     public InternalItemHandler(int size) {
         super(size);
     }
 
-    public ItemStack extractItemInternal(int slot, int amount, boolean simulate) {
-        return super.extractItem(slot, amount, simulate);
+    public int extractInternal(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        return super.extract(index, resource, amount, transaction);
     }
 
-    public ItemStack insertItemInternal(int slot, ItemStack stack, boolean simulate) {
-        return super.insertItem(slot, stack, simulate);
+    public int insertInternal(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        return super.insert(index, resource, amount, transaction);
     }
+
 }

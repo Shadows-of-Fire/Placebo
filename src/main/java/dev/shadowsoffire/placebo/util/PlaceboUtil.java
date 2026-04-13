@@ -28,8 +28,9 @@ public class PlaceboUtil {
     @SafeVarargs
     public static <T> List<T> asList(T... objs) {
         ArrayList<T> list = new ArrayList<>();
-        for (T t : objs)
+        for (T t : objs) {
             list.add(t);
+        }
         return list;
     }
 
@@ -43,16 +44,23 @@ public class PlaceboUtil {
      * @throws IllegalArgumentException if <code>thing</code> is not a valid type.
      */
     public static ItemStack makeStack(Object thing) {
-        if (thing instanceof ItemStack stack) return stack;
-        if (thing instanceof ItemLike il) return new ItemStack(il);
-        if (thing instanceof Holder h) return makeStack(h.value());
+        if (thing instanceof ItemStack stack) {
+            return stack;
+        }
+        if (thing instanceof ItemLike il) {
+            return new ItemStack(il);
+        }
+        if (thing instanceof Holder h) {
+            return makeStack(h.value());
+        }
         throw new IllegalArgumentException("Attempted to create an ItemStack from something that cannot be converted: " + thing);
     }
 
     public static ItemStack[] toStackArray(Object... args) {
         ItemStack[] out = new ItemStack[args.length];
-        for (int i = 0; i < args.length; i++)
+        for (int i = 0; i < args.length; i++) {
             out[i] = makeStack(args[i]);
+        }
         return out;
     }
 

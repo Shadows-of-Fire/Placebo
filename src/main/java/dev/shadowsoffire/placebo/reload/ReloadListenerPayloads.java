@@ -53,7 +53,7 @@ public class ReloadListenerPayloads {
             }
 
             @Override
-            public void handle(Start msg, IPayloadContext ctx) {
+            public void handleClient(Start msg, IPayloadContext ctx) {
                 SyncManagement.initSync(msg.path);
             }
 
@@ -110,7 +110,7 @@ public class ReloadListenerPayloads {
             int size = buf.writerIndex() - buf.readerIndex();
             ByteBuf itemBuf = Unpooled.buffer(size, size);
             buf.readBytes(itemBuf);
-            return new Content<V>(path, key, itemBuf);
+            return new Content<>(path, key, itemBuf);
         }
 
         public static class Provider<V extends CodecProvider<? super V>> implements PayloadProvider<Content<?>> {
@@ -126,7 +126,7 @@ public class ReloadListenerPayloads {
             }
 
             @Override
-            public void handle(Content<?> msg, IPayloadContext ctx) {
+            public void handleClient(Content<?> msg, IPayloadContext ctx) {
                 RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(msg.item.right().get(), ctx.player().registryAccess(), ConnectionType.NEOFORGE);
 
                 try {
@@ -182,7 +182,7 @@ public class ReloadListenerPayloads {
             }
 
             @Override
-            public void handle(End msg, IPayloadContext ctx) {
+            public void handleClient(End msg, IPayloadContext ctx) {
                 SyncManagement.endSync(msg.path);
             }
 

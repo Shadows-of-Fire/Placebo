@@ -60,7 +60,7 @@ public record FilteredOrderingFactory(Predicate<Path> pathFilter, Predicate<Json
 
         /**
          * Applies an ordering based on the given field names, in the given order.
-         * 
+         *
          * @apiNote This method inherits the default mappings from {@link DataProvider#FIXED_ORDER_FIELDS}.
          */
         public Builder order(String... fieldsInOrder) {
@@ -108,7 +108,9 @@ public record FilteredOrderingFactory(Predicate<Path> pathFilter, Predicate<Json
         }
 
         public FilteredOrderingFactory build() {
-            if (this.comparator == null) throw new IllegalStateException("Comparator must be set");
+            if (this.comparator == null) {
+                throw new IllegalStateException("Comparator must be set");
+            }
             return new FilteredOrderingFactory(this.pathFilter, this.jsonFilter, this.comparator);
         }
 

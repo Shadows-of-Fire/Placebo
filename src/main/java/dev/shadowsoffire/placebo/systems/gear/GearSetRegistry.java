@@ -1,6 +1,5 @@
 package dev.shadowsoffire.placebo.systems.gear;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -11,8 +10,7 @@ import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry;
 import dev.shadowsoffire.placebo.systems.gear.GearSet.SetPredicate;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.WeightedEntry.Wrapper;
-import net.minecraft.util.random.WeightedRandom;
+import net.minecraft.util.random.WeightedList;
 
 public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
 
@@ -27,10 +25,15 @@ public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
      */
     @Nullable
     public GearSet getRandomSet(RandomSource rand, float luck, @Nullable List<SetPredicate> armorSets) {
-        if (armorSets == null || armorSets.isEmpty()) return this.getRandomItem(rand, luck);
+        if (armorSets == null || armorSets.isEmpty()) {
+            return this.getRandomItem(rand, luck);
+        }
         List<GearSet> valid = this.registry.values().stream().filter(e -> {
-            for (Predicate<GearSet> f : armorSets)
-                if (f.test(e)) return true;
+            for (Predicate<GearSet> f : armorSets) {
+                if (f.test(e)) {
+                    return true;
+                }
+            }
             return false;
         }).collect(Collectors.toList());
         if (valid.isEmpty()) {
@@ -38,9 +41,14 @@ public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
             armorSets.forEach(s -> Placebo.LOGGER.error(s.toString()));
             return this.getRandomItem(rand, luck);
         }
-        List<Wrapper<GearSet>> list = new ArrayList<>(valid.size());
-        valid.stream().map(l -> l.<GearSet>wrap(luck)).forEach(list::add);
-        return WeightedRandom.getRandomItem(rand, list).map(Wrapper::data).orElse(null);
+        WeightedList.Builder<GearSet> builder = WeightedList.builder();
+        for (GearSet item : valid) {
+            int weight = Math.max(0, item.getWeight() + (int) (luck * item.getQuality()));
+            if (weight > 0) {
+                builder.add(item, weight);
+            }
+        }
+        return builder.build().getRandom(rand).orElse(null);
     }
 
     @Override

@@ -43,7 +43,7 @@ public record JsonMix<T>(Type type, PotionBrewing.Mix<T> mix) implements CodecPr
             return RecordCodecBuilder.mapCodec(inst -> inst
                 .group(
                     elementCodec.fieldOf("from").forGetter(m -> m.mix.from()),
-                    Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(m -> m.mix.ingredient()),
+                    Ingredient.CODEC.fieldOf("ingredient").forGetter(m -> m.mix.ingredient()),
                     elementCodec.fieldOf("to").forGetter(m -> m.mix.to()))
                 .apply(inst, (from, ingredient, to) -> new JsonMix<>(from, ingredient, to, type))
 

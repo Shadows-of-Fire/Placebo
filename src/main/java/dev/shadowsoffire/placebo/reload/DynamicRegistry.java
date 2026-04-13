@@ -20,9 +20,10 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Maps;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 
@@ -36,13 +37,14 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.ReloadableServerResources;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
@@ -63,7 +65,7 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  * @param <R> The base type of objects stored in this registry.
  */
 // TODO: Drop the CodecProvider requirement from this class and bind it to a subclass. Objects without subtypes do not need CodecProvider.
-public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimpleJsonResourceReloadListener<R> {
+public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimplePreparableReloadListener<Map<Identifier, JsonElement>> {
 
     protected final Logger logger;
     protected final String path;
@@ -109,7 +111,6 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @apiNote After construction, {@link #registerToBus()} must be called during setup.
      */
     public DynamicRegistry(Logger logger, String path, boolean synced, boolean subtypes) {
-        super(new GsonBuilder().setLenient().create(), path);
         this.logger = logger;
         this.path = path;
         this.synced = synced;
@@ -125,6 +126,28 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
+     * Walks the datapack and parses raw JSON files from this listener's {@link #path}, returning a map of resource id → parsed JSON.
+     * Codec-based decoding is deferred to {@link #apply}.
+     */
+    @Override
+    protected Map<Identifier, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
+        Map<Identifier, JsonElement> result = new HashMap<>();
+        FileToIdConverter lister = FileToIdConverter.json(this.path);
+        for (Map.Entry<Identifier, Resource> entry : lister.listMatchingResources(manager).entrySet()) {
+            Identifier location = entry.getKey();
+            Identifier id = lister.fileToId(location);
+            try (var reader = entry.getValue().openAsReader()) {
+                JsonElement json = JsonParser.parseReader(reader);
+                result.put(id, json);
+            }
+            catch (JsonParseException | java.io.IOException e) {
+                this.logger.error("Couldn't parse data file '{}' from '{}': {}", id, location, e);
+            }
+        }
+        return result;
+    }
+
+    /**
      * Processes all the json entries through the registration chain. That registration chain is as follows:
      * <ol>
      * <li>Empty JSON check: Empty values are discarded with a warning message.</li>
@@ -133,6 +156,8 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * <li>Validation: Certain states of the object are checked for sanity.</li>
      * <li>Registration: The item is added to the {@link #registry}.</li>
      * </ol>
+     * This parsing step has to happen on the main thread because dynamic registries may have dependencies on other dynamic registries, which will not be respected
+     * when deserializing in prepare().
      */
     @Override
     protected final void apply(Map<Identifier, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
@@ -165,19 +190,11 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * Called when this manager begins reloading all items.
      * Should handle clearing internal data caches.
-     * 
+     *
      * @see {@link ReloadType} for information on the reload types.
      */
     @MustBeInvokedByOverriders
     protected void beginReload(ReloadType type) {
-        this.beginReload();
-    }
-
-    /**
-     * @deprecated Use {@link #beginReload(LogicalSide)} instead.
-     */
-    @Deprecated(forRemoval = true, since = "9.9.0")
-    protected void beginReload() {
         this.callbacks.forEach(l -> l.beginReload(this));
         this.registry = new DynRegBiMap<>();
         this.holders.values().forEach(DynamicHolder::unbind);
@@ -186,19 +203,11 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * Called after this manager has finished reloading all items.
      * Should handle any info logging, and data immutability.
-     * 
+     *
      * @see {@link ReloadType} for information on the reload types.
      */
     @MustBeInvokedByOverriders
     protected void onReload(ReloadType type) {
-        this.onReload();
-    }
-
-    /**
-     * @deprecated Use {@link #onReload(LogicalSide)} instead.
-     */
-    @Deprecated(forRemoval = true, since = "9.9.0")
-    protected void onReload() {
         this.registry = Maps.unmodifiableBiMap(this.registry);
         this.logger.info("Registered {} {}.", this.registry.size(), this.path);
         this.callbacks.forEach(l -> l.onReload(this));
@@ -247,7 +256,9 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * This should be called for ALL listeners from common setup.
      */
     public void registerToBus() {
-        if (this.synced) SyncManagement.registerForSync(this);
+        if (this.synced) {
+            SyncManagement.registerForSync(this);
+        }
         NeoForge.EVENT_BUS.addListener(this::addReloader);
     }
 
@@ -391,7 +402,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * Validates that every created {@link DynamicHolder} is bound to a regsitry entry.
      * <p>
      * This is primarily used as a sanity check in data generation.
-     * 
+     *
      * @throws RuntimeException if any unbound holders are detected.
      */
     public final void validateExistingHolders() {
@@ -416,7 +427,9 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @throws UnsupportedOperationException if the key is already in use.
      */
     protected final void register(Identifier key, R value) {
-        if (this.registry.containsKey(key)) throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a duplicate registry ID! Key: " + key);
+        if (this.registry.containsKey(key)) {
+            throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a duplicate registry ID! Key: " + key);
+        }
         this.validateItem(key, value);
         this.registry.put(key, value);
         this.holders.computeIfAbsent(key, k -> new DynamicHolder<>(this, k));
@@ -435,7 +448,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * Adds this reload listener to the {@link ReloadableServerResources}.
      */
     private void addReloader(AddServerReloadListenersEvent e) {
-        e.addListener(this);
+        e.addListener(Placebo.loc(this.path), this);
     }
 
     /**
@@ -503,7 +516,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         /**
          * The reload is being performed on the client while playing on an integrated server.
          * In this case, the incoming objects are reused from the server, as the registry is a singleton.
-         * 
+         *
          * @apiNote If your objects are mutable, you should avoid re-applying any modifications already applied.
          */
         INTEGRATED_CLIENT,
@@ -531,10 +544,16 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
          * @throws UnsupportedOperationException if the listener is already registered to the sync registry.
          */
         static void registerForSync(DynamicRegistry<?> listener) {
-            if (!listener.synced) throw new UnsupportedOperationException("Attempted to register the non-synced JSON Reload Listener " + listener.path + " as a synced listener!");
+            if (!listener.synced) {
+                throw new UnsupportedOperationException("Attempted to register the non-synced JSON Reload Listener " + listener.path + " as a synced listener!");
+            }
             synchronized (SYNC_REGISTRY) {
-                if (SYNC_REGISTRY.containsKey(listener.path)) throw new UnsupportedOperationException("Attempted to register the JSON Reload Listener for syncing " + listener.path + " but one already exists!");
-                if (SYNC_REGISTRY.isEmpty()) NeoForge.EVENT_BUS.addListener(SyncManagement::syncAll);
+                if (SYNC_REGISTRY.containsKey(listener.path)) {
+                    throw new UnsupportedOperationException("Attempted to register the JSON Reload Listener for syncing " + listener.path + " but one already exists!");
+                }
+                if (SYNC_REGISTRY.isEmpty()) {
+                    NeoForge.EVENT_BUS.addListener(SyncManagement::syncAll);
+                }
                 SYNC_REGISTRY.put(listener.path, listener);
             }
         }
@@ -644,7 +663,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
 
         private DataGenPopulator<R> start() {
             BiMap<Identifier, R> old = registry.registry;
-            registry.beginReload();
+            registry.beginReload(ReloadType.INTEGRATED_CLIENT);
             old.forEach(this::register);
             return this;
         }
@@ -655,7 +674,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         }
 
         private DataGenPopulator<R> end() {
-            registry.onReload();
+            registry.onReload(ReloadType.INTEGRATED_CLIENT);
             return this;
         }
 

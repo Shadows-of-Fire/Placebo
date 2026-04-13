@@ -31,7 +31,9 @@ public class TabFillingRegistry {
      */
     @SafeVarargs
     public static void register(ITabFiller filler, ResourceKey<CreativeModeTab>... tabs) {
-        for (var tab : tabs) registerInternal(tab, filler);
+        for (var tab : tabs) {
+            registerInternal(tab, filler);
+        }
     }
 
     /**
@@ -41,7 +43,9 @@ public class TabFillingRegistry {
      * @param fillers A list of tab fillers to register to the creative tab.
      */
     public static void register(ResourceKey<CreativeModeTab> tab, ITabFiller... fillers) {
-        for (var filler : fillers) registerInternal(tab, filler);
+        for (var filler : fillers) {
+            registerInternal(tab, filler);
+        }
     }
 
     /**
@@ -53,7 +57,9 @@ public class TabFillingRegistry {
      */
     @SafeVarargs
     public static void registerSimple(ItemLike item, ResourceKey<CreativeModeTab>... tabs) {
-        for (var tab : tabs) registerInternal(tab, ITabFiller.simple(item));
+        for (var tab : tabs) {
+            registerInternal(tab, ITabFiller.simple(item));
+        }
     }
 
     /**
@@ -64,7 +70,9 @@ public class TabFillingRegistry {
      * @param items A list of items to register to the creative tab.
      */
     public static void registerSimple(ResourceKey<CreativeModeTab> tab, ItemLike... items) {
-        for (var item : items) registerInternal(tab, ITabFiller.simple(item));
+        for (var item : items) {
+            registerInternal(tab, ITabFiller.simple(item));
+        }
     }
 
     /**
@@ -77,7 +85,9 @@ public class TabFillingRegistry {
      */
     @SafeVarargs
     public static void register(ResourceKey<CreativeModeTab> tab, Supplier<? extends ItemLike>... items) {
-        for (var item : items) registerInternal(tab, ITabFiller.delegating(item));
+        for (var item : items) {
+            registerInternal(tab, ITabFiller.delegating(item));
+        }
     }
 
     /**
@@ -85,7 +95,9 @@ public class TabFillingRegistry {
      */
     @SafeVarargs
     public static void register(ResourceKey<CreativeModeTab> tab, Holder<? extends ItemLike>... items) {
-        for (var item : items) registerInternal(tab, ITabFiller.delegating(item::value));
+        for (var item : items) {
+            registerInternal(tab, ITabFiller.delegating(item::value));
+        }
     }
 
     @ApiStatus.Internal

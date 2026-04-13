@@ -112,7 +112,7 @@ public class DeferredHelper {
 
     /**
      * Fake resource key for data map types, used to hold {@link DataMapType}(s) in {@link #objects} until the {@link RegisterDataMapTypesEvent}.
-     * 
+     *
      * @apiNote This does not point to a real registry! Do not use this key to construct ResourceKey(s).
      */
     protected static final ResourceKey<Registry<DataMapType<?, ?>>> DATA_MAP_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(NeoForgeMod.MOD_ID, "data_map_type"));
@@ -141,7 +141,7 @@ public class DeferredHelper {
      * Creates and returns a {@link Registry} in the current {@link #modid} with the given {@code registryPath}.
      * <p>
      * The registry will be automatically registered to the root registry during the {@link NewRegistryEvent}.
-     * 
+     *
      * @param registryPath The path of the resource location for the new registry.
      * @param config       A registry builder config.
      * @return The newly created registry.
@@ -573,7 +573,7 @@ public class DeferredHelper {
      * Creates and returns a {@link DataMapType} for the {@code targetRegistry}.
      * <p>
      * The data map type will be automatically registered during the {@link RegisterDataMapTypesEvent}.
-     * 
+     *
      * @param <K>            The key type of the data map, which is also the type of the target registry.
      * @param <V>            The value type of the data map.
      * @param path           The path of the resource location for the data map type. The map will always use the {@link #modid} as the namespace.
@@ -593,7 +593,7 @@ public class DeferredHelper {
 
     /**
      * Registers a custom object to the target registry using a supplier.
-     * 
+     *
      * @deprecated Use {@link #customDH(String, ResourceKey, Supplier)} instead. This method has ambiguous generic inference issues with the immediate-mode variant.
      */
     @Deprecated(forRemoval = true)

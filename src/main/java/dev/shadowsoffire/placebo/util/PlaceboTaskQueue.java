@@ -30,7 +30,7 @@ public class PlaceboTaskQueue {
 
     /**
      * Submits a new task for delayed execution.
-     * 
+     *
      * @param delay The delay, in ticks, before the task begins executing.
      */
     public static void submitDelayedTask(Identifier id, int delay, Task task) {
@@ -42,7 +42,7 @@ public class PlaceboTaskQueue {
 
         /**
          * Executes the task, returning a status specifying if the task finished or not.
-         * 
+         *
          * @return The completion status, either {@link Status#RUNNING} to continue executing or {@link Status#COMPLETED} to stop.
          */
         Status execute();

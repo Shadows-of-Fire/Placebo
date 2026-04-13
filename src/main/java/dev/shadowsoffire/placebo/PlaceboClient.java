@@ -8,14 +8,13 @@ import dev.shadowsoffire.placebo.patreon.WingsManager;
 import dev.shadowsoffire.placebo.patreon.wings.Wing;
 import dev.shadowsoffire.placebo.patreon.wings.WingLayer;
 import dev.shadowsoffire.placebo.util.SpecialTooltipItem;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.neoforged.api.distmarker.Dist;
@@ -29,11 +28,14 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent.AddLayers;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = Placebo.MODID)
 public class PlaceboClient {
+
+    public static final KeyMapping.Category KEY_CATEGORY = new KeyMapping.Category(Placebo.loc("keys"));
 
     public static long ticks = 0;
     private static int scrollIdx = 0;
@@ -52,6 +54,7 @@ public class PlaceboClient {
 
     @SubscribeEvent
     public static void keys(RegisterKeyMappingsEvent e) {
+        e.registerCategory(KEY_CATEGORY);
         e.register(TrailsManager.TOGGLE);
         e.register(WingsManager.TOGGLE);
     }
@@ -64,14 +67,21 @@ public class PlaceboClient {
     @SubscribeEvent
     public static void addLayers(AddLayers e) {
         Wing.INSTANCE = new Wing(e.getEntityModels().bakeLayer(WingsManager.WING_LOC));
-        for (PlayerSkin.Model s : e.getSkins()) {
-            LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> skin = e.getSkin(s);
-            skin.addLayer(new WingLayer(skin));
+        for (PlayerModelType s : e.getSkins()) {
+            AvatarRenderer<AbstractClientPlayer> renderer = e.getPlayerRenderer(s);
+            if (renderer != null) {
+                renderer.addLayer(new WingLayer(renderer));
+            }
         }
     }
 
+    @SubscribeEvent
+    public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent e) {
+        WingLayer.registerModifier(e);
+    }
+
     public static float getColorTicks() {
-        return (ticks + Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false)) / 0.5F;
+        return (ticks + Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false)) / 0.5F;
     }
 
     @Nullable
@@ -93,14 +103,14 @@ public class PlaceboClient {
     }
 
     public static void scroll(ScreenEvent.MouseScrolled.Pre e) {
-        if (currentTooltipItem.getItem() instanceof SpecialTooltipItem && tooltipTick == PlaceboClient.ticks && Screen.hasShiftDown()) {
+        if (currentTooltipItem.getItem() instanceof SpecialTooltipItem && tooltipTick == PlaceboClient.ticks && Minecraft.getInstance().hasShiftDown()) {
             scrollIdx += e.getScrollDeltaY() < 0 ? 1 : -1;
             e.setCanceled(true);
         }
     }
 
     public static void scroll2(InputEvent.MouseScrollingEvent e) {
-        if (currentTooltipItem.getItem() instanceof SpecialTooltipItem && tooltipTick == PlaceboClient.ticks && Screen.hasShiftDown()) {
+        if (currentTooltipItem.getItem() instanceof SpecialTooltipItem && tooltipTick == PlaceboClient.ticks && Minecraft.getInstance().hasShiftDown()) {
             scrollIdx += e.getScrollDeltaY() < 0 ? 1 : -1;
             e.setCanceled(true);
         }
