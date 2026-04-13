@@ -13,7 +13,7 @@ public class VanillaPacketDispatcher {
      */
     public static void dispatchTEToNearbyPlayers(BlockEntity tile) {
         ServerLevel world = (ServerLevel) tile.getLevel();
-        world.getChunkSource().chunkMap.getPlayers(new ChunkPos(tile.getBlockPos()), false).forEach(player -> {
+        world.getChunkSource().chunkMap.getPlayers(ChunkPos.containing(tile.getBlockPos()), false).forEach(player -> {
             player.connection.send(tile.getUpdatePacket());
         });
     }

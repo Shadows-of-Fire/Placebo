@@ -53,7 +53,7 @@ public record ButtonClickPayload(int button) implements CustomPacketPayload {
         }
 
         @Override
-        public void handle(ButtonClickPayload msg, IPayloadContext ctx) {
+        public void handleServer(ButtonClickPayload msg, IPayloadContext ctx) {
             if (ctx.player().containerMenu instanceof IButtonContainer) {
                 ((IButtonContainer) ctx.player().containerMenu).onButtonClick(msg.button);
             }

@@ -31,14 +31,23 @@ public interface PayloadProvider<T extends CustomPacketPayload> {
     StreamCodec<? super RegistryFriendlyByteBuf, T> getCodec();
 
     /**
-     * Handle the payload.
+     * Handle the payload when received on the client.
      * See {@link PayloadHelper#handlePacket(Supplier, Supplier)}
      *
      * @param msg The messsage to handle.
      * @param ctx Relevant network context information.
      */
-    void handle(T msg, IPayloadContext ctx);
+    default void handleClient(T msg, IPayloadContext ctx) {}
 
+    /**
+     * Handle the payload when received on the server.
+     * See {@link PayloadHelper#handlePacket(Supplier, Supplier)}
+     *
+     * @param msg The messsage to handle.
+     * @param ctx Relevant network context information.
+     */
+    default void handleServer(T msg, IPayloadContext ctx) {}
+    
     /**
      * Gets a list of all supported connection protocols. This method may allocated a new list, as it is only called once.
      *

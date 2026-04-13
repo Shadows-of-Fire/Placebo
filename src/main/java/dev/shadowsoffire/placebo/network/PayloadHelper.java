@@ -43,7 +43,7 @@ public class PayloadHelper {
     public void registerProviders(RegisterPayloadHandlersEvent event) {
         synchronized (ALL_PROVIDERS) {
             for (PayloadProvider prov : ALL_PROVIDERS.values()) {
-                NetworkRegistry.register(prov.getType(), prov.getCodec(), new PayloadHandler(prov), prov.getSupportedProtocols(), prov.getFlow(), prov.getVersion(), prov.isOptional());
+                NetworkRegistry.register(prov.getType(), prov.getCodec(), new PayloadHandler(prov), new PayloadHandler(prov), prov.getSupportedProtocols(), prov.getFlow(), prov.getVersion(), prov.isOptional());
             }
             locked = true;
         }
@@ -74,9 +74,17 @@ public class PayloadHelper {
                 return;
             }
 
-            switch (provider.getHandlerThread()) {
-                case MAIN -> context.enqueueWork(() -> this.provider.handle(payload, context));
-                case NETWORK -> this.provider.handle(payload, context);
+            if (context.flow() == PacketFlow.CLIENTBOUND) {
+                switch (provider.getHandlerThread()) {
+                    case MAIN -> context.enqueueWork(() -> this.provider.handleClient(payload, context));
+                    case NETWORK -> this.provider.handleClient(payload, context);
+                }
+            }
+            else {
+                switch (provider.getHandlerThread()) {
+                    case MAIN -> context.enqueueWork(() -> this.provider.handleServer(payload, context));
+                    case NETWORK -> this.provider.handleServer(payload, context);
+                }
             }
         }
     }

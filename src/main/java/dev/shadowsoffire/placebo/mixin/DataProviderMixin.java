@@ -16,10 +16,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 
 import dev.shadowsoffire.placebo.datagen.FieldOrderingFactory;
-import net.minecraft.Util;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Util;
 
 @Mixin(value = DataProvider.class, remap = false)
 public interface DataProviderMixin {

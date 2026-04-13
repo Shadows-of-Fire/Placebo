@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
@@ -19,7 +18,6 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 /**
@@ -104,17 +102,10 @@ public class DataGenBuilder {
     }
 
     /**
-     * Overload of {@link #provider(DataProviderFactory)} which accepts a factory that does not need the {@link ExistingFileHelper}.
-     */
-    public <T extends DataProvider> DataGenBuilder provider(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
-        return this.provider((output, registries, fileHelper) -> factory.apply(output, registries));
-    }
-
-    /**
      * Overload of {@link #provider(DataProviderFactory)} which accepts a factory that only needs the {@link PackOutput}.
      */
     public <T extends DataProvider> DataGenBuilder provider(DataProvider.Factory<T> factory) {
-        return this.provider((output, registries, fileHelper) -> factory.create(output));
+        return this.provider((output, registries) -> factory.create(output));
     }
 
     /**
@@ -133,13 +124,13 @@ public class DataGenBuilder {
         DataGenerator generator = event.getGenerator();
         generator.addProvider(true, datapackProvider);
         for (DataProviderFactory<?> factory : this.providers) {
-            generator.addProvider(true, factory.create(output, registries, event.getExistingFileHelper()));
+            generator.addProvider(true, factory.create(output, registries));
         }
     }
 
     @FunctionalInterface
     public static interface DataProviderFactory<T extends DataProvider> {
-        T create(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper fileHelper);
+        T create(PackOutput output, CompletableFuture<HolderLookup.Provider> registries);
     }
 
 }

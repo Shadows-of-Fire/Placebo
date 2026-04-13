@@ -58,21 +58,21 @@ public record PatreonDisablePayload(CosmeticType cosmetic, UUID id) implements C
         }
 
         @Override
-        public void handle(PatreonDisablePayload msg, IPayloadContext ctx) {
-            if (ctx.flow() == PacketFlow.SERVERBOUND) {
-                PacketDistributor.sendToAllPlayers(new PatreonDisablePayload(msg.cosmetic(), ctx.player().getUUID()));
-            }
-            else {
-                Set<UUID> set = switch (msg.cosmetic()) {
-                    case TRAILS -> TrailsManager.DISABLED;
-                    case WINGS -> WingsManager.DISABLED;
-                };
+        public void handleServer(PatreonDisablePayload msg, IPayloadContext ctx) {
+            PacketDistributor.sendToAllPlayers(new PatreonDisablePayload(msg.cosmetic(), ctx.player().getUUID()));
+        }
 
-                if (set.contains(msg.id)) {
-                    set.remove(msg.id);
-                }
-                else set.add(msg.id);
+        @Override
+        public void handleClient(PatreonDisablePayload msg, IPayloadContext ctx) {
+            Set<UUID> set = switch (msg.cosmetic()) {
+                case TRAILS -> TrailsManager.DISABLED;
+                case WINGS -> WingsManager.DISABLED;
+            };
+
+            if (set.contains(msg.id)) {
+                set.remove(msg.id);
             }
+            else set.add(msg.id);
         }
 
         @Override

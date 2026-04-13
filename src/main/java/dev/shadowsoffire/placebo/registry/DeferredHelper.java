@@ -28,11 +28,11 @@ import dev.shadowsoffire.placebo.menu.MenuUtil;
 import dev.shadowsoffire.placebo.menu.MenuUtil.PosFactory;
 import dev.shadowsoffire.placebo.util.DeferredSet;
 import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -40,8 +40,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.StatType;
@@ -74,17 +74,16 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntryType;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
-import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -116,7 +115,7 @@ public class DeferredHelper {
      * 
      * @apiNote This does not point to a real registry! Do not use this key to construct ResourceKey(s).
      */
-    protected static final ResourceKey<Registry<DataMapType<?, ?>>> DATA_MAP_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(NeoForgeVersion.MOD_ID, "data_map_type"));
+    protected static final ResourceKey<Registry<DataMapType<?, ?>>> DATA_MAP_KEY = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(NeoForgeMod.MOD_ID, "data_map_type"));
 
     protected final String modid;
     protected final Map<ResourceKey<? extends Registry<?>>, List<Registrar<?>>> objects;
@@ -229,15 +228,17 @@ public class DeferredHelper {
     /**
      * Registers a {@link SoundEvent} using a supplier.
      */
-    public <T extends SoundEvent> DeferredHolder<SoundEvent, T> sound(String path, Supplier<T> factory) {
+    public DeferredHolder<SoundEvent, SoundEvent> sound(String path, Supplier<SoundEvent> factory) {
         return this.registerDH(path, Registries.SOUND_EVENT, factory);
     }
 
     /**
-     * Registers a {@link SoundEvent} using the given path via {@link SoundEvent#createVariableRangeEvent}.
+     * Immediately creates and stages for registration a {@link SoundEvent} using the given path via {@link SoundEvent#createVariableRangeEvent}.
      */
-    public Holder<SoundEvent> sound(String path) {
-        return this.sound(path, () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(this.modid, path)));
+    public SoundEvent sound(String path) {
+        SoundEvent sound = SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(this.modid, path));
+        this.sound(path, () -> sound);
+        return sound;
     }
 
     /**
@@ -253,7 +254,7 @@ public class DeferredHelper {
     public DeferredHolder<Potion, Potion> singlePotion(String path, Supplier<MobEffectInstance> factory) {
         return this.registerDH(path, Registries.POTION, () -> {
             MobEffectInstance inst = factory.get();
-            Identifier key = inst.getEffect().getKey().location();
+            Identifier key = inst.getEffect().getKey().identifier();
             return new Potion(key.toLanguageKey(), inst);
         });
     }
@@ -277,7 +278,7 @@ public class DeferredHelper {
      * Registers an {@link EntityType} given the {@link EntityFactory}, {@link MobCategory}, and a function to configure the type.
      */
     public <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> entity(String path, EntityFactory<T> factory, MobCategory category, UnaryOperator<EntityType.Builder<T>> op) {
-        String key = Identifier.fromNamespaceAndPath(this.modid, path).toLanguageKey("entity");
+        ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(this.modid, path));
         return this.entity(path, () -> op.apply(EntityType.Builder.of(factory, category)).build(key));
     }
 
@@ -285,7 +286,7 @@ public class DeferredHelper {
      * Registers a {@link BlockEntityType} given the {@link BlockEntitySupplier} and a supplier to the set of valid blocks.
      */
     public <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> blockEntity(String path, BlockEntitySupplier<T> factory, Supplier<Set<Block>> validBlocks) {
-        return this.registerDH(path, Registries.BLOCK_ENTITY_TYPE, () -> new BlockEntityType<T>(factory, validBlocks.get(), null));
+        return this.registerDH(path, Registries.BLOCK_ENTITY_TYPE, () -> new BlockEntityType<T>(factory, validBlocks.get()));
     }
 
     /**
@@ -297,7 +298,7 @@ public class DeferredHelper {
     @SafeVarargs
     public final <T extends BlockEntity> BlockEntityType<T> blockEntity(String path, BlockEntitySupplier<T> factory, Holder<Block>... validBlocks) {
         unfreezeBETypeRegistry();
-        BlockEntityType<T> type = new BlockEntityType<>(factory, new DeferredSet<>(() -> Arrays.stream(validBlocks).map(Holder::value).collect(Collectors.toSet())), null);
+        BlockEntityType<T> type = new BlockEntityType<>(factory, new DeferredSet<>(() -> Arrays.stream(validBlocks).map(Holder::value).collect(Collectors.toSet())));
         this.register(path, Registries.BLOCK_ENTITY_TYPE, () -> {
             type.getValidBlocks(); // Force resolution of the DeferredSet during registration
             return type;
@@ -412,7 +413,7 @@ public class DeferredHelper {
     /**
      * Registers a {@link RecipeSerializer} using a supplier.
      */
-    public <C extends RecipeInput, U extends Recipe<C>, T extends RecipeSerializer<U>> DeferredHolder<RecipeSerializer<?>, T> recipeSerializer(String path, Supplier<T> factory) {
+    public <I extends RecipeInput, R extends Recipe<I>> DeferredHolder<RecipeSerializer<?>, RecipeSerializer<R>> recipeSerializer(String path, Supplier<RecipeSerializer<R>> factory) {
         return this.registerDH(path, Registries.RECIPE_SERIALIZER, factory);
     }
 
@@ -513,9 +514,9 @@ public class DeferredHelper {
     /**
      * Registers a {@link LootPoolEntryType} and returns it.
      */
-    public LootPoolEntryType lootPoolEntry(String path, LootPoolEntryType type) {
-        this.register(path, Registries.LOOT_POOL_ENTRY_TYPE, () -> type);
-        return type;
+    public <T extends LootPoolEntryContainer> MapCodec<T> lootPoolEntry(String path, MapCodec<T> codec) {
+        this.register(path, Registries.LOOT_POOL_ENTRY_TYPE, () -> codec);
+        return codec;
     }
 
     /**
@@ -529,10 +530,9 @@ public class DeferredHelper {
     /**
      * Registers a codec for a {@link LootItemCondition} and returns the new {@link LootItemConditionType}.
      */
-    public LootItemConditionType lootCondition(String path, MapCodec<? extends LootItemCondition> codec) {
-        LootItemConditionType type = new LootItemConditionType(codec);
-        this.register(path, Registries.LOOT_CONDITION_TYPE, () -> type);
-        return type;
+    public <T extends LootItemCondition> MapCodec<T> lootCondition(String path, MapCodec<T> codec) {
+        this.register(path, Registries.LOOT_CONDITION_TYPE, () -> codec);
+        return codec;
     }
 
     /**
@@ -554,9 +554,9 @@ public class DeferredHelper {
     /**
      * Registers an {@link ItemSubPredicate.Type} and returns it.
      */
-    public <T extends ItemSubPredicate> ItemSubPredicate.Type<T> itemSubPredicate(String path, Codec<T> codec) {
-        ItemSubPredicate.Type<T> type = new ItemSubPredicate.Type<>(codec);
-        this.register(path, Registries.ITEM_SUB_PREDICATE_TYPE, () -> type);
+    public <T extends DataComponentPredicate> DataComponentPredicate.Type<T> componentPredicate(String path, Codec<T> codec) {
+        DataComponentPredicate.Type<T> type = new DataComponentPredicate.ConcreteType<>(codec);
+        this.register(path, Registries.DATA_COMPONENT_PREDICATE_TYPE, () -> type);
         return type;
     }
 
@@ -660,7 +660,7 @@ public class DeferredHelper {
      */
     protected <T> void registerRegistry(ResourceKey<? extends Registry<T>> key, Registry<T> registry) {
         List<Registrar<?>> registrars = this.objects.computeIfAbsent(ROOT_REGISTRY_KEY, k -> new ArrayList<>());
-        Identifier id = key.location();
+        Identifier id = key.identifier();
         registrars.add(new Registrar<>(id, () -> registry));
     }
 
@@ -669,7 +669,7 @@ public class DeferredHelper {
      */
     protected <K, V> void registerDataMap(ResourceKey<? extends DataMapType<?, ?>> key, DataMapType<K, V> type) {
         List<Registrar<?>> registrars = this.objects.computeIfAbsent(DATA_MAP_KEY, k -> new ArrayList<>());
-        Identifier id = key.location();
+        Identifier id = key.identifier();
         registrars.add(new Registrar<>(id, () -> type));
     }
 
@@ -729,7 +729,7 @@ public class DeferredHelper {
      */
     @SuppressWarnings("deprecation")
     private static void unfreezeBETypeRegistry() {
-        ((MappedRegistry<BlockEntityType<?>>) BuiltInRegistries.BLOCK_ENTITY_TYPE).unfreeze();
+        ((MappedRegistry<BlockEntityType<?>>) BuiltInRegistries.BLOCK_ENTITY_TYPE).unfreeze(false);
     }
 
     protected static record Registrar<T>(Identifier id, Supplier<T> factory, @Nullable Consumer<T> callback) {
