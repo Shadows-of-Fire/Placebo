@@ -165,7 +165,8 @@ public class DeferredHelper {
      * Registers a {@link Block} with a reference to its constructor, configuring a new {@link Block.Properties} instance with the supplied operator.
      */
     public <T extends Block> DeferredBlock<T> block(String path, Function<Block.Properties, T> ctor, UnaryOperator<Block.Properties> properties) {
-        return this.block(path, () -> ctor.apply(properties.apply(Block.Properties.of())));
+        ResourceKey<Block> key = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(this.modid, path));
+        return this.block(path, () -> ctor.apply(properties.apply(Block.Properties.of()).setId(key)));
     }
 
     /**
@@ -187,7 +188,8 @@ public class DeferredHelper {
      * Registers an {@link Item} with a reference to its constructor, configuring a new {@link Item.Properties} instance with the supplied operator.
      */
     public <T extends Item> DeferredItem<T> item(String path, Function<Item.Properties, T> ctor, UnaryOperator<Item.Properties> properties) {
-        return item(path, () -> ctor.apply(properties.apply(new Item.Properties())));
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(this.modid, path));
+        return item(path, () -> ctor.apply(properties.apply(new Item.Properties()).setId(key)));
     }
 
     /**
@@ -201,7 +203,8 @@ public class DeferredHelper {
      * Registers a subclass of {@link BlockItem} given a target block, the constructor, and an {@link Item.Properties} factory.
      */
     public <T extends BlockItem> DeferredItem<T> blockItem(String path, Holder<Block> block, BiFunction<Block, Item.Properties, T> ctor, UnaryOperator<Item.Properties> properties) {
-        return item(path, () -> ctor.apply(block.value(), properties.apply(new Item.Properties())));
+        ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(this.modid, path));
+        return item(path, () -> ctor.apply(block.value(), properties.apply(new Item.Properties()).setId(key)));
     }
 
     /**

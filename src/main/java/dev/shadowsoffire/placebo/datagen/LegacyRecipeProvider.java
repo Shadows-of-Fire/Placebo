@@ -13,9 +13,11 @@ import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -117,7 +119,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
 
         Recipe.CommonInfo commonInfo = new Recipe.CommonInfo(true);
         CraftingRecipe.CraftingBookInfo bookInfo = new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, group);
-        ShapedRecipe recipe = new ShapedRecipe(commonInfo, bookInfo, toPattern(width, height, createInput(true, input)), toTemplate(makeStack(output)));
+        ShapedRecipe recipe = new ShapedRecipe(commonInfo, bookInfo, toPattern(width, height, createInput(true, input)), makeTemplate(output));
         this.recipeOutput.accept(recipeKey(key), recipe, null);
     }
 
@@ -132,7 +134,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
     public void addShapeless(Identifier key, String group, Object output, Object... inputs) {
         Recipe.CommonInfo commonInfo = new Recipe.CommonInfo(true);
         CraftingRecipe.CraftingBookInfo bookInfo = new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, group);
-        ShapelessRecipe recipe = new ShapelessRecipe(commonInfo, bookInfo, toTemplate(makeStack(output)), createInput(false, inputs));
+        ShapelessRecipe recipe = new ShapelessRecipe(commonInfo, bookInfo, makeTemplate(output), createInput(false, inputs));
         this.recipeOutput.accept(recipeKey(key), recipe, null);
     }
 
@@ -161,7 +163,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
      * @see #addShaped(Identifier, String, Object, int, int, Object...)
      */
     public void addShaped(Object output, int width, int height, Object... input) {
-        ItemStack out = makeStack(output);
+        ItemStackTemplate out = makeTemplate(output);
         String path = this.resolvePath(out);
         this.addShaped(Identifier.fromNamespaceAndPath(this.modid, path), this.modid, out, width, height, input);
     }
@@ -173,7 +175,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
      * @see #addShapeless(Identifier, String, Object, Object...)
      */
     public void addShapeless(Object output, Object... inputs) {
-        ItemStack out = makeStack(output);
+        ItemStackTemplate out = makeTemplate(output);
         String path = this.resolvePath(out);
         this.addShapeless(Identifier.fromNamespaceAndPath(this.modid, path), this.modid, out, inputs);
     }
@@ -182,16 +184,14 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
      * Creates an {@link Ingredient} matching a potion item with the given potion type.
      */
     public static Ingredient potionIngredient(Holder<Potion> type) {
-        ItemStack potionStack = new ItemStack(Items.POTION);
-        potionStack.set(DataComponents.POTION_CONTENTS, new PotionContents(type));
-        return DataComponentIngredient.of(false, potionStack);
+        return DataComponentIngredient.of(false, DataComponents.POTION_CONTENTS, new PotionContents(type), Items.POTION);
     }
 
     /**
-     * Resolves a potential path for the given output object. Avoids duplicates by appending underscores.
+     * Resolves a potential path for the given output template. Avoids duplicates by appending underscores.
      */
-    protected String resolvePath(ItemStack output) {
-        String path = BuiltInRegistries.ITEM.getKey(output.getItem()).getPath();
+    protected String resolvePath(ItemStackTemplate output) {
+        String path = BuiltInRegistries.ITEM.getKey(output.item().value()).getPath();
         while (this.usedPaths.contains(path)) {
             path += "_";
         }
@@ -200,26 +200,28 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
     }
 
     /**
-     * Transforms an object that could be converted into an {@link ItemStack} into one.
+     * Transforms an object that could be converted into an {@link ItemStackTemplate} into one.
+     * <p>
+     * During 26.1 datagen, default components may not yet be bound on registered items, so this helper
+     * avoids constructing an {@link ItemStack} and instead builds the template directly from a holder.
      *
-     * @param thing A potential candidate object. One of {@link ItemStack}, {@link ItemLike}, or a {@link Holder} containing an {@link ItemLike}.
-     * @throws IllegalArgumentException if the type of object is unknown
+     * @param thing A candidate object. One of {@link ItemStackTemplate}, {@link ItemStack}, {@link ItemLike}, or a {@link Holder} containing an {@link ItemLike}.
+     * @throws IllegalArgumentException if the type of object is unknown.
      */
-    protected static ItemStack makeStack(Object thing) {
+    protected static ItemStackTemplate makeTemplate(Object thing) {
+        if (thing instanceof ItemStackTemplate template) {
+            return template;
+        }
         if (thing instanceof ItemStack stack) {
-            return stack;
+            return new ItemStackTemplate(stack.getItem(), stack.getCount(), stack.getComponentsPatch());
         }
         if (thing instanceof ItemLike il) {
-            return new ItemStack(il);
+            return new ItemStackTemplate(il.asItem().builtInRegistryHolder(), 1, DataComponentPatch.EMPTY);
         }
-        if (thing instanceof Holder<?> h) {
-            return new ItemStack((ItemLike) h.value());
+        if (thing instanceof Holder<?> h && h.value() instanceof ItemLike il) {
+            return new ItemStackTemplate(il.asItem().builtInRegistryHolder(), 1, DataComponentPatch.EMPTY);
         }
-        throw new IllegalArgumentException("Attempted to create an ItemStack from something that cannot be converted: " + thing);
-    }
-
-    private static ItemStackTemplate toTemplate(ItemStack stack) {
-        return new ItemStackTemplate(stack.getItem(), stack.getCount(), stack.getComponentsPatch());
+        throw new IllegalArgumentException("Attempted to create an ItemStackTemplate from something that cannot be converted: " + thing);
     }
 
     private static ResourceKey<Recipe<?>> recipeKey(Identifier id) {
@@ -246,36 +248,60 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected NonNullList<Ingredient> createInput(boolean allowEmpty, Object... inputArr) {
+        HolderGetter<Item> items = this.currentRegistries.lookupOrThrow(Registries.ITEM);
+        // Cache so repeated inputs resolve to the SAME Ingredient instance — 26.1 Ingredients do not
+        // implement content-based equality, so toPattern's dedup HashMap relies on instance identity.
+        Map<Object, Ingredient> cache = new HashMap<>();
         NonNullList<Ingredient> inputL = NonNullList.create();
         for (int i = 0; i < inputArr.length; i++) {
             Object input = inputArr[i];
+            if (allowEmpty && (input == null || input == ItemStack.EMPTY)) {
+                inputL.add(i, EMPTY_INGREDIENT_SENTINEL);
+                continue;
+            }
+            Ingredient cached = cache.get(input);
+            if (cached != null) {
+                inputL.add(i, cached);
+                continue;
+            }
+            Ingredient ingredient;
             if (input instanceof TagKey tag) {
-                inputL.add(i, Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(tag)));
+                ingredient = Ingredient.of(items.getOrThrow((TagKey<Item>) tag));
             }
             else if (input instanceof String str) {
                 TagKey<Item> parsed = ItemTags.create(Identifier.parse(str));
-                inputL.add(i, Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(parsed)));
+                ingredient = Ingredient.of(items.getOrThrow(parsed));
+            }
+            else if (input instanceof ItemStackTemplate template) {
+                if (template.components().isEmpty()) {
+                    ingredient = Ingredient.of(template.item().value());
+                }
+                else {
+                    ingredient = DataComponentIngredient.of(false, template);
+                }
             }
             else if (input instanceof ItemStack stack && !stack.isEmpty()) {
                 if (stack.getComponentsPatch().isEmpty()) {
-                    inputL.add(i, Ingredient.of(stack.getItem()));
+                    ingredient = Ingredient.of(stack.getItem());
                 }
                 else {
-                    inputL.add(i, DataComponentIngredient.of(false, stack));
+                    ingredient = DataComponentIngredient.of(false, stack);
                 }
             }
-            else if (input instanceof ItemLike || input instanceof Holder) {
-                inputL.add(i, Ingredient.of(makeStack(input).getItem()));
+            else if (input instanceof ItemLike il) {
+                ingredient = Ingredient.of(il.asItem());
+            }
+            else if (input instanceof Holder<?> h && h.value() instanceof ItemLike il) {
+                ingredient = Ingredient.of(il.asItem());
             }
             else if (input instanceof Ingredient ing) {
-                inputL.add(i, ing);
-            }
-            else if (allowEmpty && (input == null || input == ItemStack.EMPTY)) {
-                inputL.add(i, EMPTY_INGREDIENT_SENTINEL);
+                ingredient = ing;
             }
             else {
                 throw new UnsupportedOperationException("Attempted to add invalid recipe. Input " + input + " not allowed.");
             }
+            cache.put(input, ingredient);
+            inputL.add(i, ingredient);
         }
         return inputL;
     }
