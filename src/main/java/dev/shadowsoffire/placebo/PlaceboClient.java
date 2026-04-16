@@ -25,6 +25,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent.AddLayers;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterLayerDefinitions;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
@@ -45,11 +46,16 @@ public class PlaceboClient {
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e) {
         TrailsManager.init();
-        WingsManager.init(e);
+        WingsManager.init();
         NeoForge.EVENT_BUS.addListener(PlaceboClient::tick);
         NeoForge.EVENT_BUS.addListener(PlaceboClient::tooltip);
         NeoForge.EVENT_BUS.addListener(PlaceboClient::scroll);
         NeoForge.EVENT_BUS.addListener(PlaceboClient::scroll2);
+    }
+
+    @SubscribeEvent
+    public static void registerLayerDefinitions(RegisterLayerDefinitions e) {
+        e.registerLayerDefinition(WingsManager.WING_LOC, Wing::createLayer);
     }
 
     @SubscribeEvent

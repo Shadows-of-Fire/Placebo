@@ -18,15 +18,12 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.PlaceboClient;
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
-import dev.shadowsoffire.placebo.patreon.wings.Wing;
 import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload;
 import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload.CosmeticType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.NeoForge;
@@ -38,10 +35,7 @@ public class WingsManager {
     public static final Set<UUID> DISABLED = new HashSet<>();
     public static final ModelLayerLocation WING_LOC = new ModelLayerLocation(Placebo.loc("wings"), "main");
 
-    public static void init(FMLClientSetupEvent e) {
-        e.enqueueWork(() -> {
-            ClientHooks.registerLayerDefinition(WING_LOC, Wing::createLayer);
-        });
+    public static void init() {
         new Thread(() -> {
             Placebo.LOGGER.info("Loading patreon wing data...");
             try {
