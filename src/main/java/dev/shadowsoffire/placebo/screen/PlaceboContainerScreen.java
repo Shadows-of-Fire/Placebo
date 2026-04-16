@@ -8,8 +8,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 
 public abstract class PlaceboContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T> {
 
-    public PlaceboContainerScreen(T pMenu, Inventory pPlayerInventory, Component pTitle) {
-        super(pMenu, pPlayerInventory, pTitle);
+    public PlaceboContainerScreen(T menu, Inventory inv, Component title) {
+        super(menu, inv, title);
+    }
+
+    public PlaceboContainerScreen(T menu, Inventory inv, Component title, int imageWidth, int imageHeight) {
+        super(menu, inv, title, imageWidth, imageHeight);
     }
 
 }
