@@ -204,7 +204,7 @@ public class DeferredHelper {
      */
     public <T extends BlockItem> DeferredItem<T> blockItem(String path, Holder<Block> block, BiFunction<Block, Item.Properties, T> ctor, UnaryOperator<Item.Properties> properties) {
         ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(this.modid, path));
-        return item(path, () -> ctor.apply(block.value(), properties.apply(new Item.Properties()).setId(key)));
+        return item(path, () -> ctor.apply(block.value(), properties.apply(new Item.Properties().useBlockDescriptionPrefix()).setId(key)));
     }
 
     /**
