@@ -33,7 +33,6 @@ public class HashCacheMixin {
 
     @Inject(method = "purgeStaleAndWrite", at = @At(value = "INVOKE", target = "Ljava/util/Map;forEach"), require = 1)
     public void placebo_skipSomeMetadata(CallbackInfo ci, @Local Set<Path> allowedFiles) throws IOException {
-        allowedFiles.add(this.rootDir.resolve("META-INF" + File.separator + "coremods.json"));
         allowedFiles.add(this.rootDir.resolve("META-INF" + File.separator + "neoforge.mods.toml"));
         for (Path p : Files.newDirectoryStream(this.rootDir, "*.mixins.json")) {
             allowedFiles.add(p);
