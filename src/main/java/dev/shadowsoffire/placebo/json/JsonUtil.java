@@ -1,6 +1,6 @@
 package dev.shadowsoffire.placebo.json;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import com.google.gson.JsonElement;
 

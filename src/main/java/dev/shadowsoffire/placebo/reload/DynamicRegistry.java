@@ -11,9 +11,9 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
+import org.slf4j.Logger;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;

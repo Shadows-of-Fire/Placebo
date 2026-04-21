@@ -208,6 +208,7 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
      * @param thing A candidate object. One of {@link ItemStackTemplate}, {@link ItemStack}, {@link ItemLike}, or a {@link Holder} containing an {@link ItemLike}.
      * @throws IllegalArgumentException if the type of object is unknown.
      */
+    @SuppressWarnings("deprecation")
     protected static ItemStackTemplate makeTemplate(Object thing) {
         if (thing instanceof ItemStackTemplate template) {
             return template;

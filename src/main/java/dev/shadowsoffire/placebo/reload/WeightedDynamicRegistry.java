@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;

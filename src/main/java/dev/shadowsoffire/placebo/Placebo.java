@@ -2,8 +2,8 @@ package dev.shadowsoffire.placebo;
 
 import java.util.HashMap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
@@ -37,7 +37,7 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 public class Placebo {
 
     public static final String MODID = "placebo";
-    public static final Logger LOGGER = LogManager.getLogger(MODID);
+    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 
     public Placebo(IEventBus bus) {
         bus.register(this);

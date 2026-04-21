@@ -8,7 +8,7 @@ license="MIT License"
 
 modId="placebo"
 
-version="10.0.0-beta4"
+version="10.0.0-beta5"
 
 displayName="Placebo"
 
@@ -29,6 +29,6 @@ config="placebo.mixins.json"
 [[dependencies.placebo]]
     modId="neoforge"
     type="required"
-    versionRange="[26.1.2.7-beta,)"
+    versionRange="[26.1.2.22-beta,)"
     ordering="NONE"
     side="BOTH"

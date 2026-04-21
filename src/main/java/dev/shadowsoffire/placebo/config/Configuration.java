@@ -49,8 +49,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;
@@ -65,7 +65,7 @@ import net.neoforged.fml.loading.FMLPaths;
  * various categories for configuration variables.
  */
 public class Configuration {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger("Placebo - Configuration");
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_CLIENT = "client";
@@ -95,7 +95,7 @@ public class Configuration {
         }
         catch (Throwable e) {
             File fileBak = new File(file.getAbsolutePath() + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".errored");
-            Placebo.LOGGER.fatal("An exception occurred while loading config file {}. This file will be renamed to {} " + "and a new config file will be generated.", file.getName(), fileBak.getName(), e);
+            Placebo.LOGGER.error("An exception occurred while loading config file {}. This file will be renamed to {} " + "and a new config file will be generated.", file.getName(), fileBak.getName(), e);
 
             file.renameTo(fileBak);
             this.load();
