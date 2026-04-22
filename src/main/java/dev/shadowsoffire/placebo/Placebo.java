@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
 import dev.shadowsoffire.placebo.events.ResourceReloadEvent;
-import dev.shadowsoffire.placebo.loot.StackLootEntry;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.payloads.ButtonClickPayload;
 import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload;
@@ -17,7 +16,6 @@ import dev.shadowsoffire.placebo.systems.gear.GearSetRegistry;
 import dev.shadowsoffire.placebo.systems.mixes.MixRegistry;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import dev.shadowsoffire.placebo.util.PlaceboUtil;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -30,7 +28,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod(Placebo.MODID)
 @SuppressWarnings("deprecation")
@@ -63,13 +60,6 @@ public class Placebo {
         });
         GearSetRegistry.INSTANCE.registerToBus();
         MixRegistry.INSTANCE.registerToBus();
-    }
-
-    @SubscribeEvent
-    public void register(RegisterEvent e) {
-        e.register(Registries.LOOT_POOL_ENTRY_TYPE, helper -> {
-            helper.register(loc("stack_entry"), StackLootEntry.CODEC);
-        });
     }
 
     public void registerCommands(RegisterCommandsEvent e) {
