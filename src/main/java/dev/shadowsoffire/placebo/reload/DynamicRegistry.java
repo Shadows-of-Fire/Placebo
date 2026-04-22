@@ -408,7 +408,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     public final void validateExistingHolders() {
         String error = "";
         for (DynamicHolder<R> holder : this.holders.values()) {
-            if (!holder.isBound()) {
+            if (!holder.isBound() && holder != this.emptyHolder()) {
                 error += "Failed to validate dynamic holder %s for registry %s\n".formatted(holder.getId(), this.getPath());
             }
         }
