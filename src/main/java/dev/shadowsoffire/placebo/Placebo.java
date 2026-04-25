@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
+import dev.shadowsoffire.placebo.dynreg.ReloadListenerPayloads;
 import dev.shadowsoffire.placebo.events.ResourceReloadEvent;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.payloads.ButtonClickPayload;
 import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload;
-import dev.shadowsoffire.placebo.reload.ReloadListenerPayloads;
 import dev.shadowsoffire.placebo.systems.gear.GearSetRegistry;
 import dev.shadowsoffire.placebo.systems.mixes.MixRegistry;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;

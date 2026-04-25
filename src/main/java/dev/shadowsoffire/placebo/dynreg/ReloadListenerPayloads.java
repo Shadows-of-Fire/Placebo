@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.reload;
+package dev.shadowsoffire.placebo.dynreg;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,9 +8,8 @@ import org.jetbrains.annotations.ApiStatus;
 import com.mojang.datafixers.util.Either;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.codec.CodecProvider;
+import dev.shadowsoffire.placebo.dynreg.DynamicRegistry.SyncManagement;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
-import dev.shadowsoffire.placebo.reload.DynamicRegistry.SyncManagement;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.ConnectionProtocol;
@@ -74,7 +73,7 @@ public class ReloadListenerPayloads {
         }
     }
 
-    public static record Content<V extends CodecProvider<? super V>>(String path, Identifier key, Either<V, ByteBuf> item) implements CustomPacketPayload {
+    public static record Content<V>(String path, Identifier key, Either<V, ByteBuf> item) implements CustomPacketPayload {
 
         public static final Type<Content<?>> TYPE = new Type<>(Placebo.loc("reload_sync_content"));
 
@@ -93,7 +92,7 @@ public class ReloadListenerPayloads {
             return TYPE;
         }
 
-        public static <V extends CodecProvider<? super V>> void write(RegistryFriendlyByteBuf buf, Content<V> payload) {
+        public static <V> void write(RegistryFriendlyByteBuf buf, Content<V> payload) {
             buf.writeUtf(payload.path, 50);
             buf.writeIdentifier(payload.key);
             SyncManagement.writeItem(payload.path, payload.item.orThrow(), buf);
@@ -103,7 +102,7 @@ public class ReloadListenerPayloads {
          * Reads a content payload. We defer deserialization of the underlying object, since it may depend on the state of
          * other registries that are being setup on the main thread.
          */
-        public static <V extends CodecProvider<? super V>> Content<V> read(RegistryFriendlyByteBuf buf) {
+        public static <V> Content<V> read(RegistryFriendlyByteBuf buf) {
             String path = buf.readUtf(50);
             Identifier key = buf.readIdentifier();
 
@@ -113,7 +112,7 @@ public class ReloadListenerPayloads {
             return new Content<>(path, key, itemBuf);
         }
 
-        public static class Provider<V extends CodecProvider<? super V>> implements PayloadProvider<Content<?>> {
+        public static class Provider<V> implements PayloadProvider<Content<?>> {
 
             @Override
             public Type<Content<?>> getType() {

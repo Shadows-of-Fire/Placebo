@@ -1,11 +1,10 @@
-package dev.shadowsoffire.placebo.reload;
+package dev.shadowsoffire.placebo.dynreg;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 
 import com.google.common.collect.BiMap;
 
-import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.util.AbstractBiMap;
 import net.minecraft.resources.Identifier;
 
@@ -15,7 +14,7 @@ import net.minecraft.resources.Identifier;
  * <p>
  * This preserves the structure that registry values should be compared by identity when retrieving their keys.
  */
-public class DynRegBiMap<R extends CodecProvider<? super R>> extends AbstractBiMap<Identifier, R> {
+public class DynRegBiMap<R> extends AbstractBiMap<Identifier, R> {
 
     public DynRegBiMap() {
         super(new HashMap<>(), new IdentityHashMap<>());

@@ -1,17 +1,15 @@
-package dev.shadowsoffire.placebo.reload;
+package dev.shadowsoffire.placebo.dynreg;
 
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.ApiStatus;
-
-import dev.shadowsoffire.placebo.codec.CodecProvider;
 
 /**
  * A Listener Callback is something that reacts to the loading stages of {@link DynamicRegistry}.
  *
  * @param <R> The type of the reload listener.
  */
-public interface RegistryCallback<R extends CodecProvider<? super R>> {
+public interface RegistryCallback<R> {
 
     /**
      * Called when the manager begins reloading, before the registry has been cleared.
@@ -35,7 +33,7 @@ public interface RegistryCallback<R extends CodecProvider<? super R>> {
      * @param onReload    The consumer to run on reload completion.
      * @return A ListenerCallback composing the two consumers.
      */
-    public static <R extends CodecProvider<? super R>> RegistryCallback<R> create(Consumer<DynamicRegistry<R>> beginReload, Consumer<DynamicRegistry<R>> onReload) {
+    public static <R> RegistryCallback<R> create(Consumer<DynamicRegistry<R>> beginReload, Consumer<DynamicRegistry<R>> onReload) {
         return new Delegated<>(beginReload, onReload);
     }
 
@@ -46,7 +44,7 @@ public interface RegistryCallback<R extends CodecProvider<? super R>> {
      * @param beginReload The consumer to run on reload start.
      * @return A ListenerCallback that will run the consumer on reload start.
      */
-    public static <R extends CodecProvider<? super R>> RegistryCallback<R> beginOnly(Consumer<DynamicRegistry<R>> beginReload) {
+    public static <R> RegistryCallback<R> beginOnly(Consumer<DynamicRegistry<R>> beginReload) {
         return new Delegated<>(beginReload, v -> {});
     }
 
@@ -57,12 +55,12 @@ public interface RegistryCallback<R extends CodecProvider<? super R>> {
      * @param onReload The consumer to run on reload completion.
      * @return A ListenerCallback that will run the consumer on reload completion.
      */
-    public static <R extends CodecProvider<? super R>> RegistryCallback<R> reloadOnly(Consumer<DynamicRegistry<R>> onReload) {
+    public static <R> RegistryCallback<R> reloadOnly(Consumer<DynamicRegistry<R>> onReload) {
         return new Delegated<>(v -> {}, onReload);
     }
 
     @ApiStatus.Internal
-    class Delegated<R extends CodecProvider<? super R>> implements RegistryCallback<R> {
+    class Delegated<R> implements RegistryCallback<R> {
 
         private Consumer<DynamicRegistry<R>> beginReload, onReload;
 

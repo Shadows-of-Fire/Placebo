@@ -12,11 +12,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 
-import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.datagen.DataGenBuilder;
 import dev.shadowsoffire.placebo.datagen.DataGenBuilder.DataProviderFactory;
-import dev.shadowsoffire.placebo.reload.DynamicRegistry;
-import dev.shadowsoffire.placebo.reload.DynamicRegistry.DataGenPopulator;
+import dev.shadowsoffire.placebo.dynreg.DynamicRegistry;
+import dev.shadowsoffire.placebo.dynreg.DynamicRegistry.DataGenPopulator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -29,7 +28,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 /**
  * Data provider for objects registered to a {@link DynamicRegistry}.
  */
-public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implements DataProvider {
+public abstract class DynamicRegistryProvider<R> implements DataProvider {
 
     protected final CompletableFuture<HolderLookup.Provider> lookupProvider;
     protected final PackOutput.PathProvider pathProvider;
@@ -112,7 +111,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
     /**
      * Generates all items provided by this provider.
      * <p>
-     * Use {@link #add(Identifier, CodecProvider)} to supply items.
+     * Use {@link #add(Identifier, Object)} to supply items.
      */
     public abstract void generate();
 
@@ -127,7 +126,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
      * @param factory A method reference to the provider's constructor.
      * @return A re-bound factory that will skip generation. This can be passed to {@link DataGenBuilder#provider(DataProviderFactory)}.
      */
-    public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProviderFactory<T> factory) {
+    public static <R, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProviderFactory<T> factory) {
         return (output, registries) -> {
             T provider = factory.create(output, registries);
             provider.skipGeneration = true;
@@ -135,7 +134,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
         };
     }
 
-    public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
+    public static <R, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(BiFunction<PackOutput, CompletableFuture<HolderLookup.Provider>, T> factory) {
         return (output, registries) -> {
             T provider = factory.apply(output, registries);
             provider.skipGeneration = true;
@@ -143,7 +142,7 @@ public abstract class DynamicRegistryProvider<R extends CodecProvider<R>> implem
         };
     }
 
-    public static <R extends CodecProvider<R>, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProvider.Factory<T> factory) {
+    public static <R, T extends DynamicRegistryProvider<R>> DataProviderFactory<T> runSilently(DataProvider.Factory<T> factory) {
         return (output, registries) -> {
             T provider = factory.create(output);
             provider.skipGeneration = true;

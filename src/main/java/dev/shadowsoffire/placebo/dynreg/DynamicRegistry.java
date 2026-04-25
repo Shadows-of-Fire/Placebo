@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.reload;
+package dev.shadowsoffire.placebo.dynreg;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,9 +15,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.slf4j.Logger;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
@@ -28,13 +26,10 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.codec.CodecMap;
-import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.json.JsonUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.CodecException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.FileToIdConverter;
@@ -58,28 +53,26 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  * To utilize this class, subclass it, and provide the appropriate constructor parameters.<br>
  * Then, create a single static instance of it and keep it around.
  * <p>
- * You will provide your serializers via {@link #registerBuiltinCodecs()}.<br>
- * You will then need to register it via {@link #registerToBus()}.<br>
+ * The de/serialization strategy (codec, sync, subtype dispatch) is supplied as a {@link RegistrySerializer}.
+ * Once constructed, registration to the event bus is performed via {@link #registerToBus()}.
  * From then on, loading of files, condition checks, network sync, and everything else is automatically handled.
  *
  * @param <R> The base type of objects stored in this registry.
  */
-// TODO: Drop the CodecProvider requirement from this class and bind it to a subclass. Objects without subtypes do not need CodecProvider.
-public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extends SimplePreparableReloadListener<Map<Identifier, JsonElement>> {
+public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<Map<Identifier, JsonElement>> {
 
     protected final Logger logger;
     protected final String path;
-    protected final boolean synced;
-    protected final boolean subtypes;
-    protected final CodecMap<R> codecs;
+    protected final RegistrySerializer<R> serializer;
     protected final Codec<DynamicHolder<R>> holderCodec;
+
+    @Nullable
     protected final StreamCodec<ByteBuf, DynamicHolder<R>> holderStreamCodec;
-    protected final BiMap<Identifier, StreamCodec<RegistryFriendlyByteBuf, ? extends R>> streamCodecs;
 
     /**
      * Internal registry. Immutable when outside of the registration phase.
      * <p>
-     * This map is cleared in {@link #beginReload()} and frozen in {@link #onReload()}
+     * This map is cleared in {@link #beginReload(ReloadType)} and frozen in {@link #onReload(ReloadType)}.
      */
     protected BiMap<Identifier, R> registry = ImmutableBiMap.of();
 
@@ -104,25 +97,17 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     /**
      * Constructs a new dynamic registry.
      *
-     * @param logger   The logger used by this listener for all relevant messages.
-     * @param path     The datapack path used by this listener for loading files.
-     * @param synced   If this listener will be synced over the network.
-     * @param subtypes If this listener supports subtyped objects (and the "type" key on top-level objects).
+     * @param logger     The logger used by this listener for all relevant messages.
+     * @param path       The datapack path used by this listener for loading files.
+     * @param serializer The serialization strategy for entries of this registry.
      * @apiNote After construction, {@link #registerToBus()} must be called during setup.
      */
-    public DynamicRegistry(Logger logger, String path, boolean synced, boolean subtypes) {
+    public DynamicRegistry(Logger logger, String path, RegistrySerializer<R> serializer) {
         this.logger = logger;
         this.path = path;
-        this.synced = synced;
-        this.subtypes = subtypes;
-        this.codecs = new CodecMap<>(path);
-        this.streamCodecs = HashBiMap.create();
-        this.registerBuiltinCodecs();
-        if (this.codecs.isEmpty()) {
-            throw new RuntimeException("Attempted to create a dynamic registry for " + path + " with no built-in codecs!");
-        }
+        this.serializer = serializer;
         this.holderCodec = Identifier.CODEC.xmap(this::holder, DynamicHolder::getId);
-        this.holderStreamCodec = Identifier.STREAM_CODEC.map(this::holder, DynamicHolder::getId);
+        this.holderStreamCodec = serializer.isSynced() ? Identifier.STREAM_CODEC.map(this::holder, DynamicHolder::getId) : null;
     }
 
     /**
@@ -152,7 +137,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * <ol>
      * <li>Empty JSON check: Empty values are discarded with a warning message.</li>
      * <li>Condition check: Values that are conditionally disabled are ignored. A note is logged at the trace level.</li>
-     * <li>Deserialization: The serializer is pulled from the 'type' field if subtypes is enabled, or the default serializer is used.</li>
+     * <li>Deserialization: Performed by {@link RegistrySerializer#codec()}.</li>
      * <li>Validation: Certain states of the object are checked for sanity.</li>
      * <li>Registration: The item is added to the {@link #registry}.</li>
      * </ol>
@@ -163,13 +148,12 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     protected final void apply(Map<Identifier, JsonElement> objects, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         this.beginReload(ReloadType.SERVER);
         ConditionalOps<JsonElement> ops = this.makeConditionalOps();
+        Codec<R> codec = this.serializer.codec();
         objects.forEach((key, ele) -> {
             try {
                 if (JsonUtil.checkAndLogEmpty(ele, key, this.path, this.logger) && JsonUtil.checkConditions(ele, key, this.path, this.logger, ops)) {
                     JsonObject obj = ele.getAsJsonObject();
-                    R deserialized = this.codecs.decode(ops, obj).getOrThrow(this::makeCodecException).getFirst();
-                    Preconditions.checkNotNull(deserialized.getCodec(), "A " + this.path + " with id " + key + " is not declaring a codec.");
-                    Preconditions.checkNotNull(this.codecs.getKey(deserialized.getCodec()), "A " + this.path + " with id " + key + " is declaring an unregistered codec.");
+                    R deserialized = codec.decode(ops, obj).getOrThrow(this::makeCodecException).getFirst();
                     this.register(key, deserialized);
                 }
             }
@@ -180,12 +164,6 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         });
         this.onReload(ReloadType.SERVER);
     }
-
-    /**
-     * Add all default serializers to this reload listener.
-     * This should be a series of calls to {@link #registerCodec(Identifier, Codec)}
-     */
-    protected abstract void registerBuiltinCodecs();
 
     /**
      * Called when this manager begins reloading all items.
@@ -256,7 +234,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * This should be called for ALL listeners from common setup.
      */
     public void registerToBus() {
-        if (this.synced) {
+        if (this.serializer.isSynced()) {
             SyncManagement.registerForSync(this);
         }
         NeoForge.EVENT_BUS.addListener(this::addReloader);
@@ -314,59 +292,10 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * @throws UnsupportedOperationException if this is not a synced registry.
      */
     public StreamCodec<ByteBuf, DynamicHolder<R>> holderStreamCodec() {
-        if (!this.synced) {
+        if (this.holderStreamCodec == null) {
             throw new UnsupportedOperationException("Cannot retrieve a stream codec for the non-synced DynamicRegistry: " + this.path);
         }
         return this.holderStreamCodec;
-    }
-
-    /**
-     * Registers a codec to this registry. Does not permit duplicates, and does not permit multiple registration. Not valid for registries that do not support
-     * subtypes.
-     *
-     * @param key         The key of the codec.
-     * @param codec       The codec being registered.
-     * @param streamCodec A stream codec for synced registries.
-     * @throws UnsupportedOperationException if this registry does not support subtypes. Use {@link #registerDefaultCodec(Identifier, Codec)} instead.
-     */
-    public final void registerCodec(Identifier key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
-        if (!this.subtypes) {
-            throw new UnsupportedOperationException("Attempted to call registerCodec on a registry which does not support subtypes.");
-        }
-        this.registerInternal(key, codec, streamCodec);
-    }
-
-    /**
-     * Variant of {@link #registerCodec(Identifier, Codec, StreamCodec)} that automatically wraps the codec as a stream codec.
-     * <p>
-     * If this registry is synced, prefer providing a stream codec via the other overload.
-     */
-    public final void registerCodec(Identifier key, Codec<? extends R> codec) {
-        registerCodec(key, codec, ByteBufCodecs.fromCodecWithRegistries(codec));
-    }
-
-    /**
-     * Registers a default codec for this registry. Only one default codec can be registered, and it cannot be changed.
-     *
-     * @param key   The key of the codec.
-     * @param codec The codec being registered.
-     * @throws UnsupportedOperationException if a default codec has already been registered.
-     */
-    protected final void registerDefaultCodec(Identifier key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
-        if (this.codecs.getDefaultCodec() != null) {
-            throw new UnsupportedOperationException("Attempted to register a second " + this.path + " default codec with key " + key);
-        }
-        this.registerInternal(key, codec, streamCodec);
-        this.codecs.setDefaultCodec(codec);
-    }
-
-    /**
-     * Variant of {@link #registerDefaultCodec(Identifier, Codec, StreamCodec)} that automatically wraps the codec as a stream codec.
-     * <p>
-     * If this registry is synced, prefer providing a stream codec via the other overload.
-     */
-    protected final void registerDefaultCodec(Identifier key, Codec<? extends R> codec) {
-        registerDefaultCodec(key, codec, ByteBufCodecs.fromCodecWithRegistries(codec));
     }
 
     /**
@@ -395,7 +324,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * Returns the direct element codec, which can be used for de/serializing an element known by this registry.
      */
     public final Codec<R> elementCodec() {
-        return this.codecs;
+        return this.serializer.codec();
     }
 
     /**
@@ -495,14 +424,6 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         target.accept(new ReloadListenerPayloads.End(this.path));
     }
 
-    private void registerInternal(Identifier key, Codec<? extends R> codec, StreamCodec<RegistryFriendlyByteBuf, ? extends R> streamCodec) {
-        Preconditions.checkNotNull(key);
-        Preconditions.checkNotNull(codec, "Attempted to register a null codec for key " + key);
-        Preconditions.checkNotNull(streamCodec, "Attempted to register a null stream codec for key " + key);
-        this.codecs.register(key, codec);
-        this.streamCodecs.put(key, streamCodec);
-    }
-
     /**
      * Marker used to differentiate between reload types for calls to {@link #beginReload(ReloadType)} and {@link #onReload(ReloadType)}.
      */
@@ -544,7 +465,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
          * @throws UnsupportedOperationException if the listener is already registered to the sync registry.
          */
         static void registerForSync(DynamicRegistry<?> listener) {
-            if (!listener.synced) {
+            if (!listener.serializer.isSynced()) {
                 throw new UnsupportedOperationException("Attempted to register the non-synced JSON Reload Listener " + listener.path + " as a synced listener!");
             }
             synchronized (SYNC_REGISTRY) {
@@ -577,16 +498,15 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
          * @param buf   The buffer being written to.
          */
         @SuppressWarnings("unchecked")
-        static <V extends CodecProvider<? super V>> void writeItem(String path, V value, RegistryFriendlyByteBuf buf) {
+        static <V> void writeItem(String path, V value, RegistryFriendlyByteBuf buf) {
             ifPresent(path, registry -> {
-                Identifier type = registry.codecs.getKey(value.getCodec());
-                buf.writeIdentifier(type);
-                ((StreamCodec<RegistryFriendlyByteBuf, V>) registry.streamCodecs.get(type)).encode(buf, value);
+                StreamCodec<RegistryFriendlyByteBuf, V> codec = (StreamCodec<RegistryFriendlyByteBuf, V>) registry.serializer.streamCodec();
+                codec.encode(buf, value);
             });
         }
 
         /**
-         * Reads an item from the network, via the listener's codec.
+         * Reads an item from the network, via the listener's stream codec.
          *
          * @param <V>  The type of item being read.
          * @param path The path of the listener.
@@ -599,8 +519,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
             if (registry == null) {
                 throw new RuntimeException("Received sync packet for unknown registry!");
             }
-            Identifier type = buf.readIdentifier();
-            return ((StreamCodec<RegistryFriendlyByteBuf, V>) registry.streamCodecs.get(type)).decode(buf);
+            return ((StreamCodec<RegistryFriendlyByteBuf, V>) registry.serializer.streamCodec()).decode(buf);
         }
 
         /**
@@ -653,7 +572,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
      * Internal class to handle population of registry entries during data generation.
      */
     @ApiStatus.Internal
-    public static class DataGenPopulator<R extends CodecProvider<? super R>> {
+    public static class DataGenPopulator<R> {
 
         private final DynamicRegistry<R> registry;
 
@@ -678,7 +597,7 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
             return this;
         }
 
-        public static <R extends CodecProvider<? super R>> void runScoped(DynamicRegistry<R> registry, Consumer<DataGenPopulator<R>> consumer) {
+        public static <R> void runScoped(DynamicRegistry<R> registry, Consumer<DataGenPopulator<R>> consumer) {
             var populator = new DataGenPopulator<>(registry).start();
             consumer.accept(populator);
             populator.end();

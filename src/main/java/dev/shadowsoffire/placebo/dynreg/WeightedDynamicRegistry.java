@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.reload;
+package dev.shadowsoffire.placebo.dynreg;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -11,8 +11,7 @@ import org.slf4j.Logger;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 
-import dev.shadowsoffire.placebo.codec.CodecProvider;
-import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry.ILuckyWeighted;
+import dev.shadowsoffire.placebo.dynreg.WeightedDynamicRegistry.ILuckyWeighted;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.Weighted;
@@ -24,12 +23,12 @@ import net.minecraft.world.level.Level;
  *
  * @param <V>
  */
-public abstract class WeightedDynamicRegistry<V extends CodecProvider<? super V> & ILuckyWeighted> extends DynamicRegistry<V> {
+public abstract class WeightedDynamicRegistry<V extends ILuckyWeighted> extends DynamicRegistry<V> {
 
     protected WeightedList<V> zeroLuckList = WeightedList.of();
 
-    public WeightedDynamicRegistry(Logger logger, String path, boolean synced, boolean subtypes) {
-        super(logger, path, synced, subtypes);
+    public WeightedDynamicRegistry(Logger logger, String path, RegistrySerializer<V> serializer) {
+        super(logger, path, serializer);
     }
 
     @Override

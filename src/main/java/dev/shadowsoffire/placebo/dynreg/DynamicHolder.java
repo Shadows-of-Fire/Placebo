@@ -1,4 +1,4 @@
-package dev.shadowsoffire.placebo.reload;
+package dev.shadowsoffire.placebo.dynreg;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import dev.shadowsoffire.placebo.codec.CodecProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 
@@ -18,7 +17,7 @@ import net.minecraft.resources.Identifier;
  *
  * @param <R> The registry type of the target value.
  */
-public class DynamicHolder<R extends CodecProvider<? super R>> implements Supplier<R> {
+public class DynamicHolder<R> implements Supplier<R> {
 
     /**
      * The ID of an "empty" holder.

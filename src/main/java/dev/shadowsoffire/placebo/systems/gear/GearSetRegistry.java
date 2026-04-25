@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.reload.WeightedDynamicRegistry;
+import dev.shadowsoffire.placebo.dynreg.RegistrySerializer;
+import dev.shadowsoffire.placebo.dynreg.WeightedDynamicRegistry;
 import dev.shadowsoffire.placebo.systems.gear.GearSet.SetPredicate;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedList;
@@ -17,7 +18,7 @@ public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
     public static final GearSetRegistry INSTANCE = new GearSetRegistry();
 
     public GearSetRegistry() {
-        super(Placebo.LOGGER, "gear_sets", false, false);
+        super(Placebo.LOGGER, "gear_sets", RegistrySerializer.simple(GearSet.CODEC));
     }
 
     /**
@@ -49,11 +50,6 @@ public class GearSetRegistry extends WeightedDynamicRegistry<GearSet> {
             }
         }
         return builder.build().getRandom(rand).orElse(null);
-    }
-
-    @Override
-    protected void registerBuiltinCodecs() {
-        this.registerDefaultCodec(Placebo.loc("gear_set"), GearSet.CODEC);
     }
 
 }

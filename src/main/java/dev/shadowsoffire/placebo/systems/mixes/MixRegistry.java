@@ -7,7 +7,8 @@ import org.jetbrains.annotations.Nullable;
 
 import dev.shadowsoffire.placebo.Placebo;
 import dev.shadowsoffire.placebo.PlaceboClient;
-import dev.shadowsoffire.placebo.reload.DynamicRegistry;
+import dev.shadowsoffire.placebo.dynreg.DynamicRegistry;
+import dev.shadowsoffire.placebo.dynreg.RegistrySerializer;
 import dev.shadowsoffire.placebo.systems.mixes.JsonMix.Type;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -19,12 +20,7 @@ public class MixRegistry extends DynamicRegistry<JsonMix<?>> {
     public static final MixRegistry INSTANCE = new MixRegistry();
 
     public MixRegistry() {
-        super(Placebo.LOGGER, "brewing_mixes", true, false);
-    }
-
-    @Override
-    protected void registerBuiltinCodecs() {
-        this.registerDefaultCodec(Placebo.loc("mix"), JsonMix.CODEC);
+        super(Placebo.LOGGER, "brewing_mixes", RegistrySerializer.synced(JsonMix.CODEC));
     }
 
     @Override
