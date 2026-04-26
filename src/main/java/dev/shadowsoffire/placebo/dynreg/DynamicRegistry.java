@@ -1,10 +1,12 @@
 package dev.shadowsoffire.placebo.dynreg;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -25,11 +27,12 @@ import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 
-import dev.shadowsoffire.placebo.Placebo;
+import dev.shadowsoffire.placebo.dynreg.tag.DynamicHolderSet;
+import dev.shadowsoffire.placebo.dynreg.tag.DynamicTagKey;
+import dev.shadowsoffire.placebo.dynreg.tag.DynamicTagManager;
 import dev.shadowsoffire.placebo.json.JsonUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.CodecException;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.FileToIdConverter;
@@ -45,7 +48,6 @@ import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 /**
  * A Dynamic Registry is a reload listener which acts like a registry. Unlike datapack registries, it can reload.
@@ -61,13 +63,30 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
  */
 public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<Map<Identifier, JsonElement>> {
 
+    /**
+     * Global registry of all {@link DynamicRegistry} instances, keyed by their {@link #getId() id}.
+     * <p>
+     * Populated automatically during construction. Used by the tag manager to enumerate registries that need their
+     * tag content loaded.
+     */
+    private static final Map<Identifier, DynamicRegistry<?>> ALL_REGISTRIES = new ConcurrentHashMap<>();
+
     protected final Logger logger;
-    protected final String path;
+    protected final Identifier id;
     protected final RegistrySerializer<R> serializer;
     protected final Codec<DynamicHolder<R>> holderCodec;
 
     @Nullable
     protected final StreamCodec<ByteBuf, DynamicHolder<R>> holderStreamCodec;
+
+    /**
+     * Interned tag set instances, keyed by tag id. Created lazily by {@link #getOrCreateTag(DynamicTagKey)} the first
+     * time a codec or consumer references the tag. Bound during tag-manager apply, unbound during tag-manager begin.
+     * <p>
+     * Concurrent because codec decoding may run on prepare-phase threads while tag-manager apply runs on the main
+     * thread.
+     */
+    private final Map<Identifier, DynamicHolderSet.Named<R>> tags = new ConcurrentHashMap<>();
 
     /**
      * Internal registry. Immutable when outside of the registration phase.
@@ -79,7 +98,12 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
     /**
      * Staged data used during the sync process. Discarded when running an integrated server.
      */
-    private final Map<Identifier, R> staged = new HashMap<>();
+    final Map<Identifier, R> staged = new HashMap<>();
+
+    /**
+     * Staged tag data used during the sync process. Discarded when running an integrated server.
+     */
+    final Map<Identifier, List<Identifier>> stagedTags = new HashMap<>();
 
     /**
      * Map of all holders that have ever been requested for this registry.
@@ -98,35 +122,41 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
      * Constructs a new dynamic registry.
      *
      * @param logger     The logger used by this listener for all relevant messages.
-     * @param path       The datapack path used by this listener for loading files.
+     * @param id         The namespaced id of this registry. Used for the data directory layout
+     *                   ({@code data/<datapack-ns>/<id.namespace>/<id.path>/}), the tag directory
+     *                   ({@code data/<datapack-ns>/tags/<id.namespace>/<id.path>/}), the reload-listener id,
+     *                   and the network sync key.
      * @param serializer The serialization strategy for entries of this registry.
      * @apiNote After construction, {@link #registerToBus()} must be called during setup.
      */
-    public DynamicRegistry(Logger logger, String path, RegistrySerializer<R> serializer) {
+    public DynamicRegistry(Logger logger, Identifier id, RegistrySerializer<R> serializer) {
         this.logger = logger;
-        this.path = path;
+        this.id = id;
         this.serializer = serializer;
         this.holderCodec = Identifier.CODEC.xmap(this::holder, DynamicHolder::getId);
         this.holderStreamCodec = serializer.isSynced() ? Identifier.STREAM_CODEC.map(this::holder, DynamicHolder::getId) : null;
+        if (ALL_REGISTRIES.putIfAbsent(id, this) != null) {
+            throw new IllegalStateException("Attempted to construct two DynamicRegistry instances with the same id: " + id);
+        }
     }
 
     /**
-     * Walks the datapack and parses raw JSON files from this listener's {@link #path}, returning a map of resource id → parsed JSON.
-     * Codec-based decoding is deferred to {@link #apply}.
+     * Walks the datapack and parses raw JSON files from {@code data/<ns>/<id.namespace>/<id.path>/}, returning a map of
+     * resource id → parsed JSON. Codec-based decoding is deferred to {@link #apply}.
      */
     @Override
     protected Map<Identifier, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
         Map<Identifier, JsonElement> result = new HashMap<>();
-        FileToIdConverter lister = FileToIdConverter.json(this.path);
+        FileToIdConverter lister = FileToIdConverter.json(this.id.getNamespace() + "/" + this.id.getPath());
         for (Map.Entry<Identifier, Resource> entry : lister.listMatchingResources(manager).entrySet()) {
             Identifier location = entry.getKey();
-            Identifier id = lister.fileToId(location);
+            Identifier entryId = lister.fileToId(location);
             try (var reader = entry.getValue().openAsReader()) {
                 JsonElement json = JsonParser.parseReader(reader);
-                result.put(id, json);
+                result.put(entryId, json);
             }
             catch (JsonParseException | java.io.IOException e) {
-                this.logger.error("Couldn't parse data file '{}' from '{}': {}", id, location, e);
+                this.logger.error("Couldn't parse data file '{}' from '{}': {}", entryId, location, e);
             }
         }
         return result;
@@ -151,14 +181,14 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
         Codec<R> codec = this.serializer.codec();
         objects.forEach((key, ele) -> {
             try {
-                if (JsonUtil.checkAndLogEmpty(ele, key, this.path, this.logger) && JsonUtil.checkConditions(ele, key, this.path, this.logger, ops)) {
+                if (JsonUtil.checkAndLogEmpty(ele, key, this.id, this.logger) && JsonUtil.checkConditions(ele, key, this.id, this.logger, ops)) {
                     JsonObject obj = ele.getAsJsonObject();
                     R deserialized = codec.decode(ops, obj).getOrThrow(this::makeCodecException).getFirst();
                     this.register(key, deserialized);
                 }
             }
             catch (Exception e) {
-                this.logger.error("Failed parsing {} file {}.", this.path, key);
+                this.logger.error("Failed parsing {} file {}.", this.id, key);
                 this.logger.error("Underlying Exception: ", e);
             }
         });
@@ -176,6 +206,10 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
         this.callbacks.forEach(l -> l.beginReload(this));
         this.registry = new DynRegBiMap<>();
         this.holders.values().forEach(DynamicHolder::unbind);
+        if (type != ReloadType.INTEGRATED_CLIENT) {
+            // We need to hold onto the tags on the Integrated Client since the tag manager won't run again to re-bind them.
+            this.tags.values().forEach(DynamicHolderSet.Named::unbind);
+        }
     }
 
     /**
@@ -187,7 +221,7 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
     @MustBeInvokedByOverriders
     protected void onReload(ReloadType type) {
         this.registry = Maps.unmodifiableBiMap(this.registry);
-        this.logger.info("Registered {} {}.", this.registry.size(), this.path);
+        this.logger.info("Registered {} {}.", this.registry.size(), this.id);
         this.callbacks.forEach(l -> l.onReload(this));
         this.holders.values().forEach(DynamicHolder::bind);
     }
@@ -293,7 +327,7 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
      */
     public StreamCodec<ByteBuf, DynamicHolder<R>> holderStreamCodec() {
         if (this.holderStreamCodec == null) {
-            throw new UnsupportedOperationException("Cannot retrieve a stream codec for the non-synced DynamicRegistry: " + this.path);
+            throw new UnsupportedOperationException("Cannot retrieve a stream codec for the non-synced DynamicRegistry: " + this.id);
         }
         return this.holderStreamCodec;
     }
@@ -314,10 +348,17 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
     }
 
     /**
-     * Returns the path used by this registry.
+     * @return The namespaced id of this registry.
      */
-    public final String getPath() {
-        return this.path;
+    public final Identifier getId() {
+        return this.id;
+    }
+
+    /**
+     * Returns the logger used by this registry. Exposed for tag-loading and similar machinery in adjacent packages.
+     */
+    public final Logger getLogger() {
+        return this.logger;
     }
 
     /**
@@ -328,7 +369,44 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
     }
 
     /**
-     * Validates that every created {@link DynamicHolder} is bound to a regsitry entry.
+     * Returns the interned {@link DynamicHolderSet.Named} for the given tag key, creating it lazily if it does not
+     * yet exist.
+     * <p>
+     * The returned set may be unbound (empty contents, {@link DynamicHolderSet.Named#isBound()} returns false) until
+     * the tag manager binds tags during a reload. Codecs that decode tag references should call this method, which
+     * gives them a stable {@link DynamicHolderSet.Named} reference that becomes populated when tags load.
+     */
+    public final DynamicHolderSet.Named<R> getOrCreateTag(DynamicTagKey<R> key) {
+        return this.tags.computeIfAbsent(key.id(), id -> new DynamicHolderSet.Named<>(this, key));
+    }
+
+    /**
+     * @return The bound holder set for the given tag, or empty if no tag with that id is currently bound. Unbound
+     *         interned tag sets are treated as absent.
+     */
+    public final Optional<DynamicHolderSet.Named<R>> getTag(DynamicTagKey<R> key) {
+        DynamicHolderSet.Named<R> set = this.tags.get(key.id());
+        return set != null && set.isBound() ? Optional.of(set) : Optional.empty();
+    }
+
+    /**
+     * Replaces the entire tag set with the given resolved map. Called by the tag manager during reload apply.
+     * <p>
+     * Tags present in the previous reload but absent from {@code resolved} are left interned but unbound — any
+     * outstanding references continue to resolve, but are empty until the tag is re-declared.
+     */
+    @ApiStatus.Internal
+    public final void bindTags(Map<Identifier, List<Identifier>> resolved) {
+        for (Map.Entry<Identifier, List<Identifier>> entry : resolved.entrySet()) {
+            DynamicTagKey<R> tagKey = DynamicTagKey.create(this, entry.getKey());
+            DynamicHolderSet.Named<R> set = this.tags.computeIfAbsent(entry.getKey(), tagId -> new DynamicHolderSet.Named<>(this, tagKey));
+            List<DynamicHolder<R>> holders = entry.getValue().stream().map(this::holder).toList();
+            set.bind(holders);
+        }
+    }
+
+    /**
+     * Validates that every created {@link DynamicHolder} is bound to a registry entry.
      * <p>
      * This is primarily used as a sanity check in data generation.
      *
@@ -338,7 +416,7 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
         String error = "";
         for (DynamicHolder<R> holder : this.holders.values()) {
             if (!holder.isBound() && holder != this.emptyHolder()) {
-                error += "Failed to validate dynamic holder %s for registry %s\n".formatted(holder.getId(), this.getPath());
+                error += "Failed to validate dynamic holder %s for registry %s\n".formatted(holder.getId(), this.id);
             }
         }
         if (!error.isEmpty()) {
@@ -357,7 +435,7 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
      */
     protected final void register(Identifier key, R value) {
         if (this.registry.containsKey(key)) {
-            throw new UnsupportedOperationException("Attempted to register a " + this.path + " with a duplicate registry ID! Key: " + key);
+            throw new UnsupportedOperationException("Attempted to register a " + this.id + " with a duplicate registry ID! Key: " + key);
         }
         this.validateItem(key, value);
         this.registry.put(key, value);
@@ -375,9 +453,13 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
 
     /**
      * Adds this reload listener to the {@link ReloadableServerResources}.
+     * <p>
+     * Also adds a dependency edge to {@link DynamicTagManager} so that tag loading runs after registry content has
+     * been deserialized.
      */
     private void addReloader(AddServerReloadListenersEvent e) {
-        e.addListener(Placebo.loc(this.path), this);
+        e.addListener(this.id, this);
+        e.addDependency(this.id, DynamicTagManager.ID);
     }
 
     /**
@@ -386,10 +468,11 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
      *
      * @implNote Not executed when hosting a singleplayer world, as it would replace the server data.
      */
-    private void processDedicatedClientReload() {
+    void processDedicatedClientReload() {
         this.beginReload(ReloadType.DEDICATED_CLIENT);
         this.staged.forEach(this::register);
         this.onReload(ReloadType.DEDICATED_CLIENT);
+        this.bindTags(this.stagedTags);
     }
 
     /**
@@ -398,7 +481,7 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
      *
      * @implNote This is used instead of {@link #processDedicatedClientReload()} for singleplayer hosts to avoid data loss.
      */
-    private void processIntegratedClientReload() {
+    void processIntegratedClientReload() {
         this.staged.clear();
         this.staged.putAll(this.registry);
         this.beginReload(ReloadType.INTEGRATED_CLIENT);
@@ -407,21 +490,55 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
     }
 
     private CodecException makeCodecException(String msg) {
-        return new CodecException("Codec failure for type %s, message: %s".formatted(this.path, msg));
+        return new CodecException("Codec failure for type %s, message: %s".formatted(this.id, msg));
     }
 
     /**
-     * Sync event handler. Sends the start packet, a content packet for each item, and then the end packet.
+     * @return The currently-bound tag content, mapping tag id → list of entry ids. Used by the sync flow to ship
+     *         resolved tags to clients.
      */
-    private void sync(OnDatapackSyncEvent e) {
+    private Map<Identifier, List<Identifier>> exportTags() {
+        Map<Identifier, List<Identifier>> result = new HashMap<>();
+        for (DynamicHolderSet.Named<R> named : this.tags.values()) {
+            if (named.isBound()) {
+                result.put(named.key().id(), named.stream().map(DynamicHolder::getId).toList());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Sync event handler. Sends the start packet, a content packet for each item, a tag-sync packet
+     * (if any tags are bound), and then the end packet.
+     */
+    void sync(OnDatapackSyncEvent e) {
         ServerPlayer player = e.getPlayer();
         Consumer<CustomPacketPayload> target = player == null ? PacketDistributor::sendToAllPlayers : payload -> PacketDistributor.sendToPlayer(player, payload);
 
-        target.accept(new ReloadListenerPayloads.Start(this.path));
+        target.accept(new DynRegPayloads.Start(this.id));
         this.registry.forEach((k, v) -> {
-            target.accept(new ReloadListenerPayloads.Content<>(this.path, k, Either.left(v)));
+            target.accept(new DynRegPayloads.Content<>(this.id, k, Either.left(v)));
         });
-        target.accept(new ReloadListenerPayloads.End(this.path));
+        Map<Identifier, List<Identifier>> exported = this.exportTags();
+        if (!exported.isEmpty()) {
+            target.accept(new TagSyncPayload(this.id, exported));
+        }
+        target.accept(new DynRegPayloads.End(this.id));
+    }
+
+    /**
+     * @return An unmodifiable view of every constructed {@link DynamicRegistry} keyed by id.
+     */
+    public static Map<Identifier, DynamicRegistry<?>> allRegistries() {
+        return Collections.unmodifiableMap(ALL_REGISTRIES);
+    }
+
+    /**
+     * Looks up a registry by its {@link #getId() id}.
+     */
+    @Nullable
+    public static DynamicRegistry<?> byId(Identifier id) {
+        return ALL_REGISTRIES.get(id);
     }
 
     /**
@@ -447,125 +564,6 @@ public abstract class DynamicRegistry<R> extends SimplePreparableReloadListener<
          * All incoming objects are brand-new after being deserialized over the network.
          */
         DEDICATED_CLIENT;
-    }
-
-    /**
-     * Internal class for sync management.
-     */
-    @ApiStatus.Internal
-    static class SyncManagement {
-
-        private static final Map<String, DynamicRegistry<?>> SYNC_REGISTRY = new LinkedHashMap<>();
-
-        /**
-         * Registers a {@link DynamicRegistry} for syncing.
-         *
-         * @param listener The listener to register.
-         * @throws UnsupportedOperationException if the listener is not a synced listener.
-         * @throws UnsupportedOperationException if the listener is already registered to the sync registry.
-         */
-        static void registerForSync(DynamicRegistry<?> listener) {
-            if (!listener.serializer.isSynced()) {
-                throw new UnsupportedOperationException("Attempted to register the non-synced JSON Reload Listener " + listener.path + " as a synced listener!");
-            }
-            synchronized (SYNC_REGISTRY) {
-                if (SYNC_REGISTRY.containsKey(listener.path)) {
-                    throw new UnsupportedOperationException("Attempted to register the JSON Reload Listener for syncing " + listener.path + " but one already exists!");
-                }
-                if (SYNC_REGISTRY.isEmpty()) {
-                    NeoForge.EVENT_BUS.addListener(SyncManagement::syncAll);
-                }
-                SYNC_REGISTRY.put(listener.path, listener);
-            }
-        }
-
-        /**
-         * Begins the sync for a specific listener.
-         *
-         * @param path The path of the listener being synced.
-         */
-        static void initSync(String path) {
-            ifPresent(path, registry -> registry.staged.clear());
-            Placebo.LOGGER.info("Starting sync for {}", path);
-        }
-
-        /**
-         * Write an item (with the same type as the listener) to the network.
-         *
-         * @param <V>   The type of item being written.
-         * @param path  The path of the listener.
-         * @param value The value being written.
-         * @param buf   The buffer being written to.
-         */
-        @SuppressWarnings("unchecked")
-        static <V> void writeItem(String path, V value, RegistryFriendlyByteBuf buf) {
-            ifPresent(path, registry -> {
-                StreamCodec<RegistryFriendlyByteBuf, V> codec = (StreamCodec<RegistryFriendlyByteBuf, V>) registry.serializer.streamCodec();
-                codec.encode(buf, value);
-            });
-        }
-
-        /**
-         * Reads an item from the network, via the listener's stream codec.
-         *
-         * @param <V>  The type of item being read.
-         * @param path The path of the listener.
-         * @param buf  The buffer being read from.
-         * @return An object of type V as deserialized from the network.
-         */
-        @SuppressWarnings("unchecked")
-        static <V> V readItem(String path, RegistryFriendlyByteBuf buf) {
-            var registry = SYNC_REGISTRY.get(path);
-            if (registry == null) {
-                throw new RuntimeException("Received sync packet for unknown registry!");
-            }
-            return ((StreamCodec<RegistryFriendlyByteBuf, V>) registry.serializer.streamCodec()).decode(buf);
-        }
-
-        /**
-         * Stages an item to a listener.
-         *
-         * @param <V>   The type of the item being staged.
-         * @param path  The path of the listener.
-         * @param value The object being staged.
-         */
-        @SuppressWarnings("unchecked")
-        static <V> void acceptItem(String path, Identifier key, V value) {
-            ifPresent(path, registry -> ((Map<Identifier, V>) registry.staged).put(key, value));
-        }
-
-        /**
-         * Ends the sync for a specific listener.
-         * This will delete current data, push staged data to live, and call the appropriate methods for reloading.
-         *
-         * @param path The path of the listener.
-         * @implNote Only called on the logical client.
-         */
-        static void endSync(String path) {
-            if (ServerLifecycleHooks.getCurrentServer() != null) {
-                // On a singleplayer host, we have to re-register a copy of the original data instead of the synced data
-                // since the synced data may not contain the "full" information from the server.
-                ifPresent(path, DynamicRegistry::processIntegratedClientReload);
-            }
-            else {
-                ifPresent(path, DynamicRegistry::processDedicatedClientReload);
-            }
-            Placebo.LOGGER.info("Completed sync for {}", path);
-        }
-
-        /**
-         * Executes an action if the specified path is present in the sync registry.
-         */
-        private static void ifPresent(String path, Consumer<DynamicRegistry<?>> consumer) {
-            DynamicRegistry<?> value = SYNC_REGISTRY.get(path);
-            if (value != null) {
-                consumer.accept(value);
-            }
-        }
-
-        private static void syncAll(OnDatapackSyncEvent e) {
-            SYNC_REGISTRY.values().forEach(r -> r.sync(e));
-        }
     }
 
     /**

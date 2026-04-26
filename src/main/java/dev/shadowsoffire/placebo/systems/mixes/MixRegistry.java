@@ -20,7 +20,7 @@ public class MixRegistry extends DynamicRegistry<JsonMix<?>> {
     public static final MixRegistry INSTANCE = new MixRegistry();
 
     public MixRegistry() {
-        super(Placebo.LOGGER, "brewing_mixes", RegistrySerializer.synced(JsonMix.CODEC));
+        super(Placebo.LOGGER, Placebo.loc("brewing_mixes"), RegistrySerializer.synced(JsonMix.CODEC));
     }
 
     @Override

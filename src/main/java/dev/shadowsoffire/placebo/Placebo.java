@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
-import dev.shadowsoffire.placebo.dynreg.ReloadListenerPayloads;
+import dev.shadowsoffire.placebo.dynreg.DynRegPayloads;
+import dev.shadowsoffire.placebo.dynreg.TagSyncPayload;
+import dev.shadowsoffire.placebo.dynreg.tag.DynamicTagManager;
 import dev.shadowsoffire.placebo.events.ResourceReloadEvent;
 import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.payloads.ButtonClickPayload;
@@ -52,9 +54,10 @@ public class Placebo {
     public void setup(FMLCommonSetupEvent e) {
         PayloadHelper.registerPayload(new ButtonClickPayload.Provider());
         PayloadHelper.registerPayload(new PatreonDisablePayload.Provider());
-        PayloadHelper.registerPayload(new ReloadListenerPayloads.Start.Provider());
-        PayloadHelper.registerPayload(new ReloadListenerPayloads.Content.Provider<>());
-        PayloadHelper.registerPayload(new ReloadListenerPayloads.End.Provider());
+        PayloadHelper.registerPayload(new DynRegPayloads.Start.Provider());
+        PayloadHelper.registerPayload(new DynRegPayloads.Content.Provider<>());
+        PayloadHelper.registerPayload(new DynRegPayloads.End.Provider());
+        PayloadHelper.registerPayload(new TagSyncPayload.Provider());
         e.enqueueWork(() -> {
             PlaceboUtil.registerCustomColor(GradientColor.RAINBOW);
         });
@@ -68,6 +71,7 @@ public class Placebo {
 
     public void serverReload(AddServerReloadListenersEvent e) {
         e.addListener(loc("placebo_reload_event"), (ResourceManagerReloadListener) res -> NeoForge.EVENT_BUS.post(new ResourceReloadEvent(res, LogicalSide.SERVER)));
+        e.addListener(DynamicTagManager.ID, DynamicTagManager.INSTANCE);
     }
 
     public void serverStart(ServerAboutToStartEvent e) {

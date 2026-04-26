@@ -48,7 +48,7 @@ public abstract class DynamicRegistryProvider<R> implements DataProvider {
      */
     public DynamicRegistryProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, DynamicRegistry<R> registry) {
         this.lookupProvider = registries;
-        this.pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
+        this.pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, registry.getId().getNamespace() + "/" + registry.getId().getPath());
         this.registry = registry;
     }
 
@@ -58,7 +58,7 @@ public abstract class DynamicRegistryProvider<R> implements DataProvider {
     @Deprecated(forRemoval = true)
     public DynamicRegistryProvider(GatherDataEvent event, DynamicRegistry<R> registry) {
         this.lookupProvider = event.getLookupProvider();
-        this.pathProvider = event.getGenerator().getPackOutput().createPathProvider(PackOutput.Target.DATA_PACK, registry.getPath());
+        this.pathProvider = event.getGenerator().getPackOutput().createPathProvider(PackOutput.Target.DATA_PACK, registry.getId().getNamespace() + "/" + registry.getId().getPath());
         this.registry = registry;
     }
 

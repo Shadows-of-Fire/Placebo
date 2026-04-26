@@ -12,6 +12,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 
 import dev.shadowsoffire.placebo.dynreg.WeightedDynamicRegistry.ILuckyWeighted;
+import dev.shadowsoffire.placebo.dynreg.tag.DynamicHolderSet;
+import dev.shadowsoffire.placebo.dynreg.tag.DynamicTagKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.Weighted;
@@ -27,8 +29,8 @@ public abstract class WeightedDynamicRegistry<V extends ILuckyWeighted> extends 
 
     protected WeightedList<V> zeroLuckList = WeightedList.of();
 
-    public WeightedDynamicRegistry(Logger logger, String path, RegistrySerializer<V> serializer) {
-        super(logger, path, serializer);
+    public WeightedDynamicRegistry(Logger logger, Identifier id, RegistrySerializer<V> serializer) {
+        super(logger, id, serializer);
     }
 
     @Override
@@ -93,6 +95,27 @@ public abstract class WeightedDynamicRegistry<V extends ILuckyWeighted> extends 
             }
         });
         return builder.build().getRandom(rand).orElse(null);
+    }
+
+    /**
+     * Gets a random item from the given tag, re-calculating the weights based on luck.
+     *
+     * @return A random item from the tag, or null if the tag is unbound or empty.
+     */
+    @Nullable
+    public V getRandomFromTag(DynamicTagKey<V> tag, RandomSource rand, float luck) {
+        return this.getTag(tag).map(set -> this.getRandomFromSet(set, rand, luck)).orElse(null);
+    }
+
+    /**
+     * Gets a random item from the given holder set, re-calculating the weights based on luck. Unbound or empty
+     * holders are skipped.
+     *
+     * @return A random item from the set, or null if the set has no bound entries with positive weight.
+     */
+    @Nullable
+    public V getRandomFromSet(DynamicHolderSet<V> set, RandomSource rand, float luck) {
+        return this.getRandomItem(rand, luck, set::contains);
     }
 
     /**

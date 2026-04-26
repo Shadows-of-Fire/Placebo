@@ -8,14 +8,12 @@ import org.jetbrains.annotations.ApiStatus;
 import com.mojang.datafixers.util.Either;
 
 import dev.shadowsoffire.placebo.Placebo;
-import dev.shadowsoffire.placebo.dynreg.DynamicRegistry.SyncManagement;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -24,14 +22,14 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 @ApiStatus.Internal
-public class ReloadListenerPayloads {
+public class DynRegPayloads {
 
-    public static record Start(String path) implements CustomPacketPayload {
+    public static record Start(Identifier id) implements CustomPacketPayload {
 
         public static final Type<Start> TYPE = new Type<>(Placebo.loc("reload_sync_start"));
 
         public static final StreamCodec<FriendlyByteBuf, Start> CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, Start::path,
+            Identifier.STREAM_CODEC, Start::id,
             Start::new);
 
         @Override
@@ -53,7 +51,7 @@ public class ReloadListenerPayloads {
 
             @Override
             public void handleClient(Start msg, IPayloadContext ctx) {
-                SyncManagement.initSync(msg.path);
+                SyncManagement.initSync(msg.id);
             }
 
             @Override
@@ -68,23 +66,23 @@ public class ReloadListenerPayloads {
 
             @Override
             public String getVersion() {
-                return "1";
+                return "2";
             }
         }
     }
 
-    public static record Content<V>(String path, Identifier key, Either<V, ByteBuf> item) implements CustomPacketPayload {
+    public static record Content<V>(Identifier id, Identifier key, Either<V, ByteBuf> item) implements CustomPacketPayload {
 
         public static final Type<Content<?>> TYPE = new Type<>(Placebo.loc("reload_sync_content"));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Content<?>> CODEC = StreamCodec.of(Content::write, Content::read);
 
-        public Content(String path, Identifier key, V item) {
-            this(path, key, Either.left(item));
+        public Content(Identifier id, Identifier key, V item) {
+            this(id, key, Either.left(item));
         }
 
-        public Content(String path, Identifier key, ByteBuf buf) {
-            this(path, key, Either.right(buf));
+        public Content(Identifier id, Identifier key, ByteBuf buf) {
+            this(id, key, Either.right(buf));
         }
 
         @Override
@@ -93,9 +91,9 @@ public class ReloadListenerPayloads {
         }
 
         public static <V> void write(RegistryFriendlyByteBuf buf, Content<V> payload) {
-            buf.writeUtf(payload.path, 50);
+            buf.writeIdentifier(payload.id);
             buf.writeIdentifier(payload.key);
-            SyncManagement.writeItem(payload.path, payload.item.orThrow(), buf);
+            SyncManagement.writeItem(payload.id, payload.item.orThrow(), buf);
         }
 
         /**
@@ -103,13 +101,13 @@ public class ReloadListenerPayloads {
          * other registries that are being setup on the main thread.
          */
         public static <V> Content<V> read(RegistryFriendlyByteBuf buf) {
-            String path = buf.readUtf(50);
+            Identifier id = buf.readIdentifier();
             Identifier key = buf.readIdentifier();
 
             int size = buf.writerIndex() - buf.readerIndex();
             ByteBuf itemBuf = Unpooled.buffer(size, size);
             buf.readBytes(itemBuf);
-            return new Content<>(path, key, itemBuf);
+            return new Content<>(id, key, itemBuf);
         }
 
         public static class Provider<V> implements PayloadProvider<Content<?>> {
@@ -129,11 +127,11 @@ public class ReloadListenerPayloads {
                 RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(msg.item.right().get(), ctx.player().registryAccess(), ConnectionType.NEOFORGE);
 
                 try {
-                    V value = SyncManagement.readItem(msg.path, buf);
-                    SyncManagement.acceptItem(msg.path, msg.key, value);
+                    V value = SyncManagement.readItem(msg.id, buf);
+                    SyncManagement.acceptItem(msg.id, msg.key, value);
                 }
                 catch (Exception ex) {
-                    Placebo.LOGGER.error("Failure when deserializing a dynamic registry object via network: Registry: {}, Object ID: {}", msg.path, msg.key);
+                    Placebo.LOGGER.error("Failure when deserializing a dynamic registry object via network: Registry: {}, Object ID: {}", msg.id, msg.key);
                     throw ex;
                 }
             }
@@ -150,17 +148,17 @@ public class ReloadListenerPayloads {
 
             @Override
             public String getVersion() {
-                return "1";
+                return "2";
             }
         }
     }
 
-    public static record End(String path) implements CustomPacketPayload {
+    public static record End(Identifier id) implements CustomPacketPayload {
 
         public static final Type<End> TYPE = new Type<>(Placebo.loc("reload_sync_end"));
 
         public static final StreamCodec<FriendlyByteBuf, End> CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, End::path,
+            Identifier.STREAM_CODEC, End::id,
             End::new);
 
         @Override
@@ -182,7 +180,7 @@ public class ReloadListenerPayloads {
 
             @Override
             public void handleClient(End msg, IPayloadContext ctx) {
-                SyncManagement.endSync(msg.path);
+                SyncManagement.endSync(msg.id);
             }
 
             @Override
@@ -197,7 +195,7 @@ public class ReloadListenerPayloads {
 
             @Override
             public String getVersion() {
-                return "1";
+                return "2";
             }
         }
     }

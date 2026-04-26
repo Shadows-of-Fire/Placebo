@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import dev.shadowsoffire.placebo.dynreg.tag.DynamicTagKey;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 
@@ -74,17 +75,17 @@ public class DynamicHolder<R> implements Supplier<R> {
     }
 
     /**
-     * @return The path of the registry this holder is from.
-     */
-    public String getRegistryPath() {
-        return this.registry.getPath();
-    }
-
-    /**
      * @return The ID of the target value.
      */
     public Identifier getId() {
         return this.id;
+    }
+
+    /**
+     * @return The registry this holder belongs to.
+     */
+    public DynamicRegistry<R> getRegistry() {
+        return this.registry;
     }
 
     /**
@@ -95,6 +96,16 @@ public class DynamicHolder<R> implements Supplier<R> {
      */
     public boolean is(Identifier id) {
         return this.id.equals(id);
+    }
+
+    /**
+     * Checks if this holder is a member of the given tag.
+     *
+     * @param tag The tag to check membership against.
+     * @return True if the tag is currently bound and contains this holder.
+     */
+    public boolean is(DynamicTagKey<R> tag) {
+        return this.registry.getTag(tag).map(set -> set.contains(this)).orElse(false);
     }
 
     @Override
@@ -109,7 +120,7 @@ public class DynamicHolder<R> implements Supplier<R> {
 
     @Override
     public String toString() {
-        return "DynamicHolder{%s / %s}".formatted(this.registry == null ? "null" : this.registry.getPath(), this.id);
+        return "DynamicHolder{%s / %s}".formatted(this.registry.id, this.id);
     }
 
     /**

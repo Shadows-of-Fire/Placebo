@@ -2,17 +2,13 @@ package dev.shadowsoffire.placebo.systems.gear;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.placebo.codec.CodecProvider;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.dynreg.WeightedDynamicRegistry.ILuckyWeighted;
 import dev.shadowsoffire.placebo.json.WeightedItemStack;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
  * TODO: Think about splitting between Weapon Sets (hand items) and Armor Sets (helm/chest/legs/feet items) to allow for ease of combinations.
  */
 public record GearSet(int weight, float quality, List<WeightedItemStack> mainhands, List<WeightedItemStack> offhands, List<WeightedItemStack> boots, List<WeightedItemStack> leggings, List<WeightedItemStack> chestplates,
-    List<WeightedItemStack> helmets, Set<String> tags) implements CodecProvider<GearSet>, ILuckyWeighted {
+    List<WeightedItemStack> helmets) implements CodecProvider<GearSet>, ILuckyWeighted {
 
     public static EquipmentSlot[] VALID_SLOTS = { EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND, EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD };
 
@@ -37,8 +33,7 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
         WeightedItemStack.LIST_CODEC.optionalFieldOf("boots", Collections.emptyList()).forGetter(GearSet::boots),
         WeightedItemStack.LIST_CODEC.optionalFieldOf("leggings", Collections.emptyList()).forGetter(GearSet::leggings),
         WeightedItemStack.LIST_CODEC.optionalFieldOf("chestplates", Collections.emptyList()).forGetter(GearSet::chestplates),
-        WeightedItemStack.LIST_CODEC.optionalFieldOf("helmets", Collections.emptyList()).forGetter(GearSet::helmets),
-        PlaceboCodecs.setOf(Codec.STRING).fieldOf("tags").forGetter(GearSet::tags))
+        WeightedItemStack.LIST_CODEC.optionalFieldOf("helmets", Collections.emptyList()).forGetter(GearSet::helmets))
         .apply(inst, GearSet::new));
 
     @Override
@@ -76,37 +71,6 @@ public record GearSet(int weight, float quality, List<WeightedItemStack> mainhan
     @Override
     public Codec<? extends GearSet> getCodec() {
         return CODEC;
-    }
-
-    public static class SetPredicate implements Predicate<GearSet> {
-
-        public static final Codec<SetPredicate> CODEC = Codec.stringResolver(s -> s.key, SetPredicate::new);
-
-        protected final String key;
-        protected final Predicate<GearSet> internal;
-
-        public SetPredicate(String key) {
-            this.key = key;
-            if (key.startsWith("#")) {
-                String tag = key.substring(1);
-                this.internal = t -> t.tags.contains(tag);
-            }
-            else {
-                Identifier id = Identifier.parse(key);
-                this.internal = t -> GearSetRegistry.INSTANCE.getKey(t).equals(id);
-            }
-        }
-
-        @Override
-        public boolean test(GearSet t) {
-            return this.internal.test(t);
-        }
-
-        @Override
-        public String toString() {
-            return "SetPredicate[" + this.key + "]";
-        }
-
     }
 
 }
