@@ -4,24 +4,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.Ingredient;
 
-public record JsonMix<T>(Type type, PotionBrewing.Mix<T> mix) implements CodecProvider<JsonMix<?>> {
+public record JsonMix<T>(Type type, PotionBrewing.Mix<T> mix) {
 
     public static Codec<JsonMix<?>> CODEC = PlaceboCodecs.enumCodec(Type.class).dispatch("mix_type", JsonMix::type, Type::codec);
 
     public JsonMix(Holder<T> pFrom, Ingredient pIngredient, Holder<T> pTo, Type mixType) {
         this(mixType, new PotionBrewing.Mix<>(pFrom, pIngredient, pTo));
-    }
-
-    @Override
-    public Codec<? extends JsonMix<?>> getCodec() {
-        return CODEC;
     }
 
     public static enum Type {

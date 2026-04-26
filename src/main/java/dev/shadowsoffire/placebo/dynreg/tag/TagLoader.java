@@ -46,18 +46,10 @@ public final class TagLoader<R> {
     }
 
     /**
-     * Walks the datapack and resolves every tag file under {@code data/<ns>/tags/<registry path>/}.
-     *
-     * @param manager The active resource manager.
-     * @param ops     Conditional ops for honoring {@code neoforge:conditions} on tag files.
-     * @return Resolved map of tag id → list of entry ids, in declared order.
+     * Scans the datapack for tag files. Safe to call off-thread during {@code prepare} — does not depend on
+     * registry content.
      */
-    public Map<Identifier, List<Identifier>> loadTags(ResourceManager manager, ConditionalOps<JsonElement> ops) {
-        Map<Identifier, List<EntryWithSource>> raw = this.scan(manager, ops);
-        return this.resolve(raw);
-    }
-
-    private Map<Identifier, List<EntryWithSource>> scan(ResourceManager manager, ConditionalOps<JsonElement> ops) {
+    public Map<Identifier, List<EntryWithSource>> scan(ResourceManager manager, ConditionalOps<JsonElement> ops) {
         Map<Identifier, List<EntryWithSource>> result = new HashMap<>();
         FileToIdConverter lister = FileToIdConverter.json(this.directory);
         for (Map.Entry<Identifier, List<Resource>> entry : lister.listMatchingResourceStacks(manager).entrySet()) {
@@ -83,7 +75,12 @@ public final class TagLoader<R> {
         return result;
     }
 
-    private Map<Identifier, List<Identifier>> resolve(Map<Identifier, List<EntryWithSource>> raw) {
+    /**
+     * Resolves the raw entries produced by {@link #scan} into a flat map of tag id → entry id list. Must be
+     * called after the registry's content has been loaded — typically during {@code apply}, after the dep edge
+     * orders this listener after the content listeners.
+     */
+    public Map<Identifier, List<Identifier>> resolve(Map<Identifier, List<EntryWithSource>> raw) {
         Map<Identifier, List<Identifier>> resolved = new HashMap<>();
         TagEntry.Lookup<Identifier> lookup = new TagEntry.Lookup<>(){
 
