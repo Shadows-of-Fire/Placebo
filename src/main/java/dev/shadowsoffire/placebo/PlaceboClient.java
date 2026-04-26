@@ -92,7 +92,11 @@ public class PlaceboClient {
 
     @Nullable
     public static PotionBrewing getBrewingRegistry() {
-        ClientLevel level = Minecraft.getInstance().level;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null) {
+            return null;
+        }
+        ClientLevel level = mc.level;
         return level == null ? null : level.potionBrewing();
     }
 
