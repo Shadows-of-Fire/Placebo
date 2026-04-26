@@ -21,6 +21,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.WithConditions;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -98,7 +99,7 @@ public abstract class DynamicRegistryProvider<R> implements DataProvider {
      */
     protected final void addConditionally(Identifier id, R object, ICondition... conditions) {
         this.populator.register(id, object);
-        Codec<Optional<WithConditions<R>>> conditionalCodec = net.neoforged.neoforge.common.conditions.ConditionalOps.<R>createConditionalCodecWithConditions(this.registry.elementCodec());
+        Codec<Optional<WithConditions<R>>> conditionalCodec = ConditionalOps.<R>createConditionalCodecWithConditions(this.registry.elementCodec());
         if (!this.skipGeneration) {
             this.futures.add(this.lookupProvider.thenCompose(regs -> {
                 DynamicOps<JsonElement> ops = regs.createSerializationContext(JsonOps.INSTANCE);

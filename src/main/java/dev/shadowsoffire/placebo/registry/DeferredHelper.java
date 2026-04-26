@@ -596,16 +596,6 @@ public class DeferredHelper {
 
     /**
      * Registers a custom object to the target registry using a supplier.
-     *
-     * @deprecated Use {@link #customDH(String, ResourceKey, Supplier)} instead. This method has ambiguous generic inference issues with the immediate-mode variant.
-     */
-    @Deprecated(forRemoval = true)
-    public <R, T extends R> DeferredHolder<R, T> custom(String path, ResourceKey<? extends Registry<R>> registry, Supplier<T> factory) {
-        return this.registerDH(path, registry, factory);
-    }
-
-    /**
-     * Registers a custom object to the target registry using a supplier.
      * <p>
      * This method must have a different name than {@link #custom(String, ResourceKey, T)} to resolve generic inference issues with javac.
      */

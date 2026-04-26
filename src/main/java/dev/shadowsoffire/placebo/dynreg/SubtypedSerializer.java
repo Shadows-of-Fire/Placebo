@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -126,7 +127,7 @@ public final class SubtypedSerializer<R extends CodecProvider<? super R>> extend
         Identifier type = Identifier.STREAM_CODEC.decode(buf);
         StreamCodec<RegistryFriendlyByteBuf, ? extends R> codec = this.streamCodecs.get(type);
         if (codec == null) {
-            throw new io.netty.handler.codec.DecoderException("Received sync packet with unknown subtype: " + type);
+            throw new DecoderException("Received sync packet with unknown subtype: " + type);
         }
         return ((StreamCodec<RegistryFriendlyByteBuf, R>) codec).decode(buf);
     }
