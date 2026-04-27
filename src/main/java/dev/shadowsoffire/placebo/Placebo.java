@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import dev.shadowsoffire.placebo.color.GradientColor;
 import dev.shadowsoffire.placebo.commands.PlaceboCommand;
+import dev.shadowsoffire.placebo.datagen.FieldOrderingFactory;
+import dev.shadowsoffire.placebo.datagen.RegisterFieldOrderingsEvent;
 import dev.shadowsoffire.placebo.dynreg.DynRegPayloads;
 import dev.shadowsoffire.placebo.dynreg.TagSyncPayload;
 import dev.shadowsoffire.placebo.dynreg.tag.DynamicTagManager;
@@ -46,7 +48,6 @@ public class Placebo {
         TextColor.NAMED_COLORS = new HashMap<>(TextColor.NAMED_COLORS);
         bus.addListener(TabFillingRegistry::fillTabs);
         bus.register(new PayloadHelper());
-        NeoForge.EVENT_BUS.start(); // Startup the Neo bus as an experiment to see what kinds of things this breaks. We may do this in Neo at some point.
         PlaceboConfig.load();
     }
 
@@ -63,6 +64,11 @@ public class Placebo {
         });
         GearSetRegistry.INSTANCE.registerToBus();
         MixRegistry.INSTANCE.registerToBus();
+    }
+
+    @SubscribeEvent
+    public void registerFieldOrderings(RegisterFieldOrderingsEvent e) {
+        e.register(FieldOrderingFactory.forType(MixRegistry.INSTANCE.getId(), b -> b.put("mix_type", 0)));
     }
 
     public void registerCommands(RegisterCommandsEvent e) {

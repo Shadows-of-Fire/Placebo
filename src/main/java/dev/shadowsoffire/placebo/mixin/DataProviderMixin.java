@@ -47,7 +47,7 @@ public interface DataProviderMixin {
             catch (IOException ioexception) {
                 DataProvider.LOGGER.error("Failed to save file to {}", path, ioexception);
             }
-        }, Util.backgroundExecutor());
+        }, Util.backgroundExecutor().forName("saveStable"));
     }
 
 }

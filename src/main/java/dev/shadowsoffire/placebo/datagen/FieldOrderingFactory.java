@@ -7,12 +7,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.gson.JsonElement;
 
+import dev.shadowsoffire.placebo.mixin.DatagenModLoaderMixin;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.data.DataProvider;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
+import net.neoforged.fml.ModLoader;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 /**
  * The Field Ordering Factory allows users to provide custom comparators for ordering fields during datagen.
@@ -35,7 +41,7 @@ public interface FieldOrderingFactory {
     @Nullable
     Comparator<String> getKeyComparator(JsonElement json, Path path);
 
-    public static void register(FieldOrderingFactory factory) {
+    static void register(FieldOrderingFactory factory) {
         Objects.requireNonNull(factory, "Cannot register a null FieldOrderingFactory");
         Impl.FACTORIES.add(factory);
     }
@@ -43,29 +49,36 @@ public interface FieldOrderingFactory {
     /**
      * Returns a factory that applies the ordering only to objects of the given type (based on the output path containing the type string).
      *
-     * @param objPath      The output path for the type of object to reorder (e.g. "recipe", "advancement", etc)
+     * @param registryKey  The registry key for the type of object to reorder (e.g. "minecraft:recipe", "minecraft:advancement", etc)
      * @param orderBuilder A function that takes the base order map (a copy of {@link DataProvider#FIXED_ORDER_FIELDS}) and returns a modified map with the desired
      *                     ordering.
      */
-    public static FieldOrderingFactory forType(String objPath, Consumer<Object2IntOpenHashMap<String>> orderBuilder) {
+    public static FieldOrderingFactory forType(Identifier registryKey, Consumer<Object2IntOpenHashMap<String>> orderBuilder) {
         return FilteredOrderingFactory.builder()
-            .forObjectPath(objPath)
+            .registries(registryKey)
             .orderMap(orderBuilder)
             .build();
     }
 
-    public static FieldOrderingFactory forSubtypedObject(String objPath, String type, Consumer<Object2IntOpenHashMap<String>> orderBuilder) {
+    public static FieldOrderingFactory forSubtypedObject(Identifier registryKey, String type, Consumer<Object2IntOpenHashMap<String>> orderBuilder) {
         return FilteredOrderingFactory.builder()
-            .forObjectPath(objPath)
-            .forObjectSubtype(type)
+            .registries(registryKey)
+            .objectSubtype(type)
             .orderMap(orderBuilder)
             .build();
     }
 
-    static class Impl {
+    public static class Impl {
         private static final List<FieldOrderingFactory> FACTORIES = new ArrayList<>();
+        private static final Object INIT_LOCK = new Object();
+        private static volatile boolean initialized = false;
+
+        // Captured by DatagenModLoaderMixin at the start of each datagen run.
+        @Nullable
+        private static volatile Path packRoot = null;
 
         public static Comparator<String> getComparatorFor(JsonElement json, Path path) {
+            ensureInitialized();
             for (FieldOrderingFactory factory : Impl.FACTORIES) {
                 Comparator<String> comparator = factory.getKeyComparator(json, path);
                 if (comparator != null) {
@@ -73,6 +86,43 @@ public interface FieldOrderingFactory {
                 }
             }
             return DataProvider.KEY_COMPARATOR;
+        }
+
+        /**
+         * Records the datagen output root and pack layout, called from {@link DatagenModLoaderMixin} at the entry of {@code DatagenModLoader.begin}.
+         * Runs once per datagen invocation, before any provider executes.
+         */
+        @ApiStatus.Internal
+        public static void setPackRoot(Path root) {
+            packRoot = root.toAbsolutePath().normalize();
+        }
+
+        /**
+         * @return The datagen output root, or {@code null} if datagen has not been initialized via
+         *         {@code DatagenModLoader.begin}. When non-null, paths passed to {@link #getComparatorFor}
+         *         can be reliably stripped of the root before being decomposed into pack-type/namespace/path.
+         */
+        @Nullable
+        public static Path getPackRoot() {
+            return packRoot;
+        }
+
+        /**
+         * Posts {@link RegisterFieldOrderingsEvent} the first time a comparator is requested. This can't
+         * happen during {@link GatherDataEvent} because consumer mods running datagen are not required to include
+         * Placebo in their {@code --mod} list, so Placebo's {@link GatherDataEvent} listener may never fire.
+         * <p>
+         * Saves run on concurrently on {@link Util#backgroundExecutor()} so we need a double-checked lock.
+         */
+        private static void ensureInitialized() {
+            if (!initialized) {
+                synchronized (INIT_LOCK) {
+                    if (!initialized) {
+                        ModLoader.postEvent(new RegisterFieldOrderingsEvent());
+                        initialized = true;
+                    }
+                }
+            }
         }
     }
 

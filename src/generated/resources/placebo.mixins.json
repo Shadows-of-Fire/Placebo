@@ -5,6 +5,7 @@
     "refmap": "placebo.refmap.json",
     "mixins": [
         "AnvilBlockMixin",
+        "DatagenModLoaderMixin",
         "DataProviderMixin",
         "HashCacheMixin",
         "ItemStackMixin"
