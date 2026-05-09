@@ -298,6 +298,9 @@ public abstract class LegacyRecipeProvider extends RecipeProvider.Runner {
             else if (input instanceof Ingredient ing) {
                 ingredient = ing;
             }
+            else if (input instanceof ICustomIngredient custom) {
+                ingredient = new Ingredient(custom);
+            }
             else {
                 throw new UnsupportedOperationException("Attempted to add invalid recipe. Input " + input + " not allowed.");
             }

@@ -29,7 +29,7 @@ public class DatagenModLoaderMixin {
 
     @Inject(method = "begin", at = @At("HEAD"), require = 1)
     private static void placebo$capturePackRoot(Set<String> mods, Path path, Collection<Path> inputs, Collection<Path> existingPacks, boolean devToolGenerators, boolean reportsGenerator,
-        boolean structureValidator, boolean flat, Runnable setup, GatherDataEvent.GatherDataEventGenerator eventGenerator, DataGenerator vanillaGenerator,
+        boolean structureValidator, boolean flat, boolean uncached, Runnable setup, GatherDataEvent.GatherDataEventGenerator eventGenerator, DataGenerator vanillaGenerator,
         Consumer<Consumer<PackResources>> vanillaClientAssets, CallbackInfo ci) {
         FieldOrderingFactory.Impl.setPackRoot(path);
     }

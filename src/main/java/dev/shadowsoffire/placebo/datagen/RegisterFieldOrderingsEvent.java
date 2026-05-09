@@ -25,6 +25,7 @@ public class RegisterFieldOrderingsEvent extends Event implements IModBusEvent {
      * {@link FieldOrderingFactory#forSubtypedObject} for common factory builders.
      */
     public void register(FieldOrderingFactory factory) {
+        // TODO: Maybe a priority? Currently hard for things to win and it's winner-takes-all atm.
         FieldOrderingFactory.register(factory);
     }
 
