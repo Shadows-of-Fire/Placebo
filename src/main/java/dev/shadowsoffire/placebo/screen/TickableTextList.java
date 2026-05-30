@@ -95,6 +95,8 @@ public class TickableTextList {
     public void setLine(int index, FormattedText text, float tickRate) {
         this.texts.set(index, new TickableText(text, Math.max(0.01F, tickRate)));
         this.width = this.computeWidth();
+        // A bug exists here. If the new line is longer (more time consuming) than the old line
+        // then changing the line will un-wind the entire paragraph, which is unintended.
     }
 
     /**
