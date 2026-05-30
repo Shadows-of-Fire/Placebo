@@ -1,3 +1,6 @@
+## 10.0.0
+* Ported to Minecraft 26.1.2.
+
 ## 9.9.1
 * Deprecated `PlaceboUtil.tryHarvestBlock` in favor of the vanilla method it calls.
 * Added `DynamicHolder#getRegistryPath()`.
