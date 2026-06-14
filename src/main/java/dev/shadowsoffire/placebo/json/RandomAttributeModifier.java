@@ -84,4 +84,8 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
         inst.addPermanentModifier(modif);
     }
 
+    public void apply(RandomSource rand, LivingEntity entity) {
+        this.apply(this.modifierId, rand, entity);
+    }
+
 }
