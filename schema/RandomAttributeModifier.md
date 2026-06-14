@@ -26,7 +26,8 @@ This object references the following objects:
 {
     "attribute": "string",    // [Mandatory] || The registry name of the Attribute to modify.
     "operation": "string",    // [Mandatory] || The operation of the modifier. One of "add_value", "add_multiplied_base", or "add_multiplied_total".
-    "value": StepFunction     // [Mandatory] || The value of the attribute modifier.
+    "value": StepFunction,    // [Mandatory] || The value of the attribute modifier.
+    "modifier_id": Identifier // [Mandatory] || A unique identifier for this attribute modifier. Only needs to be unique on a per-attribute basis.
 }
 ```
 

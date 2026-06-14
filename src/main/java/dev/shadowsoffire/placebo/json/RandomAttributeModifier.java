@@ -24,34 +24,50 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
  * @param operation The operation of the generated modifier.
  * @param value     The value range for the generated modifier.
  */
-public record RandomAttributeModifier(Holder<Attribute> attribute, Operation operation, StepFunction value) {
+public record RandomAttributeModifier(Holder<Attribute> attribute, Operation operation, StepFunction value, Identifier modifierId) {
 
     public static Codec<RandomAttributeModifier> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(a -> a.attribute),
-            Operation.CODEC.fieldOf("operation").forGetter(a -> a.operation),
-            StepFunction.CODEC.fieldOf("value").forGetter(a -> a.value))
+            BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(RandomAttributeModifier::attribute),
+            Operation.CODEC.fieldOf("operation").forGetter(RandomAttributeModifier::operation),
+            StepFunction.CODEC.fieldOf("value").forGetter(RandomAttributeModifier::value),
+            Identifier.CODEC.fieldOf("modifier_id").forGetter(RandomAttributeModifier::modifierId))
         .apply(inst, RandomAttributeModifier::new));
 
     public static Codec<RandomAttributeModifier> CONSTANT_CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
-            BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(a -> a.attribute),
-            PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(a -> a.operation),
-            StepFunction.CONSTANT_CODEC.fieldOf("value").forGetter(a -> a.value))
+            BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(RandomAttributeModifier::attribute),
+            PlaceboCodecs.enumCodec(Operation.class).fieldOf("operation").forGetter(RandomAttributeModifier::operation),
+            StepFunction.CONSTANT_CODEC.fieldOf("value").forGetter(RandomAttributeModifier::value),
+            Identifier.CODEC.fieldOf("modifier_id").forGetter(RandomAttributeModifier::modifierId))
         .apply(inst, RandomAttributeModifier::new));
 
     /**
-     * Creates an {@link AttributeModifier} with a set id and randomly-selected value from the {@link #value} function.
+     * Variant of {@link #create(RandomSource)} that uses a custom identifier.
      */
     public AttributeModifier create(Identifier id, RandomSource rand) {
         return new AttributeModifier(id, this.value.get(rand.nextFloat()), this.operation);
     }
 
     /**
-     * Creates a deterministic {@link AttributeModifier} with a set id, using the minimum value of the {@link #value} function.
+     * Creates an {@link AttributeModifier} a randomly-selected value from the {@link #value} function.
+     */
+    public AttributeModifier create(RandomSource rand) {
+        return create(this.modifierId, rand);
+    }
+
+    /**
+     * Variant of {@link #createDeterministic()} that uses a custom identifier.
      */
     public AttributeModifier createDeterministic(Identifier id) {
         return new AttributeModifier(id, this.value.min(), this.operation);
+    }
+
+    /**
+     * Creates a deterministic {@link AttributeModifier} using the minimum value of the {@link #value} function.
+     */
+    public AttributeModifier createDeterministic() {
+        return createDeterministic(this.modifierId);
     }
 
     public void apply(Identifier id, RandomSource rand, LivingEntity entity) {
@@ -59,43 +75,6 @@ public record RandomAttributeModifier(Holder<Attribute> attribute, Operation ope
             throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
         }
         AttributeModifier modif = this.create(id, rand);
-        AttributeInstance inst = entity.getAttribute(this.attribute);
-        if (inst == null) {
-            Placebo.LOGGER
-                .trace(String.format("Attempted to apply a random attribute modifier to an entity (%s) that does not have that attribute (%s)!", EntityType.getKey(entity.getType()), this.attribute.unwrapKey().get()));
-            return;
-        }
-        inst.addPermanentModifier(modif);
-    }
-
-    /**
-     * Creates an {@link AttributeModifier} with a randomly-generated id and randomly-selected value from the {@link #value} function.
-     * <p>
-     * Two modifiers with the same id for a single attribute will conflict. To avoid conflicts, provide a full id via
-     * {@link #create(Identifier, RandomSource)}.
-     */
-    @Deprecated(forRemoval = true)
-    public AttributeModifier create(RandomSource rand) {
-        return new AttributeModifier(Placebo.loc("random_modifier_" + this.attribute.value().getDescriptionId() + rand.nextInt()), this.value.get(rand.nextFloat()), this.operation);
-    }
-
-    /**
-     * Creates a deterministic {@link AttributeModifier} with a static id, using the minimum value of the {@link #value} function.
-     * <p>
-     * Two modifiers with the same id for a single attribute will conflict. To avoid conflicts, provide a full id via
-     * {@link #createDeterministic(Identifier)}.
-     */
-    @Deprecated(forRemoval = true)
-    public AttributeModifier createDeterministic() {
-        return new AttributeModifier(Placebo.loc("random_modifier_" + this.attribute.value().getDescriptionId()), this.value.min(), this.operation);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void apply(RandomSource rand, LivingEntity entity) {
-        if (entity == null) {
-            throw new RuntimeException("Attempted to apply a random attribute modifier to a null entity!");
-        }
-        AttributeModifier modif = this.create(rand);
         AttributeInstance inst = entity.getAttribute(this.attribute);
         if (inst == null) {
             Placebo.LOGGER
