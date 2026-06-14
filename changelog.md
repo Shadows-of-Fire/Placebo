@@ -1,3 +1,7 @@
+## 10.0.1
+* Added a `modifier_id` field to `RandomAttributeModifier`.
+  * This is fairly churn-inducing, but forcibly resolves the issue of trying to maintain static counters for modifier ID uniqueness.
+
 ## 10.0.0
 * Ported to Minecraft 26.1.2.
 
