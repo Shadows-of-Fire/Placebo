@@ -355,6 +355,6 @@ publishMods {
 }
 
 task publishAll() {
-    dependsOn publish
-    dependsOn publishMods
+    dependsOn 'publish'
+    dependsOn 'publishMods'
 }
