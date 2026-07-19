@@ -1,3 +1,6 @@
+## 9.9.2
+* Made some `LegacyRecipeProvider` helpers `protected` instead of `private`.
+
 ## 9.9.1
 * Deprecated `PlaceboUtil.tryHarvestBlock` in favor of the vanilla method it calls.
 * Added `DynamicHolder#getRegistryPath()`.
