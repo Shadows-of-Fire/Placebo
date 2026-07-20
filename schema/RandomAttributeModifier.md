@@ -33,6 +33,8 @@ This object references the following objects:
 
 Consumers of this object may use it in constant mode, in which the `"value"` key only accepts a float instead of a `StepFunction`.
 
+Consumers of this object may also use it in generated mode, in which the `"modifier_id"` key is not read.
+
 # Examples
 A step function that may produce a value in the range 1..2 in intervals of 0.25. Meaning one of `[1, 1.25, 1.5, 1.75, 2]`.
 ```json
