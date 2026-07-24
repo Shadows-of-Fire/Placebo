@@ -1,3 +1,7 @@
+## 10.0.2
+* Added a generated-id mode to `RandomAttributeModifier`, available through `RandomAttributeModifier#generated` and the factory codecs `RandomAttributeModifier#generatedCodec` / `#constantGeneratedCodec`.
+  * The forced-mandatory-IDs of 10.0.1 didn't really work out that well, so making generated IDs a first-class citizen will resolve the same issue.
+
 ## 10.0.1
 * Added a `modifier_id` field to `RandomAttributeModifier`.
   * This is fairly churn-inducing, but forcibly resolves the issue of trying to maintain static counters for modifier ID uniqueness.
