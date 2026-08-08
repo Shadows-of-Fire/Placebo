@@ -1,5 +1,7 @@
 # Description
-A GearSet is a weighted list of equipment for an entity. It provides a list of [WeightedItemStacks](./WeightedItemStack.md) for each equipment slot.
+A GearSet is a weighted list of equipment for an entity. It provides a list of [WeightedItemStacks](./WeightedItemStack.md) for each equipment slot.  
+
+Gear Sets are loaded from the `data/<namespace>/gear_sets/` datapack folder.
 
 # Dependencies
 This object references the following objects:
@@ -8,8 +10,8 @@ This object references the following objects:
 # Schema
 ```js
 {
-    "weight": integer,  // [Mandatory] || Weight (relative to other weighted entries in the same list) of this object.
-    "quality": float,   // [Optional]  || Quality of this object. Used when a luck level is present in the selection context. Default value = 0.
+    "weight": integer,  // [Mandatory] || Weight (relative to other weighted entries in the same list) of this object. Must not be negative.
+    "quality": float,   // [Optional]  || Quality of this object. Used when a luck level is present in the selection context. Must not be negative. Default value = 0.
     "mainhands": [      // [Optional]  || List of weighted stacks for the main hand. Default value = empty list.
         WeightedItemStack
     ],
@@ -28,7 +30,7 @@ This object references the following objects:
     "boots": [          // [Optional]  || List of weighted stacks for the boots slot. Default value = empty list.
         WeightedItemStack
     ],
-    "tags": [           // [Optional]  || List of tags this gear set belongs to. Default value = empty list.
+    "tags": [           // [Mandatory] || A set of tags this gear set belongs to. May be empty.
         "string"
     ]
 }
@@ -45,7 +47,7 @@ A simple iron gear set with a weight of 10.
     "mainhands": [{
             "weight": 1,
             "stack": {
-                "item": "minecraft:iron_sword"
+                "id": "minecraft:iron_sword"
             }
         }
     ],
@@ -53,25 +55,25 @@ A simple iron gear set with a weight of 10.
     "boots": [{
         "weight": 1,
         "stack": {
-            "item": "minecraft:iron_boots"
+            "id": "minecraft:iron_boots"
         }
     }],
     "leggings": [{
         "weight": 1,
         "stack": {
-            "item": "minecraft:iron_leggings"
+            "id": "minecraft:iron_leggings"
         }
     }],
     "chestplates": [{
         "weight": 1,
         "stack": {
-            "item": "minecraft:iron_chestplate"
+            "id": "minecraft:iron_chestplate"
         }
     }],
     "helmets": [{
         "weight": 1,
         "stack": {
-            "item": "minecraft:iron_helmet"
+            "id": "minecraft:iron_helmet"
         }
     }],
     "tags": [

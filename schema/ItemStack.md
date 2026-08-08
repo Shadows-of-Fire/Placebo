@@ -2,21 +2,17 @@
 An ItemStack is the representation of an item in Minecraft. The parser provided by Placebo is "complete", in that it
 can accept all components of a stack, which most vanilla parsers cannot do.
 
-# Dependencies
-This object references the following objects:
-1. [CompoundTag](./CompoundTag.md)
-
 # Schema
 ```js
 {
     "id": "string",                   // [Mandatory] || Registry name of the item to load.
     "optional": boolean,              // [Optional]  || If this stack is optional, and will produce an empty stack instead of throwing an error when the item is not found. Default value = false.
-    "count": integer,                 // [Optional]  || Stack Size. Default value = 1.
-    "components": DataComponentPatch, // [Optional]  || Vanilla Item NBT. Default value = empty NBT.
+    "count": integer,                 // [Optional]  || Stack Size. Default value = 1. Range: [1, 99].
+    "components": DataComponentPatch  // [Optional]  || The data components of the stack. Default value = no components.
 }
 ```
 
-Even if a stack is non-optional, specifying `"minecraft:air"` as the `"item"` will always produce an empty stack.  
+Even if a stack is non-optional, specifying `"minecraft:air"` as the `"id"` will always produce an empty stack.  
 Some consumers may not accept empty stacks for any reason.
 
 # Examples

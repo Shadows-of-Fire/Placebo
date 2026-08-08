@@ -13,7 +13,7 @@ This object references the following objects:
 # Schema
 ```js
 {
-    "chance": float,          // [Optional]  || Chance that this potion will be applied. 1.0 = 100% chance. Default value = 1.0.
+    "chance": float,          // [Optional]  || Chance that this potion will be applied. 1.0 = 100% chance. Default value = 1.0. Range: [0, 1].
     "effect": "string",       // [Mandatory] || Registry name of the Effect to use.
     "amplifier": StepFunction // [Optional]  || Range of possible amplifiers. The output of the function will be truncated to an integer. Default value = 0.
     "ambient": boolean,       // [Optional]  || If this effect is marked as ambient. Default value = true.
@@ -21,7 +21,7 @@ This object references the following objects:
 }
 ```
 
-Consumers of this object may use it in constant mode, in which the `"chance"` field is omitted and the `"amplifier"` field only accepts an integer.
+Consumers of this object may use it in constant mode, in which the `"chance"` field is ignored (always treated as 1.0) and the `"amplifier"` field only accepts an integer in the range [0, 255].
 
 # Examples
 A chanced effect instance providing Swiftness I - II, with an 80% chance to apply.

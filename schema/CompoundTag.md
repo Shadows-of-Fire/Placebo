@@ -26,7 +26,3 @@ An example of object form is:
 ```
 
 The same data in string form is: `"{\"item\": \"minecraft:netherite_sword\", \"count\": 1b, \"nbt\": { \"Damage\": 0b }}"`. Note that as a JSON string, all inner quotes must be escaped.
-
-# Misc
-Placebo provides the following commands to help working with NBT data:
-1. `/placebo string_to_obj` - Converts NBT in String form to Object form.
