@@ -89,8 +89,25 @@ public final class CachedObject<T> {
      * Creates a hashing function that hashes a specific subkey.
      */
     public static ToIntFunction<ItemStack> hashComponents(DataComponentType<?>... types) {
-        List<DataComponentType<?>> typeList = Arrays.asList(types);
-        return stack -> Arrays.hashCode(typeList.stream().map(stack::get).filter(Objects::nonNull).toArray());
+        return stack -> {
+            // adapted from Arrays#hashCode
+            if (types == null) {
+                return 0;
+            }
+
+            int result = 1;
+
+            for (var ty : types) {
+                var component = stack.get(ty);
+                if (component == null) {
+                    continue;
+                }
+
+                result = 31 * result + component.hashCode();
+            }
+
+            return result;
+        };
     }
 
     /**
