@@ -92,6 +92,7 @@ repositories {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
     minecraft "net.neoforged:forge:${mcVersion}-${forgeVersion}"
     if(project.mixin.toBoolean())                   annotationProcessor "org.spongepowered:mixin:${mixinVersion}:processor"
     if(project.hasProperty('placeboVersion'))       implementation fg.deobf("dev.shadowsoffire:Placebo:${mcVersion}-${placeboVersion}")
