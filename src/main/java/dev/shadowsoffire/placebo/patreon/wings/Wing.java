@@ -5,10 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
 import dev.shadowsoffire.placebo.patreon.PatreonUtils.WingType;
-import dev.shadowsoffire.placebo.patreon.WingsManager;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -19,9 +17,8 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 
 // Made with Blockbench 3.8.4
@@ -51,16 +48,15 @@ public class Wing extends EntityModel<AbstractClientPlayer> implements IWingMode
     }
 
     @Override
-    public void render(PoseStack stack, MultiBufferSource buf, int packedLightIn, AbstractClientPlayer player, float partialTicks, ResourceLocation texture, PlayerModel<AbstractClientPlayer> model) {
-        if (player.isInvisible()) return;
-        WingType type = WingsManager.getType(player.getUUID());
-        stack.translate(0, 0, 0.065);
-        if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ArmorItem) stack.translate(0, 0, 0.075);
+    public void render(PoseStack stack, MultiBufferSource buf, int packedLightIn, int packedOverlayIn, LivingEntity entity, float partialTicks, WingType type) {
+        if (entity.isInvisible()) return;
+        stack.translate(0, type.yOffset, 0.065);
+        if (entity.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ArmorItem) stack.translate(0, 0, 0.075);
         stack.mulPose(Axis.YN.rotationDegrees(90));
-        float rotationTime = player.tickCount % 40 + partialTicks;
+        float rotationTime = entity.tickCount % 40 + partialTicks;
         this.setRotationAngle(this.cube_r1, 0, 0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(type.flapSpeed * Math.PI * rotationTime / 20), 0);
         this.setRotationAngle(this.cube_r2, 0, -(0.3491F * 1.5F + 0.3491F / 2 * (float) Math.sin(type.flapSpeed * Math.PI * rotationTime / 20)), 0);
-        this.renderToBuffer(stack, buf.getBuffer(RenderType.entityTranslucent(texture)), packedLightIn, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF);
+        this.renderToBuffer(stack, buf.getBuffer(RenderType.entityTranslucent(type.textureGetter.apply(entity))), packedLightIn, packedOverlayIn, 0xFFFFFFFF);
     }
 
     public void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {

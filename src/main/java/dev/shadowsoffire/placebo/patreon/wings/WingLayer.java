@@ -9,6 +9,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 
 public class WingLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
@@ -22,8 +23,7 @@ public class WingLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abs
         WingType type = WingsManager.getType(player.getUUID());
         if (type != null) {
             stack.pushPose();
-            stack.translate(0, type.yOffset, 0);
-            type.model.get().render(stack, buf, packedLightIn, player, partialTicks, type.textureGetter.apply(player), this.getParentModel());
+            type.model.get().render(stack, buf, packedLightIn, OverlayTexture.NO_OVERLAY, player, partialTicks, type);
             stack.popPose();
         }
     }

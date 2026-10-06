@@ -11,7 +11,7 @@ import dev.shadowsoffire.placebo.patreon.wings.Wing;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 
 public class PatreonUtils {
 
@@ -42,9 +42,9 @@ public class PatreonUtils {
         }
     }
 
-    private static Function<Player, ResourceLocation> wingTex(String name) {
+    private static Function<LivingEntity, ResourceLocation> wingTex(String name) {
         var supp = Suppliers.memoize(() -> Placebo.loc("textures/wings/" + name + ".png"));
-        return player -> supp.get();
+        return entity -> supp.get();
     }
 
     public static enum WingType {
@@ -66,15 +66,15 @@ public class PatreonUtils {
         SPOOKY(() -> Wing.INSTANCE, wingTex("spooky"), -0.8);
 
         public final Supplier<IWingModel> model;
-        public final Function<Player, ResourceLocation> textureGetter;
+        public final Function<LivingEntity, ResourceLocation> textureGetter;
         public final double yOffset;
         public final double flapSpeed;
 
-        WingType(Supplier<IWingModel> model, Function<Player, ResourceLocation> textureGetter, double yOffset) {
+        WingType(Supplier<IWingModel> model, Function<LivingEntity, ResourceLocation> textureGetter, double yOffset) {
             this(model, textureGetter, yOffset, 1);
         }
 
-        WingType(Supplier<IWingModel> model, Function<Player, ResourceLocation> textureGetter, double yOffset, double flapSpeed) {
+        WingType(Supplier<IWingModel> model, Function<LivingEntity, ResourceLocation> textureGetter, double yOffset, double flapSpeed) {
             this.model = model;
             this.textureGetter = textureGetter;
             this.yOffset = yOffset;
