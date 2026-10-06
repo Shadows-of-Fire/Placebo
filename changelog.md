@@ -1,3 +1,9 @@
+## 9.9.3
+* Made the patreon wing renderer usable for any `LivingEntity`, instead of only players.
+* Fixed Placebo being required on both client and server.
+* Fixed a potential crash when trying to datagen `JsonMix`.
+* Fixed `DynamicRegistry` throwing a validation error for the empty holder.
+
 ## 9.9.2
 * Made some `LegacyRecipeProvider` helpers `protected` instead of `private`.
 
