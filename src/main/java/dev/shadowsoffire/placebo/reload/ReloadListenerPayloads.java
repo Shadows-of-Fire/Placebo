@@ -71,6 +71,11 @@ public class ReloadListenerPayloads {
             public String getVersion() {
                 return "1";
             }
+
+            @Override
+            public boolean isOptional() {
+                return true;
+            }
         }
     }
 
@@ -153,6 +158,11 @@ public class ReloadListenerPayloads {
             public String getVersion() {
                 return "1";
             }
+
+            @Override
+            public boolean isOptional() {
+                return true;
+            }
         }
     }
 
@@ -199,6 +209,11 @@ public class ReloadListenerPayloads {
             @Override
             public String getVersion() {
                 return "1";
+            }
+
+            @Override
+            public boolean isOptional() {
+                return true;
             }
         }
     }

@@ -22,6 +22,7 @@ import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload.CosmeticType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -84,7 +85,8 @@ public class TrailsManager {
 
     @SubscribeEvent
     public static void keys(InputEvent.Key e) {
-        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
+        ClientPacketListener cpl = Minecraft.getInstance().getConnection();
+        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && cpl != null && cpl.hasChannel(PatreonDisablePayload.TYPE)) {
             PacketDistributor.sendToServer(new PatreonDisablePayload(CosmeticType.TRAILS, Minecraft.getInstance().player.getUUID()));
         }
     }

@@ -23,6 +23,7 @@ import dev.shadowsoffire.placebo.payloads.PatreonDisablePayload.CosmeticType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.ClientHooks;
@@ -72,7 +73,8 @@ public class WingsManager {
 
     @SubscribeEvent
     public static void keys(InputEvent.Key e) {
-        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().getConnection() != null) {
+        ClientPacketListener cpl = Minecraft.getInstance().getConnection();
+        if (e.getAction() == InputConstants.PRESS && TOGGLE.matches(e.getKey(), e.getScanCode()) && cpl != null && cpl.hasChannel(PatreonDisablePayload.TYPE)) {
             PacketDistributor.sendToServer(new PatreonDisablePayload(CosmeticType.WINGS, Minecraft.getInstance().player.getUUID()));
         }
     }

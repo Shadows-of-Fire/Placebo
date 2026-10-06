@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -469,12 +470,9 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
     }
 
     /**
-     * Sync event handler. Sends the start packet, a content packet for each item, and then the end packet.
+     * Sends the start packet, a content packet for each item, and then the end packet to each of the given players.
      */
-    private void sync(OnDatapackSyncEvent e) {
-        ServerPlayer player = e.getPlayer();
-        Consumer<CustomPacketPayload> target = player == null ? PacketDistributor::sendToAllPlayers : payload -> PacketDistributor.sendToPlayer(player, payload);
-
+    private void sync(Consumer<CustomPacketPayload> target) {
         target.accept(new ReloadListenerPayloads.Start(this.path));
         this.registry.forEach((k, v) -> {
             target.accept(new ReloadListenerPayloads.Content<>(this.path, k, Either.left(v)));
@@ -626,7 +624,12 @@ public abstract class DynamicRegistry<R extends CodecProvider<? super R>> extend
         }
 
         private static void syncAll(OnDatapackSyncEvent e) {
-            SYNC_REGISTRY.values().forEach(r -> r.sync(e));
+            // The sync payloads are optional, and sending one to a client that does not have the channel will throw.
+            List<ServerPlayer> players = e.getRelevantPlayers().filter(p -> p.connection.hasChannel(ReloadListenerPayloads.Start.TYPE)).toList();
+            if (!players.isEmpty()) {
+                Consumer<CustomPacketPayload> target = payload -> players.forEach(player -> PacketDistributor.sendToPlayer(player, payload));
+                SYNC_REGISTRY.values().forEach(r -> r.sync(target));
+            }
         }
     }
 

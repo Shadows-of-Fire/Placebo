@@ -74,6 +74,11 @@ public record ButtonClickPayload(int button) implements CustomPacketPayload {
             return "1";
         }
 
+        @Override
+        public boolean isOptional() {
+            return true;
+        }
+
     }
 
 }

@@ -19,6 +19,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ByIdMap;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -60,7 +61,13 @@ public record PatreonDisablePayload(CosmeticType cosmetic, UUID id) implements C
         @Override
         public void handle(PatreonDisablePayload msg, IPayloadContext ctx) {
             if (ctx.flow() == PacketFlow.SERVERBOUND) {
-                PacketDistributor.sendToAllPlayers(new PatreonDisablePayload(msg.cosmetic(), ctx.player().getUUID()));
+                PatreonDisablePayload relay = new PatreonDisablePayload(msg.cosmetic(), ctx.player().getUUID());
+                for (ServerPlayer player : ctx.player().getServer().getPlayerList().getPlayers()) {
+                    // This payload is optional, and sending it to a client that does not have the channel will throw.
+                    if (player.connection.hasChannel(TYPE)) {
+                        PacketDistributor.sendToPlayer(player, relay);
+                    }
+                }
             }
             else {
                 Set<UUID> set = switch (msg.cosmetic()) {
@@ -88,6 +95,11 @@ public record PatreonDisablePayload(CosmeticType cosmetic, UUID id) implements C
         @Override
         public String getVersion() {
             return "1";
+        }
+
+        @Override
+        public boolean isOptional() {
+            return true;
         }
 
     }
