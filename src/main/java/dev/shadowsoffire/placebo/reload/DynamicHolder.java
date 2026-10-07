@@ -63,7 +63,7 @@ public class DynamicHolder<R extends CodecProvider<? super R>> implements Suppli
     @Override
     public R get() {
         this.bind();
-        Objects.requireNonNull(this.value, "Trying to access unbound value: " + this.id);
+        Objects.requireNonNull(this.value, () -> "Trying to access unbound value: " + this.id);
         return this.value;
     }
 
