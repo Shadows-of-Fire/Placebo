@@ -63,7 +63,8 @@ public class PatreonUtils {
         MONARCH(() -> Wing.INSTANCE, wingTex("monarch"), -0.9),
         PIXIE(() -> Wing.INSTANCE, wingTex("pixie"), -0.8),
         SPACE(() -> Wing.INSTANCE, wingTex("space"), -0.55),
-        SPOOKY(() -> Wing.INSTANCE, wingTex("spooky"), -0.8);
+        SPOOKY(() -> Wing.INSTANCE, wingTex("spooky"), -0.8),
+        WHITE_DRAGON(() -> Wing.INSTANCE, wingTex("white_dragon"), -1.2);
 
         public final Supplier<IWingModel> model;
         public final Function<LivingEntity, ResourceLocation> textureGetter;
