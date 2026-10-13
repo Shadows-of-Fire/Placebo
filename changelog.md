@@ -1,3 +1,6 @@
+## 9.9.4
+* Added a new `WingType`.
+
 ## 9.9.3
 * Made the patreon wing renderer usable for any `LivingEntity`, instead of only players.
 * Fixed Placebo being required on both client and server.
